@@ -59,30 +59,43 @@
   .row-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
   .empty-state{text-align:center;color:var(--muted2);padding:28px}
 
-  /* Follow Up: force 4 columns on one line (scroll on small screens) */
+  /* Follow Up: 4 columns on one line, compact (no scrollbar) */
   .followup-sections{
-    display:flex;
-    flex-wrap:nowrap;        /* no wrapping -> always one line */
-    gap:16px;
-    overflow-x:auto;         /* scroll horizontally on small screens */
-    padding-bottom:4px;
+    display:grid;
+    grid-template-columns:repeat(4, minmax(0, 1fr));
+    gap:12px;
   }
-  .followup-sections > div{
-    flex:0 0 25%;            /* 4 equal columns */
-    min-width:260px;         /* keep cards readable if screen is tiny; scroll kicks in */
-  }
-  .followup-sections h3{margin-top:0;font-size:1rem;color:var(--muted);font-weight:700}
+  .followup-sections > div{min-width:0}
+  .followup-sections h3{margin-top:0;font-size:.95rem;color:var(--muted);font-weight:700}
 
-  /* Follow-up cards: buttons at bottom */
+  /* Follow-up cards: compact + bottom buttons */
   .followup-card{
     background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.06);
-    border-left:4px solid transparent;padding:16px;display:flex;flex-direction:column;min-height:160px
+    border-left:4px solid transparent;padding:12px;display:flex;flex-direction:column;min-height:140px
   }
   .followup-card:hover{transform:translateY(-1px);transition:.2s;box-shadow:0 6px 16px rgba(0,0,0,.1);border-left-color:var(--grad1)}
-  .followup-top{display:flex;justify-content:space-between;gap:12px}
-  .followup-main{display:grid;gap:6px}
-  .card-actions{margin-top:auto;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+  .followup-top{display:flex;justify-content:space-between;gap:10px}
+  .followup-main{display:grid;gap:4px}
+  .followup-main .client-name{font-size:.95rem}
+  .followup-main .muted{font-size:.85rem}
+  .followup-main div{font-size:.9rem}
+  .card-actions{margin-top:auto;display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}
   .pill-911{background:#ffe2e2;color:#7a0613;border-left-color:#c53030}
+
+  /* Filters: make "Filter by Style" smaller */
+  .filters{display:flex;flex-direction:column;gap:6px;margin:8px 0 12px}
+  .filters-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .filters-title{font-weight:800;margin-right:6px;font-size:.9rem}
+  .chk{background:#fff;border:2px solid var(--ring);padding:4px 8px;border-radius:999px;display:flex;gap:6px;align-items:center;cursor:pointer;font-size:.85rem}
+  .chk input{accent-color:#4c51bf;transform:scale(.9)}
+  .filters-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .filters-controls select{padding:6px 8px;border-radius:8px;border:2px solid var(--ring);font-size:.9rem}
+
+  @media (max-width: 900px){
+    .container{padding:12px}
+    .followup-main .client-name{font-size:.9rem}
+    .followup-main .muted{font-size:.8rem}
+  }
 </style>
 </head>
 <body>
@@ -165,7 +178,7 @@
           </div>
         </div>
 
-        <!-- Style Filters -->
+        <!-- Style Filters (compact) -->
         <div class="filters">
           <div class="filters-row">
             <div class="filters-title">Filter by Style:</div>
@@ -352,7 +365,7 @@
           </div>
         </div>
         <div><label>Notes</label><textarea id="interactionNotes" placeholder="Describe the interaction..."></textarea></div>
-        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
+        <div class="card-actions" style="justify-content:flex-end">
           <button type="button" class="btn ghost" data-close-modal>Cancel</button>
           <button type="submit" class="btn primary">Save Interaction</button>
         </div>
@@ -377,7 +390,7 @@
           <div><label>Date *</label><input type="date" id="saleDate" required></div>
         </div>
         <div><label>Description</label><input type="text" id="saleDescription" placeholder="What was sold?"></div>
-        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
+        <div class="card-actions" style="justify-content:flex-end">
           <button type="button" class="btn ghost" data-close-modal>Cancel</button>
           <button type="submit" class="btn primary">Save Sale</button>
         </div>
@@ -401,7 +414,7 @@
           <div><label>Due Date *</label><input type="date" id="followupDate" required></div>
         </div>
         <div><label>Notes</label><textarea id="followupNotes" placeholder="Follow up details..."></textarea></div>
-        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
+        <div class="card-actions" style="justify-content:flex-end">
           <button type="button" class="btn ghost" data-close-modal>Cancel</button>
           <button type="submit" class="btn primary">Save Follow Up</button>
         </div>
