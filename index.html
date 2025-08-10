@@ -428,7 +428,7 @@
   const $  = (s, r=document) => r.querySelector(s);
   const $$ = (s, r=document) => [...r.querySelectorAll(s)];
   const escapeHTML = (str) => String(str ?? '')
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/&/g,'&amp;').replace(/<//g,'&lt;').replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
 
   // Status helpers
@@ -451,7 +451,7 @@
   // ---------- Data ----------
   let clients = [];        // {id, firstName, lastName, email, phone, styles[], status, initialSales, notes, createdAt}
   let interactions = [];   // {id, clientId, type, date(YYYY-MM-DD), notes, createdAt}
-  let sales = [];          // {id, clientId, amount, date(YYYY-MM-DD), description, createdAt}
+  let sales = [];          // {id, clientId, amount, date(YYYY-MM-DD), description, createdAt, interactionId?}
   let followUps = [];      // {id, clientId, date(YYYY-MM-DD), notes, createdAt, completed, completedAt, type}
   let editingClientId = null;
   let editingInteractionId = null;
@@ -974,7 +974,7 @@
       if (!it) return;
       $('#interactionModalTitle').textContent = 'Edit Interaction';
       select.value = it.clientId;
-      $('#interactionType').value = it.type;
+      $('#interactionType').value = ['Call','Email','Text','In-person'].includes(it.type) ? it.type : 'Call';
       dateEl.value = it.date;
       $('#interactionNotes').value = it.notes || '';
     } else {
@@ -1035,6 +1035,7 @@
     el.innerHTML = sorted.map(i => {
       const c = clients.find(x => x.id === i.clientId);
       const when = new Date(i.date).toLocaleDateString([], { year:'numeric', month:'short', day:'numeric' });
+      const isSale = i.type === 'Sale';
       return `
         <div class="interaction-item">
           <div class="client-header">
@@ -1043,19 +1044,22 @@
               <div class="muted" style="margin-top:4px">${escapeHTML(i.type)} • ${when}</div>
             </div>
             <div class="buttons">
-              <button class="btn ghost"  data-action="edit-interaction" data-id="${i.id}">Edit</button>
+              ${isSale ? '' : `<button class="btn ghost"  data-action="edit-interaction" data-id="${i.id}">Edit</button>`}
               <button class="btn danger" data-action="delete-interaction" data-id="${i.id}">Delete</button>
             </div>
           </div>
-          ${i.notes ? `<div style="margin-top:8px">${escapeHTML(i.notes)}</div>` : ''}
+          ${i.notes ? `<div class="notes" style="margin-top:8px">${escapeHTML(i.notes)}</div>` : ''}
         </div>`;
     }).join('');
   }
 
   function deleteInteraction(id){
     if (!confirm('Delete this interaction?')) return;
+    // If this interaction is linked to a sale, clear the link
+    const saleIdx = sales.findIndex(s => s.interactionId === id);
+    if (saleIdx !== -1) sales[saleIdx].interactionId = undefined;
     interactions = interactions.filter(i => i.id !== id);
-    saveData(); renderInteractions(); updateDashboard();
+    saveData(); renderInteractions(); updateDashboard(); renderFollowUps();
   }
 
   function searchInteractions(){
@@ -1102,35 +1106,65 @@
     e.preventDefault();
     const clientId = $('#saleClient').value;
     const amount = parseFloat($('#saleAmount').value);
+    const date = $('#saleDate').value || new Date().toISOString().slice(0,10);
+    const description = $('#saleDescription').value.trim();
+
     if (!clientId || isNaN(amount)){ alert('Client and amount are required'); return; }
+
     if (editingSaleId){
       const idx = sales.findIndex(s => s.id === editingSaleId);
       if (idx !== -1){
-        sales[idx] = {
-          ...sales[idx],
-          clientId,
-          amount,
-          date: $('#saleDate').value,
-          description: $('#saleDescription').value.trim()
-        };
+        // Update sale
+        sales[idx] = { ...sales[idx], clientId, amount, date, description };
+
+        // Update paired interaction if present
+        const iId = sales[idx].interactionId;
+        if (iId){
+          const iIdx = interactions.findIndex(i => i.id === iId);
+          if (iIdx !== -1){
+            interactions[iIdx] = {
+              ...interactions[iIdx],
+              clientId,
+              date,
+              type: 'Sale',
+              notes: `Sale recorded: ${fmtUSD.format(amount)}${description ? ` — ${description}` : ''}`
+            };
+          }
+        }
       }
     } else {
-      sales.push({
-        id: Date.now().toString(),
+      // Create sale
+      const id = Date.now().toString();
+      const sale = { id, clientId, amount, date, description, createdAt: new Date().toISOString() };
+      sales.push(sale);
+
+      // Create paired interaction
+      const interactionId = 'sale-' + id;
+      interactions.push({
+        id: interactionId,
         clientId,
-        amount,
-        date: $('#saleDate').value,
-        description: $('#saleDescription').value.trim(),
+        type: 'Sale',
+        date,
+        notes: `Sale recorded: ${fmtUSD.format(amount)}${description ? ` — ${description}` : ''}`,
         createdAt: new Date().toISOString()
       });
+      // store link
+      const sIdx = sales.findIndex(s => s.id === id);
+      if (sIdx !== -1) sales[sIdx].interactionId = interactionId;
     }
-    saveData(); closeSaleModal(); renderSalesView(); updateDashboard(); renderClients();
+
+    saveData(); closeSaleModal(); renderSalesView(); renderInteractions(); renderFollowUps(); updateDashboard(); renderClients();
   }
 
   function deleteSale(id){
     if (!confirm('Delete this sale?')) return;
+    const s = sales.find(x => x.id === id);
+    if (s && s.interactionId){
+      // also delete paired interaction
+      interactions = interactions.filter(i => i.id !== s.interactionId);
+    }
     sales = sales.filter(s => s.id !== id);
-    saveData(); renderSalesView(); updateDashboard(); renderClients();
+    saveData(); renderSalesView(); renderInteractions(); updateDashboard(); renderClients(); renderFollowUps();
   }
 
   function renderSalesView(){
