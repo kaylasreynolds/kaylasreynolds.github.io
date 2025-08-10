@@ -146,6 +146,7 @@
           <div class="row">
             <select id="clientSort" onchange="applyClientSort()">
               <option value="createdAt_desc">Sort: Recently Added</option>
+              <option value="lastInteraction_desc">Sort: Last Interaction (Newest→Oldest)</option>
               <option value="lastName_asc">Sort: Last Name (A→Z)</option>
               <option value="lastName_desc">Sort: Last Name (Z→A)</option>
               <option value="style_asc">Sort: Style (A→Z)</option>
@@ -190,7 +191,8 @@
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
           <h2 style="margin:0">Interaction Tracking</h2>
-          <button class="btn primary" onclick="openInteractionModal()">+ Log Interaction</button>
+          <!-- FIXED: no inline onclick; use ID + listener -->
+          <button id="openInteractionBtn" class="btn primary">+ Log Interaction</button>
         </div>
 
         <div class="search">
@@ -297,19 +299,17 @@
       <form id="interactionForm" onsubmit="saveInteraction(event)">
         <div>
           <label>Client *</label>
-          <select id="interactionType">
-  <option>Call</option>
-  <option>Email</option>
-  <option>Text</option>
-  <option>In-person</option>
-</select>
-
+          <select id="interactionClient" required><option value="">Select client...</option></select>
         </div>
         <div class="row-cols">
           <div>
             <label>Type *</label>
+            <!-- UPDATED types -->
             <select id="interactionType" required>
-              <option>Call</option><option>Email</option><option>Meeting</option><option>Message</option><option>Other</option>
+              <option>Call</option>
+              <option>Email</option>
+              <option>Text</option>
+              <option>In-person</option>
             </select>
           </div>
           <div>
@@ -396,7 +396,7 @@
       interactions = JSON.parse(localStorage.getItem('crm_interactions') || '[]');
       sales = JSON.parse(localStorage.getItem('crm_sales') || '[]');
 
-      // Migration: client name -> first/last, style -> styles[], status -> new set
+      // Migration: client name -> first/last, style -> styles[], status -> new set, interaction date -> YYYY-MM-DD
       let migrated = false;
       clients.forEach(c => {
         if (!c.firstName && c.name) {
@@ -410,12 +410,7 @@
         const mapped = mapOldStatus(c.status);
         if (mapped !== c.status) { c.status = mapped; migrated = true; }
       });
-
-      // Migration: ensure interaction dates are YYYY-MM-DD (strip time if present)
-      interactions.forEach(i => {
-        if (i.date && i.date.length > 10) { i.date = i.date.slice(0,10); migrated = true; }
-      });
-
+      interactions.forEach(i => { if (i.date && i.date.length > 10) { i.date = i.date.slice(0,10); migrated = true; } });
       if (migrated) saveData();
     } catch(e) {
       console.warn('Failed to load saved data:', e);
@@ -441,8 +436,7 @@
         clients = data.clients.map(c => ({ ...c, styles: normalizeStyles(c.styles ?? c.style), status: mapOldStatus(c.status)}));
         interactions = data.interactions.map(i => ({...i, date: (i.date||'').slice(0,10)}));
         sales = data.sales;
-        saveData();
-        renderClients(); renderInteractions(); renderSalesView(); updateDashboard();
+        saveData(); renderClients(); renderInteractions(); renderSalesView(); updateDashboard();
         alert('Import complete ✔️');
       } catch (e) { console.error(e); alert('Could not parse the file.'); }
     };
@@ -503,6 +497,15 @@
         }
       });
     }
+
+    // ✅ Robust wiring for "Log Interaction" button
+    const openInteractionBtn = document.getElementById('openInteractionBtn');
+    if (openInteractionBtn) {
+      openInteractionBtn.addEventListener('click', () => {
+        try { openInteractionModal(); }
+        catch (err) { console.error('openInteractionModal failed:', err); alert('Could not open the interaction window.'); }
+      });
+    }
   });
 
   function closeAllModals(){ $$('.modal.active').forEach(m => m.classList.remove('active')); }
@@ -515,10 +518,15 @@
     if (tabName === 'sales') renderSalesView();
   }
 
-  // ---------- Name helpers ----------
+  // ---------- Helpers ----------
   const fullNameOf = (c) => `${c.firstName ?? ''} ${c.lastName ?? ''}`.trim();
   const lastNameKey = (c) => (c.lastName || '').toLowerCase();
   function getActiveStyleFilters(){ return Array.from(document.querySelectorAll('.style-filter:checked')).map(c => c.value); }
+
+  function lastInteractionDate(clientId){
+    const ds = interactions.filter(i => i.clientId === clientId).map(i => new Date(i.date));
+    return ds.length ? new Date(Math.max(...ds)) : null;
+  }
 
   // ---------- Clients ----------
   function openClientModal(clientId=null){
@@ -607,6 +615,7 @@
 
     list.innerHTML = sorted.map(c => {
       const totalSpent = totalSpentFor(c.id);
+      const li = lastInteractionDate(c.id);
       return `
         <div class="client-item">
           <div class="client-header">
@@ -622,6 +631,7 @@
                 <div class="tags" aria-label="Style Vibes">
                   ${c.styles.map(s => `<span class="tag">${escapeHTML(s)}</span>`).join('')}
                 </div>` : ''}
+              ${li ? `<div class="muted" style="margin-top:6px;font-size:.85rem">Last Interaction: ${li.toLocaleDateString()}</div>` : ''}
             </div>
             <span class="chip status-${statusSlug(c.status||'Introductory')}">
               ${escapeHTML(c.status || 'Introductory')}
@@ -647,9 +657,17 @@
       const sb = (b.styles && b.styles.length) ? [...b.styles].sort()[0] : '';
       return sa.toLowerCase().localeCompare(sb.toLowerCase());
     };
-    const byCreated = (a,b) => new Date(a.createdAt) - new Date(a.createdAt);
+    const byCreatedDesc = (a,b) => new Date(b.createdAt) - new Date(a.createdAt);
 
     switch(mode){
+      case 'lastInteraction_desc':
+        return arr.sort((a,b)=>{
+          const da = lastInteractionDate(a.id), db = lastInteractionDate(b.id);
+          if (da && db) return db - da;         // newest first
+          if (da && !db) return -1;             // with interactions first
+          if (!da && db) return 1;
+          return byLast(a,b);                    // tie-breaker
+        });
       case 'lastName_asc':  return arr.sort((a,b) => byLast(a,b));
       case 'lastName_desc': return arr.sort((a,b) => byLast(b,a));
       case 'style_asc':     return arr.sort((a,b) => byStyle(a,b) || byLast(a,b));
@@ -657,7 +675,7 @@
       case 'spent_asc':     return arr.sort((a,b) => bySpent(a,b) || byLast(a,b));
       case 'spent_desc':    return arr.sort((a,b) => bySpent(b,a) || byLast(a,b));
       case 'createdAt_desc':
-      default:              return arr.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+      default:              return arr.sort(byCreatedDesc);
     }
   }
 
@@ -746,10 +764,23 @@
   // ---------- Interactions ----------
   function openInteractionModal(){
     const select = document.getElementById('interactionClient');
+    const dateEl = document.getElementById('interactionDate');
+    const modal  = document.getElementById('interactionModal');
+
+    if (!select || !dateEl || !modal) {
+      console.warn('Interaction modal elements missing', {select, dateEl, modal});
+      alert('Interaction form is missing.');
+      return;
+    }
+
+    // Populate client list safely
     select.innerHTML = '<option value="">Select client...</option>' +
-      clients.map(c => `<option value="${c.id}">${escapeHTML(fullNameOf(c))}</option>`).join('');
-    document.getElementById('interactionDate').value = new Date().toISOString().slice(0,10);
-    document.getElementById('interactionModal').classList.add('active');
+      (clients||[]).map(c => `<option value="${c.id}">${escapeHTML(fullNameOf(c))}</option>`).join('');
+
+    // Default today (date-only)
+    dateEl.value = new Date().toISOString().slice(0,10);
+
+    modal.classList.add('active');
   }
   function closeInteractionModal(){ document.getElementById('interactionModal').classList.remove('active'); document.getElementById('interactionForm').reset(); }
 
@@ -978,4 +1009,3 @@
 </script>
 </body>
 </html>
-
