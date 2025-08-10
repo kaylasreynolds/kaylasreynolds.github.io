@@ -676,6 +676,14 @@
           if (!da && db) return 1;
           return byLast(a,b);                    // tie-breaker
         });
+      case 'lastInteraction_asc':
+        return arr.sort((a,b)=>{
+          const da = lastInteractionDate(a.id), db = lastInteractionDate(b.id);
+          if (da && db) return da - db;         // oldest first
+          if (da && !db) return -1;             // with interactions first
+          if (!da && db) return 1;
+          return byLast(a,b);                    // tie-breaker
+        });
       case 'lastName_asc':  return arr.sort((a,b) => byLast(a,b));
       case 'lastName_desc': return arr.sort((a,b) => byLast(b,a));
       case 'style_asc':     return arr.sort((a,b) => byStyle(a,b) || byLast(a,b));
@@ -1020,5 +1028,6 @@
 </script>
 </body>
 </html>
+
 
 
