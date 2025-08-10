@@ -70,6 +70,14 @@
   .activity-icon.sale{background:linear-gradient(135deg,var(--ok),var(--ok2))}
   .activity-icon.interaction{background:linear-gradient(135deg,var(--grad1),var(--grad2))}
   @media (max-width:768px){.container{padding:12px}}
+  .filters{display:flex;flex-direction:column;gap:8px;margin:8px 0 12px}
+.filters-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.filters-title{font-weight:800;margin-right:6px}
+.chk{background:#fff;border:2px solid var(--ring);padding:6px 10px;border-radius:999px;display:flex;gap:6px;align-items:center;cursor:pointer}
+.chk input{accent-color:#4c51bf}
+.filters-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.filters-controls select{padding:8px 10px;border-radius:10px;border:2px solid var(--ring)}
+
 </style>
 </head>
 <body>
@@ -149,7 +157,25 @@
             </select>
           </div>
         </div>
-
+<!-- Style Filters -->
+<div class="filters">
+  <div class="filters-row">
+    <div class="filters-title">Filter by Style:</div>
+    <label class="chk"><input type="checkbox" class="style-filter" value="Bohemian"> Bohemian</label>
+    <label class="chk"><input type="checkbox" class="style-filter" value="Classic"> Classic</label>
+    <label class="chk"><input type="checkbox" class="style-filter" value="Edgy"> Edgy</label>
+    <label class="chk"><input type="checkbox" class="style-filter" value="Casual"> Casual</label>
+    <label class="chk"><input type="checkbox" class="style-filter" value="Vintage"> Vintage</label>
+    <label class="chk"><input type="checkbox" class="style-filter" value="Trendy"> Trendy</label>
+  </div>
+  <div class="filters-controls">
+    <select id="styleMatch">
+      <option value="any">Match any selected</option>
+      <option value="all">Match all selected</option>
+    </select>
+    <button class="btn ghost" id="clearFiltersBtn" type="button">Clear Filters</button>
+  </div>
+</div>
         <div class="list" id="clientList">
           <div class="empty-state">
             <div style="font-size:42px;opacity:.6">👥</div>
@@ -483,6 +509,19 @@
       const m = e.target.closest('.modal');
       if (m && !e.target.closest('.panel')) m.classList.remove('active');
     });
+// Style filter events
+document.querySelectorAll('.style-filter').forEach(cb => {
+  cb.addEventListener('change', applyFiltersAndSort);
+});
+const styleMatchSel = document.getElementById('styleMatch');
+if (styleMatchSel) styleMatchSel.addEventListener('change', applyFiltersAndSort);
+
+const clearBtn = document.getElementById('clearFiltersBtn');
+if (clearBtn) clearBtn.addEventListener('click', () => {
+  document.querySelectorAll('.style-filter').forEach(cb => cb.checked = false);
+  if (styleMatchSel) styleMatchSel.value = 'any';
+  applyFiltersAndSort();
+});
 
     // Wire header buttons
     const exportBtn = document.getElementById('exportBtn');
@@ -525,6 +564,11 @@
   // ---------- Name helpers ----------
   const fullNameOf = (c) => `${c.firstName ?? ''} ${c.lastName ?? ''}`.trim();
   const lastNameKey = (c) => (c.lastName || '').toLowerCase();
+  
+// --- Style filter helpers ---
+function getActiveStyleFilters(){
+  return Array.from(document.querySelectorAll('.style-filter:checked')).map(c => c.value);
+}
 
   // ---------- Clients ----------
   function openClientModal(clientId=null){
@@ -651,7 +695,7 @@
     }).join('');
   }
 
-  function searchClients(){
+  function searchClients(){ applyFiltersAndSort(); }
     const term = (document.getElementById('clientSearch').value || '').toLowerCase();
     const filtered = clients.filter(c =>
       fullNameOf(c).toLowerCase().includes(term) ||
@@ -662,7 +706,7 @@
     renderClients(filtered);
   }
 
-  function applyClientSort(){ renderClients(); }
+  function applyClientSort(){ applyFiltersAndSort(); }
 
   function sortClients(arr, mode){
     const bySpent = (a,b) => totalSpentFor(a.id) - totalSpentFor(b.id);
@@ -685,6 +729,37 @@
       default:              return arr.sort((a,b) => byCreated(b,a));
     }
   }
+function applyFiltersAndSort(){
+  const term = (document.getElementById('clientSearch').value || '').toLowerCase();
+  const selected = getActiveStyleFilters();
+  const matchModeEl = document.getElementById('styleMatch');
+  const matchMode = matchModeEl ? matchModeEl.value : 'any';
+
+  // 1) search filter
+  let list = clients.filter(c => {
+    const matchesSearch =
+      fullNameOf(c).toLowerCase().includes(term) ||
+      (c.email && c.email.toLowerCase().includes(term)) ||
+      (c.phone && c.phone.includes(term)) ||
+      (c.styles && c.styles.some(s => s.toLowerCase().includes(term)));
+
+    if (!matchesSearch) return false;
+
+    // 2) style filter
+    if (!selected.length) return true;
+    const styles = c.styles || [];
+    return (matchMode === 'all')
+      ? selected.every(s => styles.includes(s))
+      : selected.some(s => styles.includes(s));
+  });
+
+  // 3) sort (reuses your existing sort)
+  const mode = document.getElementById('clientSort').value || 'createdAt_desc';
+  list = sortClients(list, mode);
+
+  // 4) render
+  renderClients(list);
+}
 
   // ---------- Client View (recap) ----------
   function openClientView(clientId){
@@ -971,4 +1046,5 @@
 </script>
 </body>
 </html>
+
 
