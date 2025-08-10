@@ -59,10 +59,30 @@
   .row-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
   .empty-state{text-align:center;color:var(--muted2);padding:28px}
 
-  /* Follow Up layout: auto wraps to 1–4 cols */
-  .followup-sections{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+  /* Follow Up: force 4 columns on one line (scroll on small screens) */
+  .followup-sections{
+    display:flex;
+    flex-wrap:nowrap;        /* no wrapping -> always one line */
+    gap:16px;
+    overflow-x:auto;         /* scroll horizontally on small screens */
+    padding-bottom:4px;
+  }
+  .followup-sections > div{
+    flex:0 0 25%;            /* 4 equal columns */
+    min-width:260px;         /* keep cards readable if screen is tiny; scroll kicks in */
+  }
   .followup-sections h3{margin-top:0;font-size:1rem;color:var(--muted);font-weight:700}
-  .pill-911{background:#ffe2e2;color:#7a0613;border-left:4px solid #c53030}
+
+  /* Follow-up cards: buttons at bottom */
+  .followup-card{
+    background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.06);
+    border-left:4px solid transparent;padding:16px;display:flex;flex-direction:column;min-height:160px
+  }
+  .followup-card:hover{transform:translateY(-1px);transition:.2s;box-shadow:0 6px 16px rgba(0,0,0,.1);border-left-color:var(--grad1)}
+  .followup-top{display:flex;justify-content:space-between;gap:12px}
+  .followup-main{display:grid;gap:6px}
+  .card-actions{margin-top:auto;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+  .pill-911{background:#ffe2e2;color:#7a0613;border-left-color:#c53030}
 </style>
 </head>
 <body>
@@ -97,9 +117,9 @@
 
       <div class="card" style="margin-top:20px">
         <h2 style="margin:0 0 12px">Recent Activity</h2>
-        <div class="activity-columns">
+        <div class="activity-columns" style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
           <div class="activity-col">
-            <h3 class="col-title">Interactions</h3>
+            <h3 class="col-title" style="margin:0 0 8px;font-size:1rem;color:var(--muted);font-weight:700">Interactions</h3>
             <div class="activity-list" id="interactionActivityList">
               <div class="empty-state">
                 <div style="font-size:42px;opacity:.6">💬</div>
@@ -108,7 +128,7 @@
             </div>
           </div>
           <div class="activity-col">
-            <h3 class="col-title">Sales</h3>
+            <h3 class="col-title" style="margin:0 0 8px;font-size:1rem;color:var(--muted);font-weight:700">Sales</h3>
             <div class="activity-list" id="salesActivityList">
               <div class="empty-state">
                 <div style="font-size:42px;opacity:.6">💰</div>
@@ -233,7 +253,7 @@
             <div id="followupFuture" class="list"></div>
           </div>
           <div>
-            <h3>911</h3>
+            <h3>🚨 911</h3>
             <div id="followup911" class="list"></div>
           </div>
         </div>
@@ -1198,12 +1218,9 @@
     threshold.setMonth(threshold.getMonth() - 2);
     clients.forEach(c => {
       const lastIt = lastInteractionDate(c.id) || (c.createdAt ? new Date(c.createdAt) : null);
-      if (!lastIt) return; // if literally brand new with no createdAt, skip (shouldn't happen)
+      if (!lastIt) return;
       if (lastIt < threshold) {
-        emergency.push({
-          clientId: c.id,
-          lastDate: lastIt
-        });
+        emergency.push({ clientId: c.id, lastDate: lastIt });
       }
     });
 
@@ -1221,24 +1238,23 @@
     const isAuto = f.type !== 'manual';
     const autoIcon = isAuto ? '🤖 ' : '';
     return `
-      <div class="interaction-item">
-        <div class="client-header">
-          <div>
+      <div class="followup-card">
+        <div class="followup-top">
+          <div class="followup-main">
             <div class="client-name">${escapeHTML(c ? fullNameOf(c) : 'Unknown Client')}</div>
-            <div class="muted" style="margin-top:4px">${autoIcon}${when}${typeLabel}</div>
-          </div>
-          <div class="buttons">
-            <button class="btn ${f.completed ? 'ghost':'primary'}" data-action="toggle-followup" data-id="${f.id}">${f.completed ? 'Reopen' : 'Mark Done'}</button>
-            ${isAuto ? `<button class="btn danger" data-action="delete-followup" data-id="${f.id}">Delete</button>` : ''}
+            <div class="muted">${autoIcon}${when}${typeLabel}</div>
+            ${f.notes ? `<div>${escapeHTML(f.notes)}</div>` : ''}
           </div>
         </div>
-        ${f.notes ? `<div style="margin-top:8px">${escapeHTML(f.notes)}</div>` : ''}
+        <div class="card-actions">
+          <button class="btn ${f.completed ? 'ghost':'primary'}" data-action="toggle-followup" data-id="${f.id}">${f.completed ? 'Reopen' : 'Mark Done'}</button>
+          ${isAuto ? `<button class="btn danger" data-action="delete-followup" data-id="${f.id}">Delete</button>` : ''}
+        </div>
       </div>`;
   }
 
   function render911List(items){
     if (!items.length) return '';
-    // distinct one card per client
     const seen = new Set();
     return items.filter(x => {
       if (seen.has(x.clientId)) return false;
@@ -1249,17 +1265,17 @@
       const lastStr = x.lastDate ? new Date(x.lastDate).toLocaleDateString() : '—';
       const note = `URGENT: No interactions since ${lastStr}`;
       return `
-        <div class="interaction-item pill-911">
-          <div class="client-header">
-            <div>
+        <div class="followup-card pill-911">
+          <div class="followup-top">
+            <div class="followup-main">
               <div class="client-name">🚨 ${escapeHTML(name)}</div>
-              <div class="muted" style="margin-top:4px">Last interaction: ${lastStr}</div>
-            </div>
-            <div class="buttons">
-              <button class="btn primary" data-action="create-followup-for-client" data-id="${x.clientId}" data-notes="${escapeHTML(note)}">Create Follow‑Up</button>
+              <div class="muted">Last interaction: ${lastStr}</div>
+              <div>No interactions for 2+ months — immediate outreach recommended.</div>
             </div>
           </div>
-          <div style="margin-top:8px">No interactions for 2+ months — immediate outreach recommended.</div>
+          <div class="card-actions">
+            <button class="btn primary" data-action="create-followup-for-client" data-id="${x.clientId}" data-notes="${escapeHTML(note)}">Create Follow‑Up</button>
+          </div>
         </div>`;
     }).join('');
   }
