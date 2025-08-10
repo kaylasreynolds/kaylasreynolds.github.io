@@ -1,0 +1,802 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>CRM System - Client Relationship Management</title>
+<style>
+  :root{
+    /* Darker brand tones for better contrast */
+    --grad1:#4c51bf; /* indigo-700 */
+    --grad2:#553c9a; /* purple-700 */
+    --ok:#2f855a;--ok2:#276749;
+    --danger:#c53030;--danger2:#97266d;
+    --text:#222;--muted:#555;--muted2:#888;
+    --card:rgba(255,255,255,.95);--ring:#d6d6d6;
+    --shadow:0 10px 30px rgba(0,0,0,.12);
+  }
+  *{box-sizing:border-box}html,body{height:100%}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Ubuntu,system-ui,sans-serif;
+       background:linear-gradient(135deg,#667eea,#764ba2);color:var(--text)}
+  .container{max-width:1200px;margin:auto;padding:20px}
+  header{background:var(--card);backdrop-filter:blur(10px);border-radius:20px;padding:24px;margin-bottom:20px;box-shadow:var(--shadow)}
+  h1{margin:0 0 6px;background:linear-gradient(135deg,var(--grad1),var(--grad2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .tabs{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}
+  .tab{padding:10px 18px;border:0;border-radius:999px;background:#ffffff;cursor:pointer;font-weight:700;box-shadow:0 4px 15px rgba(0,0,0,.1)}
+  .tab.active,[aria-selected="true"]{color:#fff;background:linear-gradient(135deg,var(--grad1),var(--grad2))}
+  .grid{display:grid;gap:16px}
+  .stats{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+  .card{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:20px}
+  .stat-number{font-size:2rem;font-weight:800;background:linear-gradient(135deg,var(--grad1),var(--grad2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .muted{color:var(--muted);font-size:.95rem}
+  .search{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;margin-bottom:12px}
+  .search .row{display:flex;gap:10px}
+  .search input, .search select{width:100%;padding:12px 14px;border-radius:12px;border:2px solid var(--ring);font-size:1rem}
+  .list{display:grid;gap:12px}
+  .client-item,.interaction-item{background:#fff;border-radius:12px;padding:16px;border-left:4px solid transparent;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+  .client-item:hover,.interaction-item:hover{transform:translateY(-1px);transition:.2s;box-shadow:0 6px 16px rgba(0,0,0,.1);border-left-color:var(--grad1)}
+  .client-header{display:flex;justify-content:space-between;gap:12px}
+  .client-name{font-weight:800}
+  .chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:.75rem;font-weight:700}
+  .status-active{background:#c6f6d5;color:#22543d}
+  .status-prospect{background:#fef5e7;color:#7d6608}
+  .status-inactive{background:#fed7d7;color:#742a2a}
+  .badge-sale{background:linear-gradient(135deg,var(--ok),var(--ok2));color:#fff;padding:4px 10px;border-radius:999px;font-size:.75rem;font-weight:800;margin-left:8px}
+  .buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .btn{padding:10px 16px;border:0;border-radius:999px;font-weight:800;cursor:pointer}
+  .btn.primary{color:#fff;background:linear-gradient(135deg,var(--grad1),var(--grad2))}
+  .btn.ghost{background:#e5e5e5}
+  .btn.danger{color:#fff;background:linear-gradient(135deg,var(--danger),var(--danger2))}
+  /* modal */
+  .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.45);z-index:10}
+  .modal.active{display:flex}
+  .panel{background:#fff;border-radius:16px;width:min(560px,92vw);max-height:90vh;overflow:auto;padding:20px}
+  .panel header{display:flex;align-items:center;justify-content:space-between;margin:0 0 10px}
+  .x{background:transparent;border:0;font-size:22px;cursor:pointer;color:var(--muted2)}
+  label{display:block;font-weight:700;margin:12px 0 6px}
+  input,select,textarea{width:100%;padding:10px;border-radius:10px;border:2px solid var(--ring);font-size:1rem}
+  textarea{min-height:90px;resize:vertical}
+  .row-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+  .empty-state{text-align:center;color:var(--muted2);padding:28px}
+  .activity-list{display:grid;gap:12px}
+  .activity-item{display:flex;gap:12px;align-items:flex-start}
+  .activity-icon{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:18px;color:#fff;flex-shrink:0}
+  .activity-icon.sale{background:linear-gradient(135deg,var(--ok),var(--ok2))}
+  .activity-icon.interaction{background:linear-gradient(135deg,var(--grad1),var(--grad2))}
+  @media (max-width:768px){.container{padding:12px}}
+</style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>CRM System</h1>
+      <p class="muted">Manage your clients, track interactions, and monitor sales</p>
+    </header>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="dashboard" onclick="switchTab('dashboard')">📊 Dashboard</button>
+      <button class="tab" data-tab="clients" onclick="switchTab('clients')">👥 Clients</button>
+      <button class="tab" data-tab="interactions" onclick="switchTab('interactions')">💬 Interactions</button>
+      <button class="tab" data-tab="sales" onclick="switchTab('sales')">💰 Sales</button>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard" class="tab-content active">
+      <div class="grid stats">
+        <div class="card">
+          <div class="stat-number" id="totalClients">0</div>
+          <div class="muted">Total Clients</div>
+        </div>
+        <div class="card">
+          <div class="stat-number" id="totalInteractions">0</div>
+          <div class="muted">Total Interactions</div>
+        </div>
+        <div class="card">
+          <div class="stat-number" id="activeThisMonth">0</div>
+          <div class="muted">Active This Month</div>
+        </div>
+        <div class="card">
+          <div class="stat-number" id="totalSales">$0.00</div>
+          <div class="muted">Total Sales</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 style="margin:0 0 12px">Recent Activity</h2>
+        <div class="activity-list" id="activityList">
+          <div class="empty-state">
+            <div style="font-size:42px;opacity:.6">📋</div>
+            <p>No recent activity</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Clients -->
+    <div id="clients" class="tab-content" style="display:none">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+          <h2 style="margin:0">Client Management</h2>
+          <button class="btn primary" onclick="openClientModal()">+ Add New Client</button>
+        </div>
+
+        <div class="search">
+          <input type="text" id="clientSearch" placeholder="Search clients by name, email, phone, style..." oninput="searchClients()">
+          <div class="row">
+            <select id="clientSort" onchange="applyClientSort()">
+              <option value="createdAt_desc">Sort: Recently Added</option>
+              <option value="lastName_asc">Sort: Last Name (A→Z)</option>
+              <option value="lastName_desc">Sort: Last Name (Z→A)</option>
+              <option value="style_asc">Sort: Style (A→Z)</option>
+              <option value="style_desc">Sort: Style (Z→A)</option>
+              <option value="spent_desc">Sort: Amount Spent (High→Low)</option>
+              <option value="spent_asc">Sort: Amount Spent (Low→High)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="list" id="clientList">
+          <div class="empty-state">
+            <div style="font-size:42px;opacity:.6">👥</div>
+            <p>No clients yet. Add your first client!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Interactions -->
+    <div id="interactions" class="tab-content" style="display:none">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+          <h2 style="margin:0">Interaction Tracking</h2>
+          <button class="btn primary" onclick="openInteractionModal()">+ Log Interaction</button>
+        </div>
+
+        <div class="search">
+          <input type="text" id="interactionSearch" placeholder="Search interactions..." oninput="searchInteractions()">
+        </div>
+
+        <div class="list" id="interactionList">
+          <div class="empty-state">
+            <div style="font-size:42px;opacity:.6">💬</div>
+            <p>No interactions logged yet</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sales -->
+    <div id="sales" class="tab-content" style="display:none">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+          <h2 style="margin:0">Sales Tracking</h2>
+          <button class="btn primary" onclick="openSaleModal()">+ Record Sale</button>
+        </div>
+
+        <div class="list" id="salesList">
+          <div class="empty-state">
+            <div style="font-size:42px;opacity:.6">💰</div>
+            <p>No sales data available</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Client Modal (Add/Edit) -->
+  <div id="clientModal" class="modal">
+    <div class="panel">
+      <header>
+        <h3 id="clientModalTitle" style="margin:0">Add New Client</h3>
+        <button class="x" onclick="closeClientModal()">×</button>
+      </header>
+      <form id="clientForm" onsubmit="saveClient(event)">
+        <div class="row-cols">
+          <div>
+            <label>First Name *</label>
+            <input type="text" id="clientFirstName" required>
+          </div>
+          <div>
+            <label>Last Name *</label>
+            <input type="text" id="clientLastName" required>
+          </div>
+        </div>
+        <div class="row-cols">
+          <div>
+            <label>Email</label>
+            <input type="email" id="clientEmail">
+          </div>
+          <div>
+            <label>Phone</label>
+            <input type="tel" id="clientPhone">
+          </div>
+        </div>
+        <div class="row-cols">
+          <div>
+            <label>Style Vibe</label>
+            <select id="clientStyle">
+              <option value="">Select style...</option>
+              <option>Minimalist</option><option>Bohemian</option><option>Modern</option><option>Classic</option>
+              <option>Edgy</option><option>Romantic</option><option>Casual</option><option>Elegant</option>
+              <option>Vintage</option><option>Trendy</option><option>Custom</option>
+            </select>
+          </div>
+          <div>
+            <label>Status</label>
+            <select id="clientStatus">
+              <option>Prospect</option><option>Active</option><option>Inactive</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label>Initial Sales Amount</label>
+          <input type="number" id="clientInitialSales" min="0" step="0.01" placeholder="0.00">
+        </div>
+        <div>
+          <label>Notes</label>
+          <textarea id="clientNotes" placeholder="Add any notes about this client..."></textarea>
+        </div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
+          <button type="button" class="btn ghost" onclick="closeClientModal()">Cancel</button>
+          <button type="submit" class="btn primary">Save Client</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Client Recap Modal (View-only) -->
+  <div id="clientViewModal" class="modal">
+    <div class="panel" id="clientViewPanel">
+      <header>
+        <h3 style="margin:0">Client Recap</h3>
+        <button class="x" onclick="closeClientView()">×</button>
+      </header>
+      <div id="clientViewBody"></div>
+      <div style="display:flex;justify-content:flex-end;margin-top:12px">
+        <button class="btn primary" onclick="closeClientView()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interaction Modal -->
+  <div id="interactionModal" class="modal">
+    <div class="panel">
+      <header>
+        <h3 style="margin:0">Log Interaction</h3>
+        <button class="x" onclick="closeInteractionModal()">×</button>
+      </header>
+      <form id="interactionForm" onsubmit="saveInteraction(event)">
+        <div>
+          <label>Client *</label>
+          <select id="interactionClient" required>
+            <option value="">Select client...</option>
+          </select>
+        </div>
+        <div class="row-cols">
+          <div>
+            <label>Type *</label>
+            <select id="interactionType" required>
+              <option>Call</option><option>Email</option><option>Meeting</option><option>Message</option><option>Other</option>
+            </select>
+          </div>
+          <div>
+            <label>Date *</label>
+            <input type="datetime-local" id="interactionDate" required>
+          </div>
+        </div>
+        <div>
+          <label>Notes</label>
+          <textarea id="interactionNotes" placeholder="Describe the interaction..."></textarea>
+        </div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
+          <button type="button" class="btn ghost" onclick="closeInteractionModal()">Cancel</button>
+          <button type="submit" class="btn primary">Save Interaction</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Sale Modal -->
+  <div id="saleModal" class="modal">
+    <div class="panel">
+      <header>
+        <h3 style="margin:0">Record Sale</h3>
+        <button class="x" onclick="closeSaleModal()">×</button>
+      </header>
+      <form id="saleForm" onsubmit="saveSale(event)">
+        <div>
+          <label>Client *</label>
+          <select id="saleClient" required>
+            <option value="">Select client...</option>
+          </select>
+        </div>
+        <div class="row-cols">
+          <div>
+            <label>Amount *</label>
+            <input type="number" id="saleAmount" min="0" step="0.01" required placeholder="0.00">
+          </div>
+          <div>
+            <label>Date *</label>
+            <input type="date" id="saleDate" required>
+          </div>
+        </div>
+        <div>
+          <label>Description</label>
+          <input type="text" id="saleDescription" placeholder="What was sold?">
+        </div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
+          <button type="button" class="btn ghost" onclick="closeSaleModal()">Cancel</button>
+          <button type="submit" class="btn primary">Record Sale</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+<script>
+  // ---------- Utilities ----------
+  const fmtUSD = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
+  const $  = (s, r=document) => r.querySelector(s);
+  const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+  const escapeHTML = (str) => String(str ?? '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+
+  // ---------- Data ----------
+  let clients = [];        // {id, firstName, lastName, email, phone, style, status, initialSales, notes, createdAt}
+  let interactions = [];   // {id, clientId, type, date, notes, createdAt}
+  let sales = [];          // {id, clientId, amount, date, description, createdAt}
+  let editingClientId = null;
+
+  // ---------- Init ----------
+  document.addEventListener('DOMContentLoaded', () => {
+    updateDashboard();
+    renderClients();
+
+    // default interaction datetime (local)
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    $('#interactionDate').value = now.toISOString().slice(0, 16);
+
+    // default sale date (today)
+    $('#saleDate').value = new Date().toISOString().split('T')[0];
+
+    // Close modals on ESC
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeAllModals();
+    });
+
+    // Click outside panel closes modal
+    document.addEventListener('click', e => {
+      const m = e.target.closest('.modal');
+      if (m && !e.target.closest('.panel')) m.classList.remove('active');
+    });
+  });
+
+  function closeAllModals(){ $$('.modal.active').forEach(m => m.classList.remove('active')); }
+
+  // ---------- Tabs ----------
+  function switchTab(tabName){
+    $$('.tab-content').forEach(c => c.style.display = c.id === tabName ? 'block' : 'none');
+    $$('.tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tabName));
+    if (tabName === 'dashboard') updateDashboard();
+    if (tabName === 'sales') renderSalesView();
+  }
+
+  // ---------- Name helpers ----------
+  const fullNameOf = (c) => `${c.firstName ?? ''} ${c.lastName ?? ''}`.trim();
+  const lastNameKey = (c) => (c.lastName || '').toLowerCase();
+
+  // ---------- Clients ----------
+  function openClientModal(clientId=null){
+    editingClientId = clientId;
+    const modal = $('#clientModal');
+    const form = $('#clientForm');
+
+    if (clientId){
+      const c = clients.find(x => x.id === clientId);
+      $('#clientModalTitle').textContent = 'Edit Client';
+      $('#clientFirstName').value = c.firstName || '';
+      $('#clientLastName').value  = c.lastName || '';
+      $('#clientEmail').value     = c.email || '';
+      $('#clientPhone').value     = c.phone || '';
+      $('#clientStyle').value     = c.style || '';
+      $('#clientStatus').value    = c.status || 'Prospect';
+      $('#clientInitialSales').value = c.initialSales ?? '';
+      $('#clientNotes').value     = c.notes || '';
+    } else {
+      $('#clientModalTitle').textContent = 'Add New Client';
+      form.reset();
+      $('#clientStatus').value = 'Prospect';
+    }
+    modal.classList.add('active');
+  }
+  function closeClientModal(){ $('#clientModal').classList.remove('active'); $('#clientForm').reset(); editingClientId=null; }
+
+  function saveClient(e){
+    e.preventDefault();
+    const firstName = $('#clientFirstName').value.trim();
+    const lastName  = $('#clientLastName').value.trim();
+    if (!firstName || !lastName){ alert('First and last names are required.'); return; }
+
+    const clientData = {
+      firstName, lastName,
+      email: $('#clientEmail').value.trim(),
+      phone: $('#clientPhone').value.trim(),
+      style: $('#clientStyle').value,
+      status: $('#clientStatus').value,
+      initialSales: parseFloat($('#clientInitialSales').value) || 0,
+      notes: $('#clientNotes').value.trim(),
+      createdAt: new Date().toISOString()
+    };
+
+    if (editingClientId){
+      const i = clients.findIndex(c => c.id === editingClientId);
+      clients[i] = { ...clients[i], ...clientData };
+    } else {
+      clientData.id = Date.now().toString();
+      clients.push(clientData);
+    }
+    closeClientModal();
+    renderClients();
+    updateDashboard();
+  }
+
+  function deleteClient(clientId){
+    if (!confirm('Delete this client and all related interactions and sales?')) return;
+    clients = clients.filter(c => c.id !== clientId);
+    interactions = interactions.filter(i => i.clientId !== clientId);
+    sales = sales.filter(s => s.clientId !== clientId);
+    renderClients();
+    updateDashboard();
+  }
+
+  function totalSpentFor(clientId){
+    const c = clients.find(x => x.id === clientId);
+    const extra = sales.filter(s => s.clientId === clientId).reduce((sum, s) => sum + s.amount, 0);
+    return (c?.initialSales || 0) + extra;
+  }
+
+  function renderClients(source = clients){
+    const list = $('#clientList');
+    if (source.length === 0){
+      list.innerHTML = `
+        <div class="empty-state">
+          <div style="font-size:42px;opacity:.6">👥</div>
+          <p>No clients yet. Add your first client!</p>
+        </div>`;
+      return;
+    }
+
+    // Apply current sort
+    const sorted = sortClients([...source], $('#clientSort').value || 'createdAt_desc');
+
+    list.innerHTML = sorted.map(c => {
+      const totalSpent = totalSpentFor(c.id);
+      return `
+        <div class="client-item">
+          <div class="client-header">
+            <div>
+              <div class="client-name">
+                ${escapeHTML(fullNameOf(c))}
+                ${totalSpent > 0 ? `<span class="badge-sale">${fmtUSD.format(totalSpent)}</span>` : ''}
+              </div>
+              <div class="muted" style="margin-top:4px">
+                ${c.email ? `📧 ${escapeHTML(c.email)} · ` : ''}${c.phone ? `📱 ${escapeHTML(c.phone)} · ` : ''}${c.style ? `✨ ${escapeHTML(c.style)}` : ''}
+              </div>
+            </div>
+            <span class="chip status-${(c.status||'Prospect').toLowerCase()}">${escapeHTML(c.status||'Prospect')}</span>
+          </div>
+          <div class="buttons">
+            <button class="btn primary" onclick="openClientView('${c.id}')">View</button>
+            <button class="btn ghost"   onclick="openClientModal('${c.id}')">Edit</button>
+            <button class="btn danger"  onclick="deleteClient('${c.id}')">Delete</button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function searchClients(){
+    const term = ($('#clientSearch').value || '').toLowerCase();
+    const filtered = clients.filter(c =>
+      fullNameOf(c).toLowerCase().includes(term) ||
+      (c.email && c.email.toLowerCase().includes(term)) ||
+      (c.phone && c.phone.includes(term)) ||
+      (c.style && c.style.toLowerCase().includes(term))
+    );
+    renderClients(filtered);
+  }
+
+  function applyClientSort(){ renderClients(); }
+
+  function sortClients(arr, mode){
+    const bySpent = (a,b) => totalSpentFor(a.id) - totalSpentFor(b.id);
+    const byLast  = (a,b) => lastNameKey(a).localeCompare(lastNameKey(b));
+    const byStyle = (a,b) => (a.style||'').toLowerCase().localeCompare((b.style||'').toLowerCase());
+    const byCreated = (a,b) => new Date(a.createdAt) - new Date(b.createdAt);
+
+    switch(mode){
+      case 'lastName_asc':  return arr.sort((a,b) => byLast(a,b) || byCreated(b,a));
+      case 'lastName_desc': return arr.sort((a,b) => byLast(b,a) || byCreated(b,a));
+      case 'style_asc':     return arr.sort((a,b) => byStyle(a,b) || byLast(a,b));
+      case 'style_desc':    return arr.sort((a,b) => byStyle(b,a) || byLast(a,b));
+      case 'spent_asc':     return arr.sort((a,b) => bySpent(a,b) || byLast(a,b));
+      case 'spent_desc':    return arr.sort((a,b) => bySpent(b,a) || byLast(a,b));
+      case 'createdAt_desc':
+      default:              return arr.sort((a,b) => byCreated(b,a));
+    }
+  }
+
+  // ---------- Client View (recap) ----------
+  function openClientView(clientId){
+    const c = clients.find(x => x.id === clientId);
+    if (!c) return;
+    const total = totalSpentFor(clientId);
+    const its   = interactions.filter(i => i.clientId === clientId).sort((a,b) => new Date(b.date)-new Date(a.date));
+    const lastIt = its[0];
+    const clSales = sales.filter(s => s.clientId === clientId).sort((a,b) => new Date(b.date)-new Date(a.date));
+
+    $('#clientViewBody').innerHTML = `
+      <div class="card" style="box-shadow:none;padding:0">
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
+          <div>
+            <h3 style="margin:0 0 6px">${escapeHTML(fullNameOf(c))}</h3>
+            <div class="muted">
+              ${c.email ? `📧 ${escapeHTML(c.email)} · ` : ''}${c.phone ? `📱 ${escapeHTML(c.phone)} · ` : ''}${c.style ? `✨ ${escapeHTML(c.style)} · ` : ''}<span class="chip status-${(c.status||'Prospect').toLowerCase()}">${escapeHTML(c.status||'Prospect')}</span>
+            </div>
+          </div>
+          <div class="badge-sale">${fmtUSD.format(total)}</div>
+        </div>
+
+        ${c.notes ? `<div style="margin-top:12px"><strong>Notes:</strong><br>${escapeHTML(c.notes)}</div>` : ''}
+
+        <div style="margin-top:16px;display:grid;gap:10px">
+          <div><strong>Interactions:</strong> ${its.length}${lastIt ? ` — Last: ${new Date(lastIt.date).toLocaleString()}` : ''}</div>
+          <div><strong>Initial Sales:</strong> ${fmtUSD.format(c.initialSales || 0)}</div>
+        </div>
+
+        <div style="margin-top:16px">
+          <strong>Recent Sales</strong>
+          ${clSales.length === 0 ? `<div class="muted">No sales recorded</div>` : `
+            <div style="margin-top:8px;display:grid;gap:8px">
+              ${clSales.slice(0,5).map(s => `
+                <div style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding-bottom:6px">
+                  <div>
+                    <div style="font-weight:600">${escapeHTML(s.description || 'Sale')}</div>
+                    <div class="muted" style="font-size:.85rem">${new Date(s.date).toLocaleDateString()}</div>
+                  </div>
+                  <div style="font-weight:800;color:#2f855a">${fmtUSD.format(s.amount)}</div>
+                </div>`).join('')}
+            </div>`}
+        </div>
+      </div>
+    `;
+    $('#clientViewModal').classList.add('active');
+  }
+  function closeClientView(){ $('#clientViewModal').classList.remove('active'); }
+
+  // ---------- Interactions ----------
+  function openInteractionModal(){
+    const select = $('#interactionClient');
+    select.innerHTML = '<option value="">Select client...</option>' +
+      clients.map(c => `<option value="${c.id}">${escapeHTML(fullNameOf(c))}</option>`).join('');
+    $('#interactionModal').classList.add('active');
+  }
+  function closeInteractionModal(){ $('#interactionModal').classList.remove('active'); $('#interactionForm').reset(); }
+
+  function saveInteraction(e){
+    e.preventDefault();
+    const clientId = $('#interactionClient').value;
+    if (!clientId){ alert('Please select a client'); return; }
+    interactions.push({
+      id: Date.now().toString(),
+      clientId,
+      type: $('#interactionType').value,
+      date: $('#interactionDate').value,
+      notes: $('#interactionNotes').value.trim(),
+      createdAt: new Date().toISOString()
+    });
+    closeInteractionModal();
+    renderInteractions();
+    updateDashboard();
+  }
+
+  function renderInteractions(source = interactions){
+    const el = $('#interactionList');
+    if (source.length === 0){
+      el.innerHTML = `
+        <div class="empty-state">
+          <div style="font-size:42px;opacity:.6">💬</div>
+          <p>No interactions logged yet</p>
+        </div>`;
+      return;
+    }
+    const sorted = [...source].sort((a,b) => new Date(b.date) - new Date(a.date));
+    el.innerHTML = sorted.map(i => {
+      const c = clients.find(x => x.id === i.clientId);
+      const when = new Date(i.date).toLocaleString([], { hour:'2-digit', minute:'2-digit', year:'numeric', month:'short', day:'numeric' });
+      return `
+        <div class="interaction-item">
+          <div class="client-header">
+            <div>
+              <div class="client-name">${escapeHTML(c ? fullNameOf(c) : 'Unknown Client')}</div>
+              <div class="muted" style="margin-top:4px">${escapeHTML(i.type)} • ${when}</div>
+            </div>
+            <button class="btn danger" onclick="deleteInteraction('${i.id}')">Delete</button>
+          </div>
+          ${i.notes ? `<div style="margin-top:8px">${escapeHTML(i.notes)}</div>` : ''}
+        </div>`;
+    }).join('');
+  }
+
+  function deleteInteraction(id){
+    if (!confirm('Delete this interaction?')) return;
+    interactions = interactions.filter(i => i.id !== id);
+    renderInteractions();
+    updateDashboard();
+  }
+
+  function searchInteractions(){
+    const term = ($('#interactionSearch').value||'').toLowerCase();
+    const filtered = interactions.filter(i => {
+      const c = clients.find(x => x.id === i.clientId);
+      return (c && fullNameOf(c).toLowerCase().includes(term)) ||
+             i.type.toLowerCase().includes(term) ||
+             (i.notes && i.notes.toLowerCase().includes(term));
+    });
+    renderInteractions(filtered);
+  }
+
+  function viewClientInteractions(clientId){
+    const c = clients.find(x => x.id === clientId);
+    switchTab('interactions');
+    if (c){ $('#interactionSearch').value = fullNameOf(c); searchInteractions(); }
+  }
+
+  // ---------- Sales ----------
+  function openSaleModal(){
+    const select = $('#saleClient');
+    select.innerHTML = '<option value="">Select client...</option>' +
+      clients.map(c => `<option value="${c.id}">${escapeHTML(fullNameOf(c))}</option>`).join('');
+    $('#saleModal').classList.add('active');
+  }
+  function closeSaleModal(){ $('#saleModal').classList.remove('active'); $('#saleForm').reset(); }
+
+  function saveSale(e){
+    e.preventDefault();
+    const clientId = $('#saleClient').value;
+    const amount = parseFloat($('#saleAmount').value);
+    if (!clientId || isNaN(amount)){ alert('Client and amount are required'); return; }
+    sales.push({
+      id: Date.now().toString(),
+      clientId,
+      amount,
+      date: $('#saleDate').value,
+      description: $('#saleDescription').value.trim(),
+      createdAt: new Date().toISOString()
+    });
+    closeSaleModal();
+    renderSalesView();
+    updateDashboard();
+    renderClients();
+  }
+
+  function renderSalesView(){
+    const salesList = $('#salesList');
+    const map = new Map();
+
+    clients.forEach(c => {
+      const rows = sales.filter(s => s.clientId === c.id);
+      const total = (c.initialSales || 0) + rows.reduce((sum, s) => sum + s.amount, 0);
+      if (total > 0 || rows.length > 0) map.set(c.id, { client:c, rows, total });
+    });
+
+    if (map.size === 0){
+      salesList.innerHTML = `
+        <div class="empty-state">
+          <div style="font-size:42px;opacity:.6">💰</div>
+          <p>No sales data available</p>
+        </div>`;
+      return;
+    }
+
+    const sorted = [...map.values()].sort((a,b) => b.total - a.total);
+    salesList.innerHTML = sorted.map(({client:c, rows, total}) => `
+      <div class="client-item">
+        <div class="client-header">
+          <div>
+            <div class="client-name">${escapeHTML(fullNameOf(c))}</div>
+            <div class="muted" style="margin-top:4px">Total Sales: <strong style="color:#2f855a">${fmtUSD.format(total)}</strong></div>
+          </div>
+        </div>
+        ${c.initialSales>0 ? `
+          <div style="padding:10px 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between">
+            <div style="font-weight:600">Initial Sales</div>
+            <div style="font-weight:800;color:#2f855a">${fmtUSD.format(c.initialSales)}</div>
+          </div>` : ''}
+        ${rows.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(s => `
+          <div style="padding:10px 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-weight:600">${escapeHTML(s.description || 'Sale')}</div>
+              <div class="muted" style="font-size:.85rem">${new Date(s.date).toLocaleDateString()}</div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <span style="font-weight:800;color:#2f855a">${fmtUSD.format(s.amount)}</span>
+              <button class="btn danger" style="padding:4px 8px" onclick="deleteSale('${s.id}')">×</button>
+            </div>
+          </div>`).join('')}
+      </div>`).join('');
+  }
+
+  function deleteSale(id){
+    if (!confirm('Delete this sale?')) return;
+    sales = sales.filter(s => s.id !== id);
+    renderSalesView();
+    updateDashboard();
+    renderClients();
+  }
+
+  // ---------- Dashboard ----------
+  function updateDashboard(){
+    $('#totalClients').textContent = clients.length;
+    $('#totalInteractions').textContent = interactions.length;
+
+    const now = new Date(), m = now.getMonth(), y = now.getFullYear();
+    const active = new Set();
+    interactions.forEach(i => { const d=new Date(i.date); if (d.getMonth()===m && d.getFullYear()===y) active.add(i.clientId); });
+    sales.forEach(s => { const d=new Date(s.date); if (d.getMonth()===m && d.getFullYear()===y) active.add(s.clientId); });
+    $('#activeThisMonth').textContent = active.size;
+
+    const total = clients.reduce((sum,c)=>sum+(c.initialSales||0),0) + sales.reduce((sum,s)=>sum+s.amount,0);
+    $('#totalSales').textContent = fmtUSD.format(total);
+
+    renderRecentActivity();
+  }
+
+  function renderRecentActivity(){
+    const wrap = $('#activityList');
+    const items = [];
+    interactions.forEach(i => {
+      const c = clients.find(x=>x.id===i.clientId);
+      items.push({type:'interaction', date:new Date(i.date), icon:'💬',
+        title:`${i.type} with ${c?fullNameOf(c):'Unknown Client'}`, details:i.notes||'No notes'});
+    });
+    sales.forEach(s => {
+      const c = clients.find(x=>x.id===s.clientId);
+      items.push({type:'sale', date:new Date(s.date), icon:'💰',
+        title:`Sale to ${c?fullNameOf(c):'Unknown Client'}`, details:`${fmtUSD.format(s.amount)}${s.description?' - '+s.description:''}`});
+    });
+
+    if (items.length===0){
+      wrap.innerHTML = `
+        <div class="empty-state">
+          <div style="font-size:42px;opacity:.6">📋</div>
+          <p>No recent activity</p>
+        </div>`;
+      return;
+    }
+
+    items.sort((a,b)=>b.date-a.date);
+    wrap.innerHTML = items.slice(0,10).map(a => `
+      <div class="activity-item">
+        <div class="activity-icon ${a.type}">${a.icon}</div>
+        <div>
+          <div style="font-weight:800">${escapeHTML(a.title)}</div>
+          <div class="muted">${escapeHTML(a.details)}</div>
+          <div class="muted" style="font-size:.85rem">${timeAgo(a.date)}</div>
+        </div>
+      </div>`).join('');
+  }
+
+  function timeAgo(date){
+    const s = Math.floor((Date.now()-date.getTime())/1000);
+    const t = (n,u)=>`${n} ${u}${n>1?'s':''} ago`;
+    if (s>=31536000) return t(Math.floor(s/31536000),'year');
+    if (s>=2592000)  return t(Math.floor(s/2592000),'month');
+    if (s>=86400)    return t(Math.floor(s/86400),'day');
+    if (s>=3600)     return t(Math.floor(s/3600),'hour');
+    if (s>=60)       return t(Math.floor(s/60),'minute');
+    return 'Just now';
+  }
+</script>
+</body>
+</html>
