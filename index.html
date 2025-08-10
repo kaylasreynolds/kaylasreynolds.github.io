@@ -59,25 +59,10 @@
   .row-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
   .empty-state{text-align:center;color:var(--muted2);padding:28px}
 
-  /* Dashboard: two activity columns */
-  .activity-columns{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-  @media (max-width: 800px){ .activity-columns{grid-template-columns:1fr} }
-  .activity-col{min-width:0}
-  .col-title{margin:0 0 8px;font-size:1rem;color:var(--muted);font-weight:700}
-  .activity-list{display:grid;gap:12px}
-
-  @media (max-width:768px){.container{padding:12px}}
-
-  /* Filters */
-  .filters{display:flex;flex-direction:column;gap:8px;margin:8px 0 12px}
-  .filters-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
-  .filters-title{font-weight:800;margin-right:6px}
-  .chk{background:#fff;border:2px solid var(--ring);padding:6px 10px;border-radius:999px;display:flex;gap:6px;align-items:center;cursor:pointer}
-  .chk input{accent-color:#4c51bf}
-  .filters-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-  .filters-controls select{padding:8px 10px;border-radius:10px;border:2px solid var(--ring)}
+  /* Follow Up layout: auto wraps to 1–4 cols */
   .followup-sections{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
   .followup-sections h3{margin-top:0;font-size:1rem;color:var(--muted);font-weight:700}
+  .pill-911{background:#ffe2e2;color:#7a0613;border-left:4px solid #c53030}
 </style>
 </head>
 <body>
@@ -246,6 +231,10 @@
           <div>
             <h3>Future</h3>
             <div id="followupFuture" class="list"></div>
+          </div>
+          <div>
+            <h3>911</h3>
+            <div id="followup911" class="list"></div>
           </div>
         </div>
       </div>
@@ -608,12 +597,19 @@
       if (editBtn) { const id = editBtn.getAttribute('data-id'); if (id) openInteractionModal(id); return; }
     });
 
-    // Delegated toggle/delete for follow-ups (works for all sections)
+    // Delegated toggle/delete for follow-ups (and 911 "create" action)
     document.addEventListener('click', (e) => {
       const toggleBtn = e.target.closest('button[data-action="toggle-followup"]');
       if (toggleBtn) { const id = toggleBtn.getAttribute('data-id'); if (id) toggleFollowUp(id); return; }
       const deleteBtn = e.target.closest('button[data-action="delete-followup"]');
       if (deleteBtn) { const id = deleteBtn.getAttribute('data-id'); if (id) deleteFollowUp(id); return; }
+      const createBtn = e.target.closest('button[data-action="create-followup-for-client"]');
+      if (createBtn) {
+        const id = createBtn.getAttribute('data-id');
+        const notes = createBtn.getAttribute('data-notes') || '';
+        if (id) openFollowUpModal(id, notes);
+        return;
+      }
     });
 
     // Delegated edit/delete for sales
@@ -679,7 +675,6 @@
   function deleteFollowUp(id) {
     const f = followUps.find(x => x.id === id);
     if (!f) return;
-    // Only prompt for auto-created specifically
     const isAuto = f.type !== 'manual';
     const ok = confirm(isAuto ? 'Delete this auto-created follow-up?' : 'Delete this follow-up?');
     if (!ok) return;
@@ -1155,11 +1150,15 @@
   }
 
   // ---------- Follow Ups ----------
-  function openFollowUpModal(){
+  function openFollowUpModal(prefillClientId=null, defaultNotes=''){
     const select = $('#followupClient');
     select.innerHTML = '<option value="">Select client...</option>' +
       clients.map(c => `<option value="${c.id}">${escapeHTML(fullNameOf(c))}</option>`).join('');
-    $('#followupDate').value = new Date().toISOString().slice(0,10);
+    const today = new Date().toISOString().slice(0,10);
+    $('#followupDate').value = today;
+    $('#followupNotes').value = defaultNotes || '';
+    if (prefillClientId) select.value = prefillClientId;
+
     const modal = $('#followupModal');
     modal.classList.add('active');
     setTimeout(() => { modal.querySelector('input,select,textarea,button')?.focus(); }, 0);
@@ -1182,19 +1181,37 @@
   }
 
   function renderFollowUps(){
-    const today = new Date().toISOString().slice(0,10);
-    const pastDue = [], upcoming = [], future = [];
+    const todayStr = new Date().toISOString().slice(0,10);
+    const today = new Date(todayStr);
+    const pastDue = [], upcoming = [], future = [], emergency = [];
+
+    // Split existing (pending) follow ups
     followUps.forEach(f => {
       if (f.completed) return;
-      if (f.date < today) pastDue.push(f);
-      else if (f.date === today || (f.date > today && (new Date(f.date) - new Date(today)) / 86400000 <= 14)) upcoming.push(f);
+      if (f.date < todayStr) pastDue.push(f);
+      else if (f.date === todayStr || (new Date(f.date) - today) / 86400000 <= 14) upcoming.push(f);
       else future.push(f);
     });
 
-    const byDate = (a,b) => new Date(a.date) - new Date(b.date);
-    $('#followupPastDue').innerHTML = pastDue.sort(byDate).map(renderFollowUpRow).join('') || `<div class="muted">—</div>`;
-    $('#followupUpcoming').innerHTML = upcoming.sort(byDate).map(renderFollowUpRow).join('') || `<div class="muted">—</div>`;
-    $('#followupFuture').innerHTML = future.sort(byDate).map(renderFollowUpRow).join('') || `<div class="muted">—</div>`;
+    // Build 911 list (no interactions for 2+ months)
+    const threshold = new Date(today);
+    threshold.setMonth(threshold.getMonth() - 2);
+    clients.forEach(c => {
+      const lastIt = lastInteractionDate(c.id) || (c.createdAt ? new Date(c.createdAt) : null);
+      if (!lastIt) return; // if literally brand new with no createdAt, skip (shouldn't happen)
+      if (lastIt < threshold) {
+        emergency.push({
+          clientId: c.id,
+          lastDate: lastIt
+        });
+      }
+    });
+
+    const byDateAsc = (a,b) => new Date(a.date) - new Date(b.date);
+    $('#followupPastDue').innerHTML = pastDue.sort(byDateAsc).map(renderFollowUpRow).join('') || `<div class="muted">—</div>`;
+    $('#followupUpcoming').innerHTML = upcoming.sort(byDateAsc).map(renderFollowUpRow).join('') || `<div class="muted">—</div>`;
+    $('#followupFuture').innerHTML = future.sort(byDateAsc).map(renderFollowUpRow).join('') || `<div class="muted">—</div>`;
+    $('#followup911').innerHTML = render911List(emergency) || `<div class="muted">—</div>`;
   }
 
   function renderFollowUpRow(f){
@@ -1217,6 +1234,34 @@
         </div>
         ${f.notes ? `<div style="margin-top:8px">${escapeHTML(f.notes)}</div>` : ''}
       </div>`;
+  }
+
+  function render911List(items){
+    if (!items.length) return '';
+    // distinct one card per client
+    const seen = new Set();
+    return items.filter(x => {
+      if (seen.has(x.clientId)) return false;
+      seen.add(x.clientId); return true;
+    }).sort((a,b)=>a.lastDate - b.lastDate).map(x => {
+      const c = clients.find(cc => cc.id === x.clientId);
+      const name = c ? fullNameOf(c) : 'Unknown Client';
+      const lastStr = x.lastDate ? new Date(x.lastDate).toLocaleDateString() : '—';
+      const note = `URGENT: No interactions since ${lastStr}`;
+      return `
+        <div class="interaction-item pill-911">
+          <div class="client-header">
+            <div>
+              <div class="client-name">🚨 ${escapeHTML(name)}</div>
+              <div class="muted" style="margin-top:4px">Last interaction: ${lastStr}</div>
+            </div>
+            <div class="buttons">
+              <button class="btn primary" data-action="create-followup-for-client" data-id="${x.clientId}" data-notes="${escapeHTML(note)}">Create Follow‑Up</button>
+            </div>
+          </div>
+          <div style="margin-top:8px">No interactions for 2+ months — immediate outreach recommended.</div>
+        </div>`;
+    }).join('');
   }
 
   // ---------- Dashboard ----------
