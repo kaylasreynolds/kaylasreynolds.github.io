@@ -49,9 +49,9 @@
   .client-header{display:flex;justify-content:space-between;gap:12px}
   .client-name{font-weight:800}
   .chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:.75rem;font-weight:700}
-  .status-active{background:#c6f6d5;color:#22543d}
-  .status-prospect{background:#fef5e7;color:#7d6608}
-  .status-inactive{background:#fed7d7;color:#742a2a}
+  .status-introductory{background:#e6f0ff;color:#1a365d}        /* soft blue */
+  .status-first-appointment{background:#fffbea;color:#744210}   /* soft amber */
+  .status-established{background:#c6f6d5;color:#22543d}          /* soft green */
   .badge-sale{background:linear-gradient(135deg,var(--ok),var(--ok2));color:#fff;padding:4px 10px;border-radius:999px;font-size:.75rem;font-weight:800;margin-left:8px}
   .buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
   .btn{padding:10px 16px;border:0;border-radius:999px;font-weight:800;cursor:pointer}
@@ -282,7 +282,11 @@
         <div class="row-cols">
           <div>
             <label>Status</label>
-            <select id="clientStatus"><option>Prospect</option><option>Active</option><option>Inactive</option></select>
+            <select id="clientStatus">
+                <option>Introductory</option>
+                <option>First Appointment</option>
+                <option>Established</option>
+            </select>
           </div>
           <div>
             <label>Initial Sales Amount</label>
@@ -378,6 +382,13 @@
   const escapeHTML = (str) => String(str ?? '')
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+  const VALID_STATUSES = ["Introductory","First Appointment","Established"];
+  const statusSlug = s => String(s||"").toLowerCase().replace(/\s+/g,'-'); // "First Appointment" -> "first-appointment"
+  const mapOldStatus = s => ({
+    "Prospect":"Introductory",
+    "Active":"Established",
+    "Inactive":"Introductory"
+  }[s] || (VALID_STATUSES.includes(s)? s : "Introductory"));
 
   // Styles config + helpers
   const ALLOWED_STYLES = ["Bohemian","Classic","Edgy","Casual","Vintage","Trendy"];
@@ -425,6 +436,9 @@
           if (c.styles.length) migrated = true;
         } else {
           c.styles = normalizeStyles(c.styles);
+            // after styles migration inside clients.forEach(c => { ... })
+          c.status = mapOldStatus(c.status);
+  
         }
       });
       if (migrated) saveData();
@@ -558,7 +572,7 @@
       const stylesSel = document.getElementById('clientStyles');
       const stylesArr = normalizeStyles(c.styles ?? c.style);
       [...stylesSel.options].forEach(o => o.selected = stylesArr.includes(o.value));
-      document.getElementById('clientStatus').value    = c.status || 'Prospect';
+      document.getElementById('clientStatus').value = 'Introductory';
       document.getElementById('clientInitialSales').value = c.initialSales ?? '';
       document.getElementById('clientNotes').value     = c.notes || '';
     } else {
@@ -584,7 +598,7 @@
       email: document.getElementById('clientEmail').value.trim(),
       phone: document.getElementById('clientPhone').value.trim(),
       styles: normalizeStyles(getSelectedValues(document.getElementById('clientStyles'))),
-      status: document.getElementById('clientStatus').value,
+      status: document.getElementById('clientStatus').value || 'Introductory',
       initialSales: parseFloat(document.getElementById('clientInitialSales').value) || 0,
       notes: document.getElementById('clientNotes').value.trim(),
       createdAt: new Date().toISOString()
@@ -645,7 +659,8 @@
                   ${c.styles.map(s => `<span class="tag">${escapeHTML(s)}</span>`).join('')}
                 </div>` : ''}
             </div>
-            <span class="chip status-${(c.status||'Prospect').toLowerCase()}">${escapeHTML(c.status||'Prospect')}</span>
+            <span class="chip status-${statusSlug(c.status||'Introductory')}">
+              ${escapeHTML(c.status || 'Introductory')} </span>
           </div>
           <div class="buttons">
             <button class="btn primary" onclick="openClientView('${c.id}')">View</button>
@@ -1015,3 +1030,4 @@
 </script>
 </body>
 </html>
+
