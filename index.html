@@ -338,7 +338,7 @@
               <option>Call</option><option>Email</option><option>Meeting</option><option>Message</option><option>Other</option>
             </select>
           </div>
-          <div><label>Date *</label><input type="datetime-local" id="interactionDate" required></div>
+          <div><label>Date *</label><input type="date" id="interactionDate" required></div>
         </div>
         <div><label>Notes</label><textarea id="interactionNotes" placeholder="Describe the interaction..."></textarea></div>
         <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
@@ -802,7 +802,7 @@
       id: Date.now().toString(),
       clientId,
       type: document.getElementById('interactionType').value,
-      date: document.getElementById('interactionDate').value,
+      date: document.getElementById('interactionDate').value,new Date().toISOString().slice(0,10)),
       notes: document.getElementById('interactionNotes').value.trim(),
       createdAt: new Date().toISOString()
     });
@@ -967,7 +967,7 @@
 
     // Helpers
     const clientById = (id)=>clients.find(c=>c.id===id);
-    const whenFmt = (iso)=>new Date(iso).toLocaleString([], { hour:'2-digit', minute:'2-digit', year:'numeric', month:'short', day:'numeric' });
+    const whenFmt = (iso)=>new Date(iso).toLocaleString([], { year:'numeric', month:'short', day:'numeric' });
 
     // Render Interactions (cap to 25 for performance)
     if (interSorted.length === 0){
@@ -1030,4 +1030,5 @@
 </script>
 </body>
 </html>
+
 
