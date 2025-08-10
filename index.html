@@ -297,7 +297,13 @@
       <form id="interactionForm" onsubmit="saveInteraction(event)">
         <div>
           <label>Client *</label>
-          <select id="interactionClient" required><option value="">Select client...</option></select>
+          <select id="interactionType">
+  <option>Call</option>
+  <option>Email</option>
+  <option>Text</option>
+  <option>In-person</option>
+</select>
+
         </div>
         <div class="row-cols">
           <div>
@@ -972,3 +978,4 @@
 </script>
 </body>
 </html>
+
