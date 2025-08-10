@@ -73,6 +73,15 @@
       <p class="muted">Manage your clients, track interactions, and monitor sales</p>
     </header>
 
+    <!-- Export / Import / Clear -->
+      <div class="toolbar">
+        <button id="exportBtn" class="btn ghost">⬇️ Export Data</button>
+        <button id="importBtn" class="btn ghost">⬆️ Import Data</button>
+        <input id="importFile" type="file" accept="application/json" style="display:none">
+        <button id="clearBtn" class="btn danger">🗑️ Clear Data</button>
+      </div>
+    </header>
+
     <div class="tabs">
       <button class="tab active" data-tab="dashboard" onclick="switchTab('dashboard')">📊 Dashboard</button>
       <button class="tab" data-tab="clients" onclick="switchTab('clients')">👥 Clients</button>
@@ -347,29 +356,134 @@
   let sales = [];          // {id, clientId, amount, date, description, createdAt}
   let editingClientId = null;
 
-  // ---------- Init ----------
+  // ---------- Local Storage + Backup ----------
+  function saveData() {
+    localStorage.setItem('crm_clients', JSON.stringify(clients));
+    localStorage.setItem('crm_interactions', JSON.stringify(interactions));
+    localStorage.setItem('crm_sales', JSON.stringify(sales));
+  }
+  function loadData() {
+    try {
+      clients = JSON.parse(localStorage.getItem('crm_clients') || '[]');
+      interactions = JSON.parse(localStorage.getItem('crm_interactions') || '[]');
+      sales = JSON.parse(localStorage.getItem('crm_sales') || '[]');
+
+      // Migration: old "name" -> first/last
+      let migrated = false;
+      clients.forEach(c => {
+        if (!c.firstName && c.name) {
+          const parts = String(c.name).trim().split(/\s+/);
+          c.firstName = parts.shift() || '';
+          c.lastName = parts.join(' ');
+          delete c.name;
+          migrated = true;
+        }
+      });
+      if (migrated) saveData();
+    } catch(e) {
+      console.warn('Failed to load saved data:', e);
+      clients = []; interactions = []; sales = [];
+    }
+  }
+  function exportData() {
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      version: 1,
+      clients, interactions, sales
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'crm-backup.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+  function importData(file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result);
+        if (!data || !Array.isArray(data.clients) || !Array.isArray(data.interactions) || !Array.isArray(data.sales)) {
+          alert('Invalid file format.'); 
+          return;
+        }
+        clients = data.clients;
+        interactions = data.interactions;
+        sales = data.sales;
+        saveData();
+        renderClients();
+        renderInteractions();
+        renderSalesView();
+        updateDashboard();
+        alert('Import complete ✔️');
+      } catch (e) {
+        console.error(e);
+        alert('Could not parse the file.');
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  // ---------- Startup ----------
   document.addEventListener('DOMContentLoaded', () => {
-    updateDashboard();
+    // Load saved data
+    loadData();
+
+    // Render initial UI
     renderClients();
+    renderInteractions();
+    renderSalesView();
+    updateDashboard();
 
-    // default interaction datetime (local)
-    const now = new Date();
-    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    $('#interactionDate').value = now.toISOString().slice(0, 16);
 
-    // default sale date (today)
-    $('#saleDate').value = new Date().toISOString().split('T')[0];
+      // Default dates
+    const interactionDate = document.getElementById('interactionDate');
+    if (interactionDate) {
+      const now = new Date();
+      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+      interactionDate.value = now.toISOString().slice(0, 16);
+    }
+    const saleDate = document.getElementById('saleDate');
+    if (saleDate) saleDate.value = new Date().toISOString().split('T')[0];
 
-    // Close modals on ESC
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape') closeAllModals();
-    });
+    // ESC to close modals
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAllModals(); });
 
     // Click outside panel closes modal
     document.addEventListener('click', e => {
       const m = e.target.closest('.modal');
       if (m && !e.target.closest('.panel')) m.classList.remove('active');
     });
+
+  // Wire header buttons
+    const exportBtn = document.getElementById('exportBtn');
+    const importBtn = document.getElementById('importBtn');
+    const importFile = document.getElementById('importFile');
+    const clearBtn  = document.getElementById('clearBtn');
+    if (exportBtn) exportBtn.addEventListener('click', exportData);
+    if (importBtn && importFile) {
+      importBtn.addEventListener('click', () => importFile.click());
+      importFile.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) importData(file);
+        importFile.value = '';
+      });
+    }
+    if (clearBtn) {
+      clearBtn.addEventListener('click', () => {
+        if (confirm('Clear ALL clients, interactions, and sales? This cannot be undone.')) {
+          clients = []; interactions = []; sales = [];
+          saveData();
+          renderClients();
+          renderInteractions();
+          renderSalesView();
+          updateDashboard();
+        }
+      });
+    }
   });
 
   function closeAllModals(){ $$('.modal.active').forEach(m => m.classList.remove('active')); }
@@ -386,7 +500,7 @@
   const fullNameOf = (c) => `${c.firstName ?? ''} ${c.lastName ?? ''}`.trim();
   const lastNameKey = (c) => (c.lastName || '').toLowerCase();
 
-  // ---------- Clients ----------
+ // ---------- Clients ----------
   function openClientModal(clientId=null){
     editingClientId = clientId;
     const modal = $('#clientModal');
@@ -436,6 +550,7 @@
       clientData.id = Date.now().toString();
       clients.push(clientData);
     }
+    saveData();
     closeClientModal();
     renderClients();
     updateDashboard();
@@ -446,6 +561,7 @@
     clients = clients.filter(c => c.id !== clientId);
     interactions = interactions.filter(i => i.clientId !== clientId);
     sales = sales.filter(s => s.clientId !== clientId);
+    saveData();
     renderClients();
     updateDashboard();
   }
@@ -595,6 +711,7 @@
       notes: $('#interactionNotes').value.trim(),
       createdAt: new Date().toISOString()
     });
+    saveData();
     closeInteractionModal();
     renderInteractions();
     updateDashboard();
@@ -674,6 +791,7 @@
       description: $('#saleDescription').value.trim(),
       createdAt: new Date().toISOString()
     });
+    saveData();
     closeSaleModal();
     renderSalesView();
     updateDashboard();
@@ -730,6 +848,7 @@
   function deleteSale(id){
     if (!confirm('Delete this sale?')) return;
     sales = sales.filter(s => s.id !== id);
+    saveData();
     renderSalesView();
     updateDashboard();
     renderClients();
@@ -800,5 +919,6 @@
 </script>
 </body>
 </html>
+
 
 
