@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>CRM - Client Relationship Management</title>
+<title>CRM System - Client Relationship Management</title>
 <style>
   :root{
     /* Darker brand tones for better contrast */
@@ -21,12 +21,15 @@
   .container{max-width:1200px;margin:auto;padding:20px}
   header{background:var(--card);backdrop-filter:blur(10px);border-radius:20px;padding:24px;margin-bottom:20px;box-shadow:var(--shadow)}
   h1{margin:0 0 6px;background:linear-gradient(135deg,var(--grad1),var(--grad2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
   .tabs{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}
   .tab{padding:10px 18px;border:0;border-radius:999px;background:#ffffff;cursor:pointer;font-weight:700;box-shadow:0 4px 15px rgba(0,0,0,.1)}
   .tab.active,[aria-selected="true"]{color:#fff;background:linear-gradient(135deg,var(--grad1),var(--grad2))}
   .grid{display:grid;gap:16px}
   .stats{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
   .card{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:20px}
+  /* add space before the second card on dashboard */
+  #dashboard .card + .card { margin-top:20px; }
   .stat-number{font-size:2rem;font-weight:800;background:linear-gradient(135deg,var(--grad1),var(--grad2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
   .muted{color:var(--muted);font-size:.95rem}
   .search{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;margin-bottom:12px}
@@ -47,6 +50,9 @@
   .btn.primary{color:#fff;background:linear-gradient(135deg,var(--grad1),var(--grad2))}
   .btn.ghost{background:#e5e5e5}
   .btn.danger{color:#fff;background:linear-gradient(135deg,var(--danger),var(--danger2))}
+  /* tags for multi-style display */
+  .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+  .tag{background:#eef;color:#333;padding:4px 10px;border-radius:999px;font-size:.75rem;font-weight:700}
   /* modal */
   .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.45);z-index:10}
   .modal.active{display:flex}
@@ -64,18 +70,15 @@
   .activity-icon.sale{background:linear-gradient(135deg,var(--ok),var(--ok2))}
   .activity-icon.interaction{background:linear-gradient(135deg,var(--grad1),var(--grad2))}
   @media (max-width:768px){.container{padding:12px}}
-  .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
-.tag{background:#eef; color:#333; padding:4px 10px; border-radius:999px; font-size:.75rem; font-weight:700}
 </style>
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>CRM</h1>
+      <h1>CRM System</h1>
       <p class="muted">Manage your clients, track interactions, and monitor sales</p>
-    </header>
 
-    <!-- Export / Import / Clear -->
+      <!-- Export / Import / Clear -->
       <div class="toolbar">
         <button id="exportBtn" class="btn ghost">⬇️ Export Data</button>
         <button id="importBtn" class="btn ghost">⬆️ Import Data</button>
@@ -92,7 +95,7 @@
     </div>
 
     <!-- Dashboard -->
-    <div id="dashboard" class="tab-content active">
+    <div id="dashboard" class="tab-content">
       <div class="grid stats">
         <div class="card">
           <div class="stat-number" id="totalClients">0</div>
@@ -112,9 +115,9 @@
         </div>
       </div>
 
-     <div class="card" style="margin-top:20px">
-  <h2 style="margin:0 0 12px">Recent Activity</h2>
-  <div class="activity-list" id="activityList">
+      <div class="card">
+        <h2 style="margin:0 0 12px">Recent Activity</h2>
+        <div class="activity-list" id="activityList">
           <div class="empty-state">
             <div style="font-size:42px;opacity:.6">📋</div>
             <p>No recent activity</p>
@@ -222,28 +225,28 @@
             <input type="tel" id="clientPhone">
           </div>
         </div>
+        <div>
+          <label>Style Vibe (choose one or more)</label>
+          <select id="clientStyles" multiple size="6">
+            <option>Bohemian</option>
+            <option>Classic</option>
+            <option>Edgy</option>
+            <option>Casual</option>
+            <option>Vintage</option>
+            <option>Trendy</option>
+          </select>
+        </div>
         <div class="row-cols">
-          <div>
-            <label>Style Vibe</label>
-<select id="clientStyles" multiple size="6">
-  <option>Bohemian</option>
-  <option>Classic</option>
-  <option>Edgy</option>
-  <option>Casual</option>
-  <option>Vintage</option>
-  <option>Trendy</option>
-</select>
-          </div>
           <div>
             <label>Status</label>
             <select id="clientStatus">
               <option>Prospect</option><option>Active</option><option>Inactive</option>
             </select>
           </div>
-        </div>
-        <div>
-          <label>Initial Sales Amount</label>
-          <input type="number" id="clientInitialSales" min="0" step="0.01" placeholder="0.00">
+          <div>
+            <label>Initial Sales Amount</label>
+            <input type="number" id="clientInitialSales" min="0" step="0.01" placeholder="0.00">
+          </div>
         </div>
         <div>
           <label>Notes</label>
@@ -353,21 +356,21 @@
   const escapeHTML = (str) => String(str ?? '')
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
-  const ALLOWED_STYLES = ["Bohemian","Classic","Edgy","Casual","Vintage","Trendy"];
-const getSelectedValues = (selectEl) => [...selectEl.options].filter(o => o.selected).map(o => o.value);
-const normalizeStyles = (arrOrStr) => {
-  if (Array.isArray(arrOrStr)) return arrOrStr.filter(v => ALLOWED_STYLES.includes(v));
-  if (typeof arrOrStr === 'string' && arrOrStr.trim()) {
-    // Allow migrating from single string (or comma separated, just in case)
-    const parts = arrOrStr.split(',').map(s => s.trim()).filter(Boolean);
-    return parts.filter(v => ALLOWED_STYLES.includes(v));
-  }
-  return [];
-};
 
+  // Styles config + helpers
+  const ALLOWED_STYLES = ["Bohemian","Classic","Edgy","Casual","Vintage","Trendy"];
+  const getSelectedValues = (selectEl) => [...selectEl.options].filter(o => o.selected).map(o => o.value);
+  const normalizeStyles = (arrOrStr) => {
+    if (Array.isArray(arrOrStr)) return arrOrStr.filter(v => ALLOWED_STYLES.includes(v));
+    if (typeof arrOrStr === 'string' && arrOrStr.trim()) {
+      const parts = arrOrStr.split(',').map(s => s.trim()).filter(Boolean);
+      return parts.filter(v => ALLOWED_STYLES.includes(v));
+    }
+    return [];
+  };
 
   // ---------- Data ----------
-  let clients = [];        // {id, firstName, lastName, email, phone, style, status, initialSales, notes, createdAt}
+  let clients = [];        // {id, firstName, lastName, email, phone, styles[], status, initialSales, notes, createdAt}
   let interactions = [];   // {id, clientId, type, date, notes, createdAt}
   let sales = [];          // {id, clientId, amount, date, description, createdAt}
   let editingClientId = null;
@@ -385,25 +388,24 @@ const normalizeStyles = (arrOrStr) => {
       sales = JSON.parse(localStorage.getItem('crm_sales') || '[]');
 
       // Migration: old "name" -> first/last AND old "style" -> styles[]
-let migrated = false;
-clients.forEach(c => {
-  if (!c.firstName && c.name) {
-    const parts = String(c.name).trim().split(/\s+/);
-    c.firstName = parts.shift() || '';
-    c.lastName = parts.join(' ');
-    delete c.name;
-    migrated = true;
-  }
-  if (!c.styles) {
-    c.styles = normalizeStyles(c.style); // c.style could be single string
-    delete c.style;
-    if (c.styles.length) migrated = true;
-  } else {
-    c.styles = normalizeStyles(c.styles);
-  }
-});
-if (migrated) saveData();
-
+      let migrated = false;
+      clients.forEach(c => {
+        if (!c.firstName && c.name) {
+          const parts = String(c.name).trim().split(/\s+/);
+          c.firstName = parts.shift() || '';
+          c.lastName = parts.join(' ');
+          delete c.name;
+          migrated = true;
+        }
+        if (!c.styles) {
+          c.styles = normalizeStyles(c.style);
+          delete c.style;
+          if (c.styles.length) migrated = true;
+        } else {
+          c.styles = normalizeStyles(c.styles);
+        }
+      });
+      if (migrated) saveData();
     } catch(e) {
       console.warn('Failed to load saved data:', e);
       clients = []; interactions = []; sales = [];
@@ -434,7 +436,7 @@ if (migrated) saveData();
           alert('Invalid file format.'); 
           return;
         }
-        clients = data.clients;
+        clients = data.clients.map(c => ({ ...c, styles: normalizeStyles(c.styles ?? c.style) }));
         interactions = data.interactions;
         sales = data.sales;
         saveData();
@@ -462,8 +464,7 @@ if (migrated) saveData();
     renderSalesView();
     updateDashboard();
 
-
-      // Default dates
+    // Default dates
     const interactionDate = document.getElementById('interactionDate');
     if (interactionDate) {
       const now = new Date();
@@ -482,7 +483,7 @@ if (migrated) saveData();
       if (m && !e.target.closest('.panel')) m.classList.remove('active');
     });
 
-  // Wire header buttons
+    // Wire header buttons
     const exportBtn = document.getElementById('exportBtn');
     const importBtn = document.getElementById('importBtn');
     const importFile = document.getElementById('importFile');
@@ -524,56 +525,57 @@ if (migrated) saveData();
   const fullNameOf = (c) => `${c.firstName ?? ''} ${c.lastName ?? ''}`.trim();
   const lastNameKey = (c) => (c.lastName || '').toLowerCase();
 
- // ---------- Clients ----------
+  // ---------- Clients ----------
   function openClientModal(clientId=null){
     editingClientId = clientId;
-    const modal = $('#clientModal');
-    const form = $('#clientForm');
+    const modal = document.getElementById('clientModal');
+    const form = document.getElementById('clientForm');
 
-if (clientId){
-  const c = clients.find(x => x.id === clientId);
-  $('#clientModalTitle').textContent = 'Edit Client';
-  $('#clientFirstName').value = c.firstName || '';
-  $('#clientLastName').value  = c.lastName || '';
-  $('#clientEmail').value     = c.email || '';
-  $('#clientPhone').value     = c.phone || '';
-  // preselect styles
-  const stylesSel = $('#clientStyles');
-  const stylesArr = normalizeStyles(c.styles ?? c.style);
-  [...stylesSel.options].forEach(o => o.selected = stylesArr.includes(o.value));
-  $('#clientStatus').value    = c.status || 'Prospect';
-  $('#clientInitialSales').value = c.initialSales ?? '';
-  $('#clientNotes').value     = c.notes || '';
-} else {
-  $('#clientModalTitle').textContent = 'Add New Client';
-  $('#clientForm').reset();
-  $('#clientStatus').value = 'Prospect';
-  // clear style selection
-  const stylesSel = $('#clientStyles');
-  [...stylesSel.options].forEach(o => o.selected = false);
-}
+    if (clientId){
+      const c = clients.find(x => x.id === clientId);
+      document.getElementById('clientModalTitle').textContent = 'Edit Client';
+      document.getElementById('clientFirstName').value = c.firstName || '';
+      document.getElementById('clientLastName').value  = c.lastName || '';
+      document.getElementById('clientEmail').value     = c.email || '';
+      document.getElementById('clientPhone').value     = c.phone || '';
 
-    modal.classList.add('active');
+      // preselect multiple styles
+      const stylesSel = document.getElementById('clientStyles');
+      const stylesArr = normalizeStyles(c.styles ?? c.style);
+      [...stylesSel.options].forEach(o => o.selected = stylesArr.includes(o.value));
+
+      document.getElementById('clientStatus').value    = c.status || 'Prospect';
+      document.getElementById('clientInitialSales').value = c.initialSales ?? '';
+      document.getElementById('clientNotes').value     = c.notes || '';
+    } else {
+      document.getElementById('clientModalTitle').textContent = 'Add New Client';
+      form.reset();
+      document.getElementById('clientStatus').value = 'Prospect';
+
+      // clear multiple styles selection
+      const stylesSel = document.getElementById('clientStyles');
+      [...stylesSel.options].forEach(o => o.selected = false);
+    }
+
+    modal.classList.add('active'); // keep opening behavior
   }
-  function closeClientModal(){ $('#clientModal').classList.remove('active'); $('#clientForm').reset(); editingClientId=null; }
+  function closeClientModal(){ document.getElementById('clientModal').classList.remove('active'); document.getElementById('clientForm').reset(); editingClientId=null; }
 
   function saveClient(e){
     e.preventDefault();
-    const firstName = $('#clientFirstName').value.trim();
-    const lastName  = $('#clientLastName').value.trim();
+    const firstName = document.getElementById('clientFirstName').value.trim();
+    const lastName  = document.getElementById('clientLastName').value.trim();
     if (!firstName || !lastName){ alert('First and last names are required.'); return; }
 
-const clientData = {
-  firstName, lastName,
-  email: $('#clientEmail').value.trim(),
-  phone: $('#clientPhone').value.trim(),
-  styles: normalizeStyles(getSelectedValues($('#clientStyles'))),
-  status: $('#clientStatus').value,
-  initialSales: parseFloat($('#clientInitialSales').value) || 0,
-  notes: $('#clientNotes').value.trim(),
-  createdAt: new Date().toISOString()
-};
-
+    const clientData = {
+      firstName, lastName,
+      email: document.getElementById('clientEmail').value.trim(),
+      phone: document.getElementById('clientPhone').value.trim(),
+      styles: normalizeStyles(getSelectedValues(document.getElementById('clientStyles'))),
+      status: document.getElementById('clientStatus').value,
+      initialSales: parseFloat(document.getElementById('clientInitialSales').value) || 0,
+      notes: document.getElementById('clientNotes').value.trim(),
+      createdAt: new Date().toISOString()
     };
 
     if (editingClientId){
@@ -606,7 +608,7 @@ const clientData = {
   }
 
   function renderClients(source = clients){
-    const list = $('#clientList');
+    const list = document.getElementById('clientList');
     if (source.length === 0){
       list.innerHTML = `
         <div class="empty-state">
@@ -617,7 +619,7 @@ const clientData = {
     }
 
     // Apply current sort
-    const sorted = sortClients([...source], $('#clientSort').value || 'createdAt_desc');
+    const sorted = sortClients([...source], document.getElementById('clientSort').value || 'createdAt_desc');
 
     list.innerHTML = sorted.map(c => {
       const totalSpent = totalSpentFor(c.id);
@@ -629,14 +631,13 @@ const clientData = {
                 ${escapeHTML(fullNameOf(c))}
                 ${totalSpent > 0 ? `<span class="badge-sale">${fmtUSD.format(totalSpent)}</span>` : ''}
               </div>
-             <div class="muted" style="margin-top:4px">
-  ${c.email ? `📧 ${escapeHTML(c.email)} · ` : ''}${c.phone ? `📱 ${escapeHTML(c.phone)}` : ''}
-</div>
-${(c.styles && c.styles.length) ? `
-  <div class="tags" aria-label="Style Vibes">
-    ${c.styles.map(s => `<span class="tag">${escapeHTML(s)}</span>`).join('')}
-  </div>` : ''}
-
+              <div class="muted" style="margin-top:4px">
+                ${c.email ? `📧 ${escapeHTML(c.email)} · ` : ''}${c.phone ? `📱 ${escapeHTML(c.phone)}` : ''}
+              </div>
+              ${(c.styles && c.styles.length) ? `
+                <div class="tags" aria-label="Style Vibes">
+                  ${c.styles.map(s => `<span class="tag">${escapeHTML(s)}</span>`).join('')}
+                </div>` : ''}
             </div>
             <span class="chip status-${(c.status||'Prospect').toLowerCase()}">${escapeHTML(c.status||'Prospect')}</span>
           </div>
@@ -650,12 +651,14 @@ ${(c.styles && c.styles.length) ? `
   }
 
   function searchClients(){
-    const byStyle = (a,b) => {
-  const sa = (a.styles && a.styles.length) ? [...a.styles].sort()[0] : '';
-  const sb = (b.styles && b.styles.length) ? [...b.styles].sort()[0] : '';
-  return sa.toLowerCase().localeCompare(sb.toLowerCase());
-};
-
+    const term = (document.getElementById('clientSearch').value || '').toLowerCase();
+    const filtered = clients.filter(c =>
+      fullNameOf(c).toLowerCase().includes(term) ||
+      (c.email && c.email.toLowerCase().includes(term)) ||
+      (c.phone && c.phone.includes(term)) ||
+      (c.styles && c.styles.some(s => s.toLowerCase().includes(term)))
+    );
+    renderClients(filtered);
   }
 
   function applyClientSort(){ renderClients(); }
@@ -664,11 +667,10 @@ ${(c.styles && c.styles.length) ? `
     const bySpent = (a,b) => totalSpentFor(a.id) - totalSpentFor(b.id);
     const byLast  = (a,b) => lastNameKey(a).localeCompare(lastNameKey(b));
     const byStyle = (a,b) => {
-  const sa = (a.styles && a.styles.length) ? [...a.styles].sort()[0] : '';
-  const sb = (b.styles && b.styles.length) ? [...b.styles].sort()[0] : '';
-  return sa.toLowerCase().localeCompare(sb.toLowerCase());
-};
-
+      const sa = (a.styles && a.styles.length) ? [...a.styles].sort()[0] : '';
+      const sb = (b.styles && b.styles.length) ? [...b.styles].sort()[0] : '';
+      return sa.toLowerCase().localeCompare(sb.toLowerCase());
+    };
     const byCreated = (a,b) => new Date(a.createdAt) - new Date(b.createdAt);
 
     switch(mode){
@@ -692,22 +694,21 @@ ${(c.styles && c.styles.length) ? `
     const lastIt = its[0];
     const clSales = sales.filter(s => s.clientId === clientId).sort((a,b) => new Date(b.date)-new Date(a.date));
 
-    $('#clientViewBody').innerHTML = `
+    document.getElementById('clientViewBody').innerHTML = `
       <div class="card" style="box-shadow:none;padding:0">
         <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
-          <div>
+          <div style="min-width:0">
             <h3 style="margin:0 0 6px">${escapeHTML(fullNameOf(c))}</h3>
             <div class="muted">
-              ${c.email ? `📧 ${escapeHTML(c.email)} · ` : ''}${c.phone ? `📱 ${escapeHTML(c.phone)} · ` : ''}
-              </div>
-              ${(c.styles && c.styles.length) ? `
-  <div class="tags" style="margin-top:6px">
-    ${c.styles.map(s => `<span class="tag">${escapeHTML(s)}</span>`).join('')}
-  </div>` : ''}
-<span class="chip status-${(c.status||'Prospect').toLowerCase()}" style="margin-top:8px;display:inline-block">
-  ${escapeHTML(c.status||'Prospect')}
-</span>
+              ${c.email ? `📧 ${escapeHTML(c.email)} · ` : ''}${c.phone ? `📱 ${escapeHTML(c.phone)}` : ''}
             </div>
+            ${(c.styles && c.styles.length) ? `
+              <div class="tags" style="margin-top:6px">
+                ${c.styles.map(s => `<span class="tag">${escapeHTML(s)}</span>`).join('')}
+              </div>` : ''}
+            <span class="chip status-${(c.status||'Prospect').toLowerCase()}" style="margin-top:8px;display:inline-block">
+              ${escapeHTML(c.status||'Prospect')}
+            </span>
           </div>
           <div class="badge-sale">${fmtUSD.format(total)}</div>
         </div>
@@ -735,29 +736,29 @@ ${(c.styles && c.styles.length) ? `
         </div>
       </div>
     `;
-    $('#clientViewModal').classList.add('active');
+    document.getElementById('clientViewModal').classList.add('active');
   }
-  function closeClientView(){ $('#clientViewModal').classList.remove('active'); }
+  function closeClientView(){ document.getElementById('clientViewModal').classList.remove('active'); }
 
   // ---------- Interactions ----------
   function openInteractionModal(){
-    const select = $('#interactionClient');
+    const select = document.getElementById('interactionClient');
     select.innerHTML = '<option value="">Select client...</option>' +
       clients.map(c => `<option value="${c.id}">${escapeHTML(fullNameOf(c))}</option>`).join('');
-    $('#interactionModal').classList.add('active');
+    document.getElementById('interactionModal').classList.add('active');
   }
-  function closeInteractionModal(){ $('#interactionModal').classList.remove('active'); $('#interactionForm').reset(); }
+  function closeInteractionModal(){ document.getElementById('interactionModal').classList.remove('active'); document.getElementById('interactionForm').reset(); }
 
   function saveInteraction(e){
     e.preventDefault();
-    const clientId = $('#interactionClient').value;
+    const clientId = document.getElementById('interactionClient').value;
     if (!clientId){ alert('Please select a client'); return; }
     interactions.push({
       id: Date.now().toString(),
       clientId,
-      type: $('#interactionType').value,
-      date: $('#interactionDate').value,
-      notes: $('#interactionNotes').value.trim(),
+      type: document.getElementById('interactionType').value,
+      date: document.getElementById('interactionDate').value,
+      notes: document.getElementById('interactionNotes').value.trim(),
       createdAt: new Date().toISOString()
     });
     saveData();
@@ -767,7 +768,7 @@ ${(c.styles && c.styles.length) ? `
   }
 
   function renderInteractions(source = interactions){
-    const el = $('#interactionList');
+    const el = document.getElementById('interactionList');
     if (source.length === 0){
       el.innerHTML = `
         <div class="empty-state">
@@ -797,12 +798,13 @@ ${(c.styles && c.styles.length) ? `
   function deleteInteraction(id){
     if (!confirm('Delete this interaction?')) return;
     interactions = interactions.filter(i => i.id !== id);
+    saveData();
     renderInteractions();
     updateDashboard();
   }
 
   function searchInteractions(){
-    const term = ($('#interactionSearch').value||'').toLowerCase();
+    const term = (document.getElementById('interactionSearch').value||'').toLowerCase();
     const filtered = interactions.filter(i => {
       const c = clients.find(x => x.id === i.clientId);
       return (c && fullNameOf(c).toLowerCase().includes(term)) ||
@@ -815,29 +817,29 @@ ${(c.styles && c.styles.length) ? `
   function viewClientInteractions(clientId){
     const c = clients.find(x => x.id === clientId);
     switchTab('interactions');
-    if (c){ $('#interactionSearch').value = fullNameOf(c); searchInteractions(); }
+    if (c){ document.getElementById('interactionSearch').value = fullNameOf(c); searchInteractions(); }
   }
 
   // ---------- Sales ----------
   function openSaleModal(){
-    const select = $('#saleClient');
+    const select = document.getElementById('saleClient');
     select.innerHTML = '<option value="">Select client...</option>' +
       clients.map(c => `<option value="${c.id}">${escapeHTML(fullNameOf(c))}</option>`).join('');
-    $('#saleModal').classList.add('active');
+    document.getElementById('saleModal').classList.add('active');
   }
-  function closeSaleModal(){ $('#saleModal').classList.remove('active'); $('#saleForm').reset(); }
+  function closeSaleModal(){ document.getElementById('saleModal').classList.remove('active'); document.getElementById('saleForm').reset(); }
 
   function saveSale(e){
     e.preventDefault();
-    const clientId = $('#saleClient').value;
-    const amount = parseFloat($('#saleAmount').value);
+    const clientId = document.getElementById('saleClient').value;
+    const amount = parseFloat(document.getElementById('saleAmount').value);
     if (!clientId || isNaN(amount)){ alert('Client and amount are required'); return; }
     sales.push({
       id: Date.now().toString(),
       clientId,
       amount,
-      date: $('#saleDate').value,
-      description: $('#saleDescription').value.trim(),
+      date: document.getElementById('saleDate').value,
+      description: document.getElementById('saleDescription').value.trim(),
       createdAt: new Date().toISOString()
     });
     saveData();
@@ -848,7 +850,7 @@ ${(c.styles && c.styles.length) ? `
   }
 
   function renderSalesView(){
-    const salesList = $('#salesList');
+    const salesList = document.getElementById('salesList');
     const map = new Map();
 
     clients.forEach(c => {
@@ -905,23 +907,23 @@ ${(c.styles && c.styles.length) ? `
 
   // ---------- Dashboard ----------
   function updateDashboard(){
-    $('#totalClients').textContent = clients.length;
-    $('#totalInteractions').textContent = interactions.length;
+    document.getElementById('totalClients').textContent = clients.length;
+    document.getElementById('totalInteractions').textContent = interactions.length;
 
     const now = new Date(), m = now.getMonth(), y = now.getFullYear();
     const active = new Set();
     interactions.forEach(i => { const d=new Date(i.date); if (d.getMonth()===m && d.getFullYear()===y) active.add(i.clientId); });
     sales.forEach(s => { const d=new Date(s.date); if (d.getMonth()===m && d.getFullYear()===y) active.add(s.clientId); });
-    $('#activeThisMonth').textContent = active.size;
+    document.getElementById('activeThisMonth').textContent = active.size;
 
     const total = clients.reduce((sum,c)=>sum+(c.initialSales||0),0) + sales.reduce((sum,s)=>sum+s.amount,0);
-    $('#totalSales').textContent = fmtUSD.format(total);
+    document.getElementById('totalSales').textContent = fmtUSD.format(total);
 
     renderRecentActivity();
   }
 
   function renderRecentActivity(){
-    const wrap = $('#activityList');
+    const wrap = document.getElementById('activityList');
     const items = [];
     interactions.forEach(i => {
       const c = clients.find(x=>x.id===i.clientId);
@@ -968,7 +970,3 @@ ${(c.styles && c.styles.length) ? `
 </script>
 </body>
 </html>
-
-
-
-
