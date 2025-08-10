@@ -77,6 +77,8 @@
   .chk input{accent-color:#4c51bf}
   .filters-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
   .filters-controls select{padding:8px 10px;border-radius:10px;border:2px solid var(--ring)}
+  .followup-sections{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+  .followup-sections h3{margin-top:0;font-size:1rem;color:var(--muted);font-weight:700}
 </style>
 </head>
 <body>
@@ -96,6 +98,7 @@
       <button class="tab" data-tab="clients" onclick="switchTab('clients')">👥 Clients</button>
       <button class="tab" data-tab="interactions" onclick="switchTab('interactions')">💬 Interactions</button>
       <button class="tab" data-tab="sales" onclick="switchTab('sales')">💰 Sales</button>
+      <button class="tab" data-tab="followups" onclick="switchTab('followups')">📅 Follow Up</button>
     </div>
 
     <!-- Dashboard -->
@@ -218,9 +221,33 @@
         </div>
 
         <div class="list" id="salesList">
-          <div class="empty-state">
-            <div style="font-size:42px;opacity:.6">💰</div>
-            <p>No sales data available</p>
+        <div class="empty-state">
+          <div style="font-size:42px;opacity:.6">💰</div>
+          <p>No sales data available</p>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <!-- Follow Up -->
+    <div id="followups" class="tab-content" style="display:none">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+          <h2 style="margin:0">Follow Up</h2>
+          <button class="btn primary" onclick="openFollowUpModal()">+ Add Follow Up</button>
+        </div>
+        <div class="followup-sections">
+          <div>
+            <h3>Past Due</h3>
+            <div id="followupPastDue" class="list"></div>
+          </div>
+          <div>
+            <h3>Upcoming</h3>
+            <div id="followupUpcoming" class="list"></div>
+          </div>
+          <div>
+            <h3>Future</h3>
+            <div id="followupFuture" class="list"></div>
           </div>
         </div>
       </div>
@@ -329,9 +356,9 @@
   </div>
 
   <!-- Sale Modal -->
-  <div id="saleModal" class="modal">
+   <div id="saleModal" class="modal">
     <div class="panel">
-      <header>
+      <header>␊
         <h3 style="margin:0">Record Sale</h3>
         <button class="x" onclick="closeSaleModal()">×</button>
       </header>
@@ -347,7 +374,31 @@
         <div><label>Description</label><input type="text" id="saleDescription" placeholder="What was sold?"></div>
         <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
           <button type="button" class="btn ghost" onclick="closeSaleModal()">Cancel</button>
-          <button type="submit" class="btn primary">Record Sale</button>
+           <button type="submit" class="btn primary">Record Sale</button>
+    </div>
+    </form>
+  </div>
+  </div>
+
+  <!-- Follow Up Modal -->
+  <div id="followupModal" class="modal">
+    <div class="panel">
+      <header>
+        <h3 style="margin:0">Add Follow Up</h3>
+        <button class="x" onclick="closeFollowUpModal()">×</button>
+      </header>
+      <form id="followupForm" onsubmit="saveFollowUp(event)">
+        <div>
+          <label>Client *</label>
+          <select id="followupClient" required><option value="">Select client...</option></select>
+        </div>
+        <div class="row-cols">
+          <div><label>Due Date *</label><input type="date" id="followupDate" required></div>
+        </div>
+        <div><label>Notes</label><textarea id="followupNotes" placeholder="Follow up details..."></textarea></div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
+          <button type="button" class="btn ghost" onclick="closeFollowUpModal()">Cancel</button>
+          <button type="submit" class="btn primary">Save Follow Up</button>
         </div>
       </form>
     </div>
@@ -383,19 +434,22 @@
   let clients = [];        // {id, firstName, lastName, email, phone, styles[], status, initialSales, notes, createdAt}
   let interactions = [];   // {id, clientId, type, date(YYYY-MM-DD), notes, createdAt}
   let sales = [];          // {id, clientId, amount, date(YYYY-MM-DD), description, createdAt}
+  let followUps = [];      // {id, clientId, date(YYYY-MM-DD), notes, createdAt}
   let editingClientId = null;
 
   // ---------- Local Storage + Backup ----------
-  function saveData() {
+   function saveData() {
     localStorage.setItem('crm_clients', JSON.stringify(clients));
     localStorage.setItem('crm_interactions', JSON.stringify(interactions));
     localStorage.setItem('crm_sales', JSON.stringify(sales));
+    localStorage.setItem('crm_followups', JSON.stringify(followUps));
   }
   function loadData() {
     try {
       clients = JSON.parse(localStorage.getItem('crm_clients') || '[]');
       interactions = JSON.parse(localStorage.getItem('crm_interactions') || '[]');
       sales = JSON.parse(localStorage.getItem('crm_sales') || '[]');
+      followUps = JSON.parse(localStorage.getItem('crm_followups') || '[]');
 
       // Migration: client name -> first/last, style -> styles[], status -> new set, interaction date -> YYYY-MM-DD
       let migrated = false;
@@ -415,11 +469,11 @@
       if (migrated) saveData();
     } catch(e) {
       console.warn('Failed to load saved data:', e);
-      clients = []; interactions = []; sales = [];
-    }
-  }
-  function exportData() {
-    const payload = { exportedAt: new Date().toISOString(), version: 1, clients, interactions, sales };
+       clients = []; interactions = []; sales = []; followUps = [];
+    }␊
+  }␊
+  function exportData() {␊
+    const payload = { exportedAt: new Date().toISOString(), version: 1, clients, interactions, sales, followUps };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -431,7 +485,7 @@
     reader.onload = () => {
       try {
         const data = JSON.parse(reader.result);
-        if (!data || !Array.isArray(data.clients) || !Array.isArray(data.interactions) || !Array.isArray(data.sales)) {
+         if (!data || !Array.isArray(data.clients) || !Array.isArray(data.interactions) || !Array.isArray(data.sales)) {
           alert('Invalid file format.'); return;
         }
          clients = data.clients.map(c => ({
@@ -440,9 +494,10 @@
           status: mapOldStatus(c.status),
           initialSales: Number(c.initialSales) || 0
         }));
-        interactions = data.interactions.map(i => ({ ...i, date: (i.date||'').slice(0,10) }));
+         interactions = data.interactions.map(i => ({ ...i, date: (i.date||'').slice(0,10) }));
         sales = data.sales.map(s => ({ ...s, amount: Number(s.amount) || 0 }));
-        saveData(); renderClients(); renderInteractions(); renderSalesView(); updateDashboard();
+        followUps = (data.followUps || []).map(f => ({ ...f, date: (f.date||'').slice(0,10) }));
+        saveData(); renderClients(); renderInteractions(); renderSalesView(); renderFollowUps(); updateDashboard();
         alert('Import complete ✔️');
       } catch (e) { console.error(e); alert('Could not parse the file.'); }
     };
@@ -452,13 +507,15 @@
   // ---------- Startup ----------
   document.addEventListener('DOMContentLoaded', () => {
     loadData();
-    renderClients(); renderInteractions(); renderSalesView(); updateDashboard();
+    renderClients(); renderInteractions(); renderSalesView(); renderFollowUps(); updateDashboard();
 
     // Default dates (date-only)
     const interactionDate = document.getElementById('interactionDate');
     if (interactionDate) interactionDate.value = new Date().toISOString().slice(0,10);
     const saleDate = document.getElementById('saleDate');
     if (saleDate) saleDate.value = new Date().toISOString().slice(0,10);
+    const followupDate = document.getElementById('followupDate');
+    if (followupDate) followupDate.value = new Date().toISOString().slice(0,10);
 
     // ESC to close modals
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAllModals(); });
@@ -497,9 +554,9 @@
     }
     if (clearBtn) {
       clearBtn.addEventListener('click', () => {
-        if (confirm('Clear ALL clients, interactions, and sales? This cannot be undone.')) {
-          clients = []; interactions = []; sales = [];
-          saveData(); renderClients(); renderInteractions(); renderSalesView(); updateDashboard();
+        if (confirm('Clear ALL clients, interactions, sales, and follow ups? This cannot be undone.')) {
+          clients = []; interactions = []; sales = []; followUps = [];
+          saveData(); renderClients(); renderInteractions(); renderSalesView(); renderFollowUps(); updateDashboard();
         }
       });
     }
@@ -522,6 +579,7 @@
     $$('.tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tabName));
     if (tabName === 'dashboard') updateDashboard();
     if (tabName === 'sales') renderSalesView();
+    if (tabName === 'followups') renderFollowUps();
   }
 
   // ---------- Helpers ----------
@@ -589,15 +647,16 @@
       clientData.id = Date.now().toString();
       clients.push(clientData);
     }
-    saveData(); closeClientModal(); renderClients(); updateDashboard();
+    saveData(); closeClientModal(); renderClients(); renderFollowUps(); updateDashboard();
   }
 
   function deleteClient(clientId){
-    if (!confirm('Delete this client and all related interactions and sales?')) return;
+    if (!confirm('Delete this client and all related interactions, sales, and follow ups?')) return;
     clients = clients.filter(c => c.id !== clientId);
     interactions = interactions.filter(i => i.clientId !== clientId);
     sales = sales.filter(s => s.clientId !== clientId);
-    saveData(); renderClients(); updateDashboard();
+    followUps = followUps.filter(f => f.clientId !== clientId);
+    saveData(); renderClients(); renderFollowUps(); updateDashboard();
   }
 
   function totalSpentFor(clientId){
@@ -947,6 +1006,79 @@
     saveData(); renderSalesView(); updateDashboard(); renderClients();
   }
 
+  // ---------- Follow Ups ----------
+  function openFollowUpModal(){
+    const select = document.getElementById('followupClient');
+    const dateEl = document.getElementById('followupDate');
+    const modal = document.getElementById('followupModal');
+    if (!select || !dateEl || !modal) return;
+    select.innerHTML = '<option value="">Select client...</option>' +
+      (clients||[]).map(c => `<option value="${c.id}">${escapeHTML(fullNameOf(c))}</option>`).join('');
+    dateEl.value = new Date().toISOString().slice(0,10);
+    modal.classList.add('active');
+  }
+  function closeFollowUpModal(){
+    document.getElementById('followupModal').classList.remove('active');
+    document.getElementById('followupForm').reset();
+  }
+  function saveFollowUp(e){
+    e.preventDefault();
+    const clientId = document.getElementById('followupClient').value;
+    const date = document.getElementById('followupDate').value;
+    if (!clientId || !date){ alert('Client and due date are required'); return; }
+    followUps.push({
+      id: Date.now().toString(),
+      clientId,
+      date,
+      notes: document.getElementById('followupNotes').value.trim(),
+      createdAt: new Date().toISOString()
+    });
+    saveData(); closeFollowUpModal(); renderFollowUps(); updateDashboard();
+  }
+  function renderFollowUps(){
+    const pastEl = document.getElementById('followupPastDue');
+    const upcomingEl = document.getElementById('followupUpcoming');
+    const futureEl = document.getElementById('followupFuture');
+    if (!pastEl || !upcomingEl || !futureEl) return;
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const past = [], upcoming = [], future = [];
+    followUps.forEach(f => {
+      const d = new Date(f.date);
+      d.setHours(0,0,0,0);
+      const diff = Math.floor((d - today) / 86400000);
+      if (diff <= -1) past.push(f);
+      else if (diff <= 13) upcoming.push(f);
+      else future.push(f);
+    });
+    const renderList = list => {
+      if (list.length === 0) return `<div class="empty-state"><div style="font-size:42px;opacity:.6">📌</div><p>No follow ups</p></div>`;
+      return list.sort((a,b)=>new Date(a.date)-new Date(b.date)).map(f=>{
+        const c = clients.find(x=>x.id===f.clientId);
+        const when = new Date(f.date).toLocaleDateString([], {year:'numeric', month:'short', day:'numeric'});
+        return `
+          <div class="interaction-item">
+            <div class="client-header">
+              <div>
+                <div class="client-name">${escapeHTML(c?fullNameOf(c):'Unknown Client')}</div>
+                <div class="muted" style="margin-top:4px">${when}</div>
+              </div>
+              <button class="btn danger" onclick="deleteFollowUp('${f.id}')">Delete</button>
+            </div>
+            ${f.notes ? `<div style="margin-top:8px">${escapeHTML(f.notes)}</div>` : ''}
+          </div>`;
+      }).join('');
+    };
+    pastEl.innerHTML = renderList(past);
+    upcomingEl.innerHTML = renderList(upcoming);
+    futureEl.innerHTML = renderList(future);
+  }
+  function deleteFollowUp(id){
+    if (!confirm('Delete this follow up?')) return;
+    followUps = followUps.filter(f => f.id !== id);
+    saveData(); renderFollowUps(); updateDashboard();
+  }
+
   // ---------- Dashboard ----------
   function updateDashboard(){
     document.getElementById('totalClients').textContent = clients.length;
@@ -1028,6 +1160,7 @@
 </script>
 </body>
 </html>
+
 
 
 
