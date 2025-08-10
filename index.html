@@ -6,7 +6,6 @@
 <title>Client Management</title>
 <style>
   :root{
-    /* Darker brand tones for better contrast */
     --grad1:#4c51bf; /* indigo-700 */
     --grad2:#553c9a; /* purple-700 */
     --ok:#2f855a;--ok2:#276749;
@@ -16,8 +15,12 @@
     --shadow:0 10px 30px rgba(0,0,0,.12);
   }
   *{box-sizing:border-box}html,body{height:100%}
-  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Ubuntu,system-ui,sans-serif;
-       background:linear-gradient(135deg,#667eea,#764ba2);color:var(--text)}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Ubuntu,system-ui,sans-serif;
+    background:linear-gradient(135deg,#667eea,#764ba2);
+    color:var(--text)
+  }
   .container{max-width:1200px;margin:auto;padding:20px}
   header{background:var(--card);backdrop-filter:blur(10px);border-radius:20px;padding:24px;margin-bottom:20px;box-shadow:var(--shadow)}
   h1{margin:0 0 6px;background:linear-gradient(135deg,var(--grad1),var(--grad2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
@@ -26,21 +29,20 @@
   .tab{padding:10px 18px;border:0;border-radius:999px;background:#ffffff;cursor:pointer;font-weight:700;box-shadow:0 4px 15px rgba(0,0,0,.1)}
   .tab.active,[aria-selected="true"]{color:#fff;background:linear-gradient(135deg,var(--grad1),var(--grad2))}
   .grid{display:grid;gap:16px}
-  .stats-grid {
-    display: grid;
+  .stats-grid{
+    display:grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
-    align-items: stretch; /* ✅ makes all stat-cards same height */
+    gap:20px;
+    margin-bottom:30px;
+    align-items:stretch; /* equal heights */
   }
-
   .card{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:20px}
-  /* (removed) #dashboard .card + .card { margin-top:20px; } — caused stagger inside grid */
+  /* removed the old "#dashboard .card + .card {margin-top:20px}" that staggered the grid */
   .stat-number{font-size:2rem;font-weight:800;background:linear-gradient(135deg,var(--grad1),var(--grad2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
   .muted{color:var(--muted);font-size:.95rem}
   .search{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;margin-bottom:12px}
   .search .row{display:flex;gap:10px}
-  .search input, .search select{width:100%;padding:12px 14px;border-radius:12px;border:2px solid var(--ring);font-size:1rem}
+  .search input,.search select{width:100%;padding:12px 14px;border-radius:12px;border:2px solid var(--ring);font-size:1rem}
   .list{display:grid;gap:12px}
   .client-item,.interaction-item{background:#fff;border-radius:12px;padding:16px;border-left:4px solid transparent;box-shadow:0 2px 10px rgba(0,0,0,.06)}
   .client-item:hover,.interaction-item:hover{transform:translateY(-1px);transition:.2s;box-shadow:0 6px 16px rgba(0,0,0,.1);border-left-color:var(--grad1)}
@@ -56,10 +58,8 @@
   .btn.primary{color:#fff;background:linear-gradient(135deg,var(--grad1),var(--grad2))}
   .btn.ghost{background:#e5e5e5}
   .btn.danger{color:#fff;background:linear-gradient(135deg,var(--danger),var(--danger2))}
-  /* tags for multi-style display */
   .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
   .tag{background:#eef;color:#333;padding:4px 10px;border-radius:999px;font-size:.75rem;font-weight:700}
-  /* modal */
   .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.45);z-index:10}
   .modal.active{display:flex}
   .panel{background:#fff;border-radius:16px;width:min(560px,92vw);max-height:90vh;overflow:auto;padding:20px}
@@ -83,27 +83,27 @@
   .chk input{accent-color:#4c51bf}
   .filters-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
   .filters-controls select{padding:8px 10px;border-radius:10px;border:2px solid var(--ring)}
-  .ra-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-.ra-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.ra-controls select{padding:8px 10px;border-radius:10px;border:2px solid var(--ring);background:#fff}
-.ra-toggle{display:flex;gap:6px}
-.pill{padding:8px 12px;border:0;border-radius:999px;background:#eee;font-weight:700;cursor:pointer}
-.pill.active{color:#fff;background:linear-gradient(135deg,var(--grad1),var(--grad2))}
-.ra-chart-wrap{margin-top:10px;background:#fff;border-radius:12px;padding:10px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
-.ra-legend{font-size:.85rem;color:var(--muted);margin-top:6px;display:flex;align-items:center}
-.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
-.dot-int{background:linear-gradient(135deg,var(--grad1),var(--grad2))}
-.dot-sale{background:linear-gradient(135deg,var(--ok),var(--ok2))}
-.ra-subtitle{margin:12px 0 8px;font-size:1rem;color:var(--muted)}
 
+  /* Recent Activity timeline */
+  .ra-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+  .ra-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .ra-controls select{padding:8px 10px;border-radius:10px;border:2px solid var(--ring);background:#fff}
+  .ra-toggle{display:flex;gap:6px}
+  .pill{padding:8px 12px;border:0;border-radius:999px;background:#eee;font-weight:700;cursor:pointer}
+  .pill.active{color:#fff;background:linear-gradient(135deg,var(--grad1),var(--grad2))}
+  .ra-chart-wrap{margin-top:10px;background:#fff;border-radius:12px;padding:10px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+  .ra-legend{font-size:.85rem;color:var(--muted);margin-top:6px;display:flex;align-items:center}
+  .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+  .dot-int{background:linear-gradient(135deg,var(--grad1),var(--grad2))}
+  .dot-sale{background:linear-gradient(135deg,var(--ok),var(--ok2))}
+  .ra-subtitle{margin:12px 0 8px;font-size:1rem;color:var(--muted)}
 </style>
 </head>
 <body>
   <div class="container">
     <header>
       <h1>Client Management</h1>
-
-      <!-- Export / Import / Clear -->
+      <!-- Export / Import / Clear (moved inside header, extra </header> removed) -->
       <div class="toolbar">
         <button id="exportBtn" class="btn ghost">⬇️ Export Data</button>
         <button id="importBtn" class="btn ghost">⬆️ Import Data</button>
@@ -122,60 +122,46 @@
     <!-- Dashboard -->
     <div id="dashboard" class="tab-content">
       <div class="stats-grid">
-        <div class="card">
-          <div class="stat-number" id="totalClients">0</div>
-          <div class="muted">Total Clients</div>
-        </div>
-        <div class="card">
-          <div class="stat-number" id="totalInteractions">0</div>
-          <div class="muted">Total Interactions</div>
-        </div>
-        <div class="card">
-          <div class="stat-number" id="activeThisMonth">0</div>
-          <div class="muted">Active This Month</div>
-        </div>
-        <div class="card">
-          <div class="stat-number" id="totalSales">$0.00</div>
-          <div class="muted">Total Sales</div>
-        </div>
+        <div class="card"><div class="stat-number" id="totalClients">0</div><div class="muted">Total Clients</div></div>
+        <div class="card"><div class="stat-number" id="totalInteractions">0</div><div class="muted">Total Interactions</div></div>
+        <div class="card"><div class="stat-number" id="activeThisMonth">0</div><div class="muted">Active This Month</div></div>
+        <div class="card"><div class="stat-number" id="totalSales">$0.00</div><div class="muted">Total Sales</div></div>
       </div>
 
       <div class="card" style="margin-top:20px">
-        <div class=ra-head">
-        <h2 style="margin:0">Recent Activity</h2>
-          
-        <!-- tiny timeline controls -->
-    <div class="ra-controls">
-      <select id="raRange">
-        <option value="7">Last 7 days</option>
-        <option value="14">Last 14 days</option>
-        <option value="30" selected>Last 30 days</option>
-      </select>
-      <div class="ra-toggle" role="tablist" aria-label="Activity type">
-        <button class="pill active" data-kind="all" aria-selected="true">All</button>
-        <button class="pill" data-kind="interactions" aria-selected="false">Interactions</button>
-        <button class="pill" data-kind="sales" aria-selected="false">Sales</button>
+        <div class="ra-head">
+          <h2 style="margin:0">Recent Activity</h2>
+          <div class="ra-controls">
+            <select id="raRange">
+              <option value="7">Last 7 days</option>
+              <option value="14">Last 14 days</option>
+              <option value="30" selected>Last 30 days</option>
+            </select>
+            <div class="ra-toggle" role="tablist" aria-label="Activity type">
+              <button class="pill active" data-kind="all" aria-selected="true">All</button>
+              <button class="pill" data-kind="interactions" aria-selected="false">Interactions</button>
+              <button class="pill" data-kind="sales" aria-selected="false">Sales</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="ra-chart-wrap">
+          <canvas id="raSpark" width="600" height="120" style="width:100%;height:120px;"></canvas>
+          <div class="ra-legend">
+            <span class="dot dot-int"></span> Interactions
+            <span class="dot dot-sale" style="margin-left:12px"></span> Sales
+          </div>
+        </div>
+
+        <h3 class="ra-subtitle">Latest items</h3>
+        <div class="activity-list" id="activityList">
+          <div class="empty-state">
+            <div style="font-size:42px;opacity:.6">📋</div>
+            <p>No recent activity</p>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-
-  <!-- compact timeline -->
-  <div class="ra-chart-wrap">
-    <canvas id="raSpark" width="600" height="120"></canvas>
-    <div class="ra-legend">
-      <span class="dot dot-int"></span> Interactions
-      <span class="dot dot-sale" style="margin-left:12px"></span> Sales
-    </div>
-  </div>
-
-  <h3 class="ra-subtitle">Latest items</h3>
-  <div class="activity-list" id="activityList">
-    <div class="empty-state">
-      <div style="font-size:42px;opacity:.6">📋</div>
-      <p>No recent activity</p>
-    </div>
-  </div>
-</div>
 
     <!-- Clients -->
     <div id="clients" class="tab-content" style="display:none">
@@ -277,42 +263,24 @@
       </header>
       <form id="clientForm" onsubmit="saveClient(event)">
         <div class="row-cols">
-          <div>
-            <label>First Name *</label>
-            <input type="text" id="clientFirstName" required>
-          </div>
-          <div>
-            <label>Last Name *</label>
-            <input type="text" id="clientLastName" required>
-          </div>
+          <div><label>First Name *</label><input type="text" id="clientFirstName" required></div>
+          <div><label>Last Name *</label><input type="text" id="clientLastName" required></div>
         </div>
         <div class="row-cols">
-          <div>
-            <label>Email</label>
-            <input type="email" id="clientEmail">
-          </div>
-          <div>
-            <label>Phone</label>
-            <input type="tel" id="clientPhone">
-          </div>
+          <div><label>Email</label><input type="email" id="clientEmail"></div>
+          <div><label>Phone</label><input type="tel" id="clientPhone"></div>
         </div>
         <div>
           <label>Style Vibe (choose one or more)</label>
           <select id="clientStyles" multiple size="6">
-            <option>Bohemian</option>
-            <option>Classic</option>
-            <option>Edgy</option>
-            <option>Casual</option>
-            <option>Vintage</option>
-            <option>Trendy</option>
+            <option>Bohemian</option><option>Classic</option><option>Edgy</option>
+            <option>Casual</option><option>Vintage</option><option>Trendy</option>
           </select>
         </div>
         <div class="row-cols">
           <div>
             <label>Status</label>
-            <select id="clientStatus">
-              <option>Prospect</option><option>Active</option><option>Inactive</option>
-            </select>
+            <select id="clientStatus"><option>Prospect</option><option>Active</option><option>Inactive</option></select>
           </div>
           <div>
             <label>Initial Sales Amount</label>
@@ -355,9 +323,7 @@
       <form id="interactionForm" onsubmit="saveInteraction(event)">
         <div>
           <label>Client *</label>
-          <select id="interactionClient" required>
-            <option value="">Select client...</option>
-          </select>
+          <select id="interactionClient" required><option value="">Select client...</option></select>
         </div>
         <div class="row-cols">
           <div>
@@ -366,15 +332,9 @@
               <option>Call</option><option>Email</option><option>Meeting</option><option>Message</option><option>Other</option>
             </select>
           </div>
-          <div>
-            <label>Date *</label>
-            <input type="datetime-local" id="interactionDate" required>
-          </div>
+          <div><label>Date *</label><input type="datetime-local" id="interactionDate" required></div>
         </div>
-        <div>
-          <label>Notes</label>
-          <textarea id="interactionNotes" placeholder="Describe the interaction..."></textarea>
-        </div>
+        <div><label>Notes</label><textarea id="interactionNotes" placeholder="Describe the interaction..."></textarea></div>
         <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
           <button type="button" class="btn ghost" onclick="closeInteractionModal()">Cancel</button>
           <button type="submit" class="btn primary">Save Interaction</button>
@@ -393,24 +353,13 @@
       <form id="saleForm" onsubmit="saveSale(event)">
         <div>
           <label>Client *</label>
-          <select id="saleClient" required>
-            <option value="">Select client...</option>
-          </select>
+          <select id="saleClient" required><option value="">Select client...</option></select>
         </div>
         <div class="row-cols">
-          <div>
-            <label>Amount *</label>
-            <input type="number" id="saleAmount" min="0" step="0.01" required placeholder="0.00">
-          </div>
-          <div>
-            <label>Date *</label>
-            <input type="date" id="saleDate" required>
-          </div>
+          <div><label>Amount *</label><input type="number" id="saleAmount" min="0" step="0.01" required placeholder="0.00"></div>
+          <div><label>Date *</label><input type="date" id="saleDate" required></div>
         </div>
-        <div>
-          <label>Description</label>
-          <input type="text" id="saleDescription" placeholder="What was sold?">
-        </div>
+        <div><label>Description</label><input type="text" id="saleDescription" placeholder="What was sold?"></div>
         <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
           <button type="button" class="btn ghost" onclick="closeSaleModal()">Cancel</button>
           <button type="submit" class="btn primary">Record Sale</button>
@@ -483,20 +432,12 @@
     }
   }
   function exportData() {
-    const payload = {
-      exportedAt: new Date().toISOString(),
-      version: 1,
-      clients, interactions, sales
-    };
+    const payload = { exportedAt: new Date().toISOString(), version: 1, clients, interactions, sales };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
-    a.download = 'crm-backup.json';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
+    a.href = url; a.download = 'crm-backup.json';
+    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
   }
   function importData(file) {
     const reader = new FileReader();
@@ -504,22 +445,15 @@
       try {
         const data = JSON.parse(reader.result);
         if (!data || !Array.isArray(data.clients) || !Array.isArray(data.interactions) || !Array.isArray(data.sales)) {
-          alert('Invalid file format.'); 
-          return;
+          alert('Invalid file format.'); return;
         }
         clients = data.clients.map(c => ({ ...c, styles: normalizeStyles(c.styles ?? c.style) }));
         interactions = data.interactions;
         sales = data.sales;
         saveData();
-        renderClients();
-        renderInteractions();
-        renderSalesView();
-        updateDashboard();
+        renderClients(); renderInteractions(); renderSalesView(); updateDashboard();
         alert('Import complete ✔️');
-      } catch (e) {
-        console.error(e);
-        alert('Could not parse the file.');
-      }
+      } catch (e) { console.error(e); alert('Could not parse the file.'); }
     };
     reader.readAsText(file);
   }
@@ -530,19 +464,12 @@
     loadData();
 
     // Render initial UI
-    renderClients();
-    renderInteractions();
-    renderSalesView();
-    updateDashboard();
-    
-initActivityTimelineControls();
-renderActivityTimeline();
+    renderClients(); renderInteractions(); renderSalesView(); updateDashboard();
 
     // Default dates
     const interactionDate = document.getElementById('interactionDate');
     if (interactionDate) {
-      const now = new Date();
-      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+      const now = new Date(); now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
       interactionDate.value = now.toISOString().slice(0, 16);
     }
     const saleDate = document.getElementById('saleDate');
@@ -558,15 +485,13 @@ renderActivityTimeline();
     });
 
     // Style filter events
-    document.querySelectorAll('.style-filter').forEach(cb => {
-      cb.addEventListener('change', applyFiltersAndSort);
-    });
+    document.querySelectorAll('.style-filter').forEach(cb => cb.addEventListener('change', applyFiltersAndSort));
     const styleMatchSel = document.getElementById('styleMatch');
     if (styleMatchSel) styleMatchSel.addEventListener('change', applyFiltersAndSort);
 
-    // Avoid name clash with Clear Data button
-    const clearFiltersBtnEl = document.getElementById('clearFiltersBtn');
-    if (clearFiltersBtnEl) clearFiltersBtnEl.addEventListener('click', () => {
+    // ✅ rename to avoid duplicate const name
+    const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+    if (clearFiltersBtn) clearFiltersBtn.addEventListener('click', () => {
       document.querySelectorAll('.style-filter').forEach(cb => cb.checked = false);
       if (styleMatchSel) styleMatchSel.value = 'any';
       applyFiltersAndSort();
@@ -576,7 +501,7 @@ renderActivityTimeline();
     const exportBtn = document.getElementById('exportBtn');
     const importBtn = document.getElementById('importBtn');
     const importFile = document.getElementById('importFile');
-    const clearDataBtn  = document.getElementById('clearBtn');
+    const clearBtn  = document.getElementById('clearBtn');
     if (exportBtn) exportBtn.addEventListener('click', exportData);
     if (importBtn && importFile) {
       importBtn.addEventListener('click', () => importFile.click());
@@ -586,18 +511,18 @@ renderActivityTimeline();
         importFile.value = '';
       });
     }
-    if (clearDataBtn) {
-      clearDataBtn.addEventListener('click', () => {
+    if (clearBtn) {
+      clearBtn.addEventListener('click', () => {
         if (confirm('Clear ALL clients, interactions, and sales? This cannot be undone.')) {
           clients = []; interactions = []; sales = [];
-          saveData();
-          renderClients();
-          renderInteractions();
-          renderSalesView();
-          updateDashboard();
+          saveData(); renderClients(); renderInteractions(); renderSalesView(); updateDashboard();
         }
       });
     }
+
+    // Timeline controls + first render
+    initActivityTimelineControls();
+    renderActivityTimeline();
   });
 
   function closeAllModals(){ $$('.modal.active').forEach(m => m.classList.remove('active')); }
@@ -632,12 +557,9 @@ renderActivityTimeline();
       document.getElementById('clientLastName').value  = c.lastName || '';
       document.getElementById('clientEmail').value     = c.email || '';
       document.getElementById('clientPhone').value     = c.phone || '';
-
-      // preselect multiple styles
       const stylesSel = document.getElementById('clientStyles');
       const stylesArr = normalizeStyles(c.styles ?? c.style);
       [...stylesSel.options].forEach(o => o.selected = stylesArr.includes(o.value));
-
       document.getElementById('clientStatus').value    = c.status || 'Prospect';
       document.getElementById('clientInitialSales').value = c.initialSales ?? '';
       document.getElementById('clientNotes').value     = c.notes || '';
@@ -645,8 +567,6 @@ renderActivityTimeline();
       document.getElementById('clientModalTitle').textContent = 'Add New Client';
       form.reset();
       document.getElementById('clientStatus').value = 'Prospect';
-
-      // clear multiple styles selection
       const stylesSel = document.getElementById('clientStyles');
       [...stylesSel.options].forEach(o => o.selected = false);
     }
@@ -679,10 +599,7 @@ renderActivityTimeline();
       clientData.id = Date.now().toString();
       clients.push(clientData);
     }
-    saveData();
-    closeClientModal();
-    renderClients();
-    updateDashboard();
+    saveData(); closeClientModal(); renderClients(); updateDashboard();
   }
 
   function deleteClient(clientId){
@@ -690,9 +607,7 @@ renderActivityTimeline();
     clients = clients.filter(c => c.id !== clientId);
     interactions = interactions.filter(i => i.clientId !== clientId);
     sales = sales.filter(s => s.clientId !== clientId);
-    saveData();
-    renderClients();
-    updateDashboard();
+    saveData(); renderClients(); updateDashboard();
   }
 
   function totalSpentFor(clientId){
@@ -712,7 +627,6 @@ renderActivityTimeline();
       return;
     }
 
-    // Apply current sort
     const sorted = sortClients([...source], document.getElementById('clientSort').value || 'createdAt_desc');
 
     list.innerHTML = sorted.map(c => {
@@ -744,8 +658,7 @@ renderActivityTimeline();
     }).join('');
   }
 
-  // Keep search compact and reuse unified filtering pipeline
-  function searchClients(){ applyFiltersAndSort(); }
+  function searchClients(){ applyFiltersAndSort(); } // ✅ keep only this; removed stray duplicate block
 
   function applyClientSort(){ applyFiltersAndSort(); }
 
@@ -769,38 +682,6 @@ renderActivityTimeline();
       case 'createdAt_desc':
       default:              return arr.sort((a,b) => byCreated(b,a));
     }
-  }
-
-  function applyFiltersAndSort(){
-    const term = (document.getElementById('clientSearch').value || '').toLowerCase();
-    const selected = getActiveStyleFilters();
-    const matchModeEl = document.getElementById('styleMatch');
-    const matchMode = matchModeEl ? matchModeEl.value : 'any';
-
-    // 1) search filter
-    let list = clients.filter(c => {
-      const matchesSearch =
-        fullNameOf(c).toLowerCase().includes(term) ||
-        (c.email && c.email.toLowerCase().includes(term)) ||
-        (c.phone && c.phone.includes(term)) ||
-        (c.styles && c.styles.some(s => s.toLowerCase().includes(term)));
-
-      if (!matchesSearch) return false;
-
-      // 2) style filter
-      if (!selected.length) return true;
-      const styles = c.styles || [];
-      return (matchMode === 'all')
-        ? selected.every(s => styles.includes(s))
-        : selected.some(s => styles.includes(s));
-    });
-
-    // 3) sort
-    const mode = document.getElementById('clientSort').value || 'createdAt_desc';
-    list = sortClients(list, mode);
-
-    // 4) render
-    renderClients(list);
   }
 
   // ---------- Client View (recap) ----------
@@ -879,10 +760,7 @@ renderActivityTimeline();
       notes: document.getElementById('interactionNotes').value.trim(),
       createdAt: new Date().toISOString()
     });
-    saveData();
-    closeInteractionModal();
-    renderInteractions();
-    updateDashboard();
+    saveData(); closeInteractionModal(); renderInteractions(); updateDashboard();
   }
 
   function renderInteractions(source = interactions){
@@ -916,9 +794,7 @@ renderActivityTimeline();
   function deleteInteraction(id){
     if (!confirm('Delete this interaction?')) return;
     interactions = interactions.filter(i => i.id !== id);
-    saveData();
-    renderInteractions();
-    updateDashboard();
+    saveData(); renderInteractions(); updateDashboard();
   }
 
   function searchInteractions(){
@@ -960,11 +836,7 @@ renderActivityTimeline();
       description: document.getElementById('saleDescription').value.trim(),
       createdAt: new Date().toISOString()
     });
-    saveData();
-    closeSaleModal();
-    renderSalesView();
-    updateDashboard();
-    renderClients();
+    saveData(); closeSaleModal(); renderSalesView(); updateDashboard(); renderClients();
   }
 
   function renderSalesView(){
@@ -1017,10 +889,7 @@ renderActivityTimeline();
   function deleteSale(id){
     if (!confirm('Delete this sale?')) return;
     sales = sales.filter(s => s.id !== id);
-    saveData();
-    renderSalesView();
-    updateDashboard();
-    renderClients();
+    saveData(); renderSalesView(); updateDashboard(); renderClients();
   }
 
   // ---------- Dashboard ----------
@@ -1038,8 +907,7 @@ renderActivityTimeline();
     document.getElementById('totalSales').textContent = fmtUSD.format(total);
 
     renderRecentActivity();
-    renderActivityTimeline();
-
+    renderActivityTimeline(); // keep sparkline in sync
   }
 
   function renderRecentActivity(){
@@ -1087,191 +955,104 @@ renderActivityTimeline();
     if (s>=60)       return t(Math.floor(s/60),'minute');
     return 'Just now';
   }
-  <script>
-/* ====== Compact timeline for Recent Activity ====== */
 
-// Build daily series for last N days (inclusive of today)
-function buildDailySeries(kind='all', days=30){
-  const end = new Date(); end.setHours(0,0,0,0);
-  const start = new Date(end); start.setDate(end.getDate() - (days-1));
-
-  // make a map of YYYY-MM-DD -> counts
-  const keyOf = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).toISOString().slice(0,10);
-  const daysArr = [];
-  const mapInt = new Map(), mapSale = new Map();
-
-  // initialize maps with 0
-  for (let d=new Date(start); d<=end; d.setDate(d.getDate()+1)){
-    const k = keyOf(d);
-    mapInt.set(k, 0);
-    mapSale.set(k, 0);
-    daysArr.push(k);
+  /* ====== Compact timeline for Recent Activity ====== */
+  function buildDailySeries(kind='all', days=30){
+    const end = new Date(); end.setHours(0,0,0,0);
+    const start = new Date(end); start.setDate(end.getDate() - (days-1));
+    const keyOf = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).toISOString().slice(0,10);
+    const daysArr = []; const mapInt = new Map(), mapSale = new Map();
+    for (let d=new Date(start); d<=end; d.setDate(d.getDate()+1)){
+      const k = keyOf(d); mapInt.set(k,0); mapSale.set(k,0); daysArr.push(k);
+    }
+    interactions.forEach(i => { const k = keyOf(new Date(i.date)); if (mapInt.has(k)) mapInt.set(k, mapInt.get(k)+1); });
+    sales.forEach(s => { const k = keyOf(new Date(s.date)); if (mapSale.has(k)) mapSale.set(k, mapSale.get(k)+1); });
+    const ints = daysArr.map(k => mapInt.get(k));
+    const sls  = daysArr.map(k => mapSale.get(k));
+    const all  = ints.map((v,i)=>v+sls[i]);
+    return { labels: daysArr, seriesInt: ints, seriesSale: sls, seriesAll: all, start, end };
   }
 
-  // fill
-  interactions.forEach(i => {
-    const dt = new Date(i.date);
-    const k = keyOf(dt);
-    if (mapInt.has(k)) mapInt.set(k, mapInt.get(k)+1);
-  });
-  sales.forEach(s => {
-    const dt = new Date(s.date);
-    const k = keyOf(dt);
-    if (mapSale.has(k)) mapSale.set(k, mapSale.get(k)+1);
-  });
-
-  // return arrays in order
-  const ints = daysArr.map(k => mapInt.get(k));
-  const sls  = daysArr.map(k => mapSale.get(k));
-  const all  = ints.map((v,i)=>v+sls[i]);
-
-  return {
-    labels: daysArr,               // e.g. "2025-08-03"
-    seriesInt: ints,
-    seriesSale: sls,
-    seriesAll: all,
-    start, end
-  };
-}
-
-// Crisp canvas helpers (handles HiDPI)
-function prepCanvas(canvas){
-  if (!canvas) return {ctx:null, w:0, h:0, dpr:1};
-  const dpr = window.devicePixelRatio || 1;
-  const rect = canvas.getBoundingClientRect();
-  canvas.width  = Math.max(1, Math.floor(rect.width  * dpr));
-  canvas.height = Math.max(1, Math.floor(rect.height * dpr));
-  const ctx = canvas.getContext('2d');
-  ctx.scale(dpr, dpr);
-  return {ctx, w:rect.width, h:rect.height, dpr};
-}
-
-// Draw a smooth-ish sparkline with optional bars background
-function drawSparkline(canvas, data, opts={}){
-  const {ctx, w, h} = prepCanvas(canvas);
-  if (!ctx) return;
-
-  const {
-    colorLine='#5b61d9', colorFill='rgba(91,97,217,0.12)',
-    colorLine2='#2f855a', colorFill2='rgba(47,133,90,0.10)',
-    gridColor='rgba(0,0,0,0.06)',
-    strokeWidth=2,
-    dual=false, // when true, draw both lines (interactions + sales)
-    seriesA=[], seriesB=[]
-  } = opts;
-
-  ctx.clearRect(0,0,w,h);
-
-  const max = Math.max(1, ...seriesA, ...(dual?seriesB:[]));
-  const pad = 8;
-  const gh  = h - pad*2;
-  const gw  = w - pad*2;
-
-  // horizontal guides (0, 50%, 100%)
-  ctx.strokeStyle = gridColor; ctx.lineWidth = 1;
-  [0, .5, 1].forEach(t=>{
-    const y = pad + gh*(1-t);
-    ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(pad+gw, y); ctx.stroke();
-  });
-
-  function drawSeries(series, colorL, colorF){
-    const n = series.length;
-    if (n===0) return;
-    const step = gw / Math.max(1, n-1);
-
-    // Area fill
-    ctx.beginPath();
-    series.forEach((v,i)=>{
-      const x = pad + i*step;
-      const y = pad + gh*(1 - v/max);
-      if (i===0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    });
-    ctx.lineTo(pad+gw, pad+gh);
-    ctx.lineTo(pad, pad+gh);
-    ctx.closePath();
-    ctx.fillStyle = colorF;
-    ctx.fill();
-
-    // Line
-    ctx.beginPath();
-    series.forEach((v,i)=>{
-      const x = pad + i*step;
-      const y = pad + gh*(1 - v/max);
-      if (i===0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    });
-    ctx.strokeStyle = colorL;
-    ctx.lineWidth = strokeWidth;
-    ctx.lineJoin = 'round';
-    ctx.lineCap  = 'round';
-    ctx.stroke();
+  function prepCanvas(canvas){
+    if (!canvas) return {ctx:null,w:0,h:0,dpr:1};
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+    canvas.height= Math.max(1, Math.floor(rect.height* dpr));
+    const ctx = canvas.getContext('2d'); ctx.scale(dpr,dpr);
+    return {ctx, w:rect.width, h:rect.height, dpr};
   }
 
-  // draw in order so “All” (purple) doesn’t hide green
-  if (dual){
-    drawSeries(seriesA, colorLine,  colorFill);   // Interactions (purple)
-    drawSeries(seriesB, colorLine2, colorFill2);  // Sales (green)
-  } else {
-    drawSeries(seriesA, colorLine,  colorFill);
+  function drawSparkline(canvas, data, opts={}){
+    const {ctx, w, h} = prepCanvas(canvas); if (!ctx) return;
+    const {
+      colorLine='#5b61d9', colorFill='rgba(91,97,217,0.12)',
+      colorLine2='#2f855a', colorFill2='rgba(47,133,90,0.10)',
+      gridColor='rgba(0,0,0,0.06)', strokeWidth=2, dual=false,
+      seriesA=[], seriesB=[]
+    } = opts;
+
+    ctx.clearRect(0,0,w,h);
+    const max = Math.max(1, ...seriesA, ...(dual?seriesB:[]));
+    const pad = 8, gh = h - pad*2, gw = w - pad*2;
+
+    // guides
+    ctx.strokeStyle = gridColor; ctx.lineWidth = 1;
+    [0,.5,1].forEach(t=>{ const y = pad + gh*(1-t); ctx.beginPath(); ctx.moveTo(pad,y); ctx.lineTo(pad+gw,y); ctx.stroke(); });
+
+    function drawSeries(series, colorL, colorF){
+      const n = series.length, step = gw / Math.max(1, n-1);
+      // area
+      ctx.beginPath();
+      series.forEach((v,i)=>{ const x=pad+i*step, y=pad+gh*(1 - v/max); i?ctx.lineTo(x,y):ctx.moveTo(x,y); });
+      ctx.lineTo(pad+gw, pad+gh); ctx.lineTo(pad, pad+gh); ctx.closePath();
+      ctx.fillStyle = colorF; ctx.fill();
+      // line
+      ctx.beginPath();
+      series.forEach((v,i)=>{ const x=pad+i*step, y=pad+gh*(1 - v/max); i?ctx.lineTo(x,y):ctx.moveTo(x,y); });
+      ctx.strokeStyle = colorL; ctx.lineWidth = strokeWidth; ctx.lineJoin='round'; ctx.lineCap='round'; ctx.stroke();
+    }
+
+    if (dual){ drawSeries(seriesA, colorLine, colorFill); drawSeries(seriesB, colorLine2, colorFill2); }
+    else { drawSeries(seriesA, colorLine, colorFill); }
   }
-}
 
-// Render the activity timeline based on controls
-function renderActivityTimeline(){
-  const canvas = document.getElementById('raSpark');
-  if (!canvas) return;
+  function renderActivityTimeline(){
+    const canvas = document.getElementById('raSpark'); if (!canvas) return;
+    const days = parseInt(document.getElementById('raRange')?.value || '30', 10);
+    const activeBtn = document.querySelector('.ra-toggle .pill.active');
+    const kind = activeBtn?.dataset.kind || 'all';
+    const d = buildDailySeries(kind, days);
 
-  const days = parseInt(document.getElementById('raRange')?.value || '30', 10);
-  const activeBtn = document.querySelector('.ra-toggle .pill.active');
-  const kind = activeBtn?.dataset.kind || 'all';
-
-  const d = buildDailySeries(kind, days);
-
-  if (kind === 'all'){
-    drawSparkline(canvas, d.seriesAll, {
-      seriesA: d.seriesAll,
-      colorLine: getComputedStyle(document.documentElement).getPropertyValue('--grad1').trim() || '#4c51bf',
-      colorFill: 'rgba(76,81,191,0.15)'
-    });
-  } else if (kind === 'interactions'){
-    drawSparkline(canvas, d.seriesInt, {
-      seriesA: d.seriesInt,
-      colorLine: '#5b61d9',
-      colorFill: 'rgba(91,97,217,0.12)'
-    });
-  } else { // sales
-    drawSparkline(canvas, d.seriesSale, {
-      seriesA: d.seriesSale,
-      colorLine: '#2f855a',
-      colorFill: 'rgba(47,133,90,0.10)'
-    });
+    if (kind === 'all'){
+      drawSparkline(canvas, d.seriesAll, { seriesA: d.seriesAll, colorLine: '#4c51bf', colorFill: 'rgba(76,81,191,0.15)' });
+    } else if (kind === 'interactions'){
+      drawSparkline(canvas, d.seriesInt, { seriesA: d.seriesInt, colorLine: '#5b61d9', colorFill: 'rgba(91,97,217,0.12)' });
+    } else {
+      drawSparkline(canvas, d.seriesSale, { seriesA: d.seriesSale, colorLine: '#2f855a', colorFill: 'rgba(47,133,90,0.10)' });
+    }
   }
-}
 
-// Wire controls once at startup
-function initActivityTimelineControls(){
-  const rangeSel = document.getElementById('raRange');
-  if (rangeSel) rangeSel.addEventListener('change', renderActivityTimeline);
+  function initActivityTimelineControls(){
+    const rangeSel = document.getElementById('raRange');
+    if (rangeSel) rangeSel.addEventListener('change', renderActivityTimeline);
 
-  document.querySelectorAll('.ra-toggle .pill').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      document.querySelectorAll('.ra-toggle .pill').forEach(b=>{
-        b.classList.toggle('active', b===btn);
-        b.setAttribute('aria-selected', b===btn ? 'true' : 'false');
+    document.querySelectorAll('.ra-toggle .pill').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        document.querySelectorAll('.ra-toggle .pill').forEach(b=>{
+          b.classList.toggle('active', b===btn);
+          b.setAttribute('aria-selected', b===btn ? 'true' : 'false');
+        });
+        renderActivityTimeline();
       });
-      renderActivityTimeline();
     });
-  });
 
-  // Resize observer to keep canvas crisp on container resizing
-  const canvas = document.getElementById('raSpark');
-  if (canvas){
-    const ro = new ResizeObserver(()=>renderActivityTimeline());
-    ro.observe(canvas.parentElement);
+    const canvas = document.getElementById('raSpark');
+    if (canvas){
+      const ro = new ResizeObserver(()=>renderActivityTimeline());
+      ro.observe(canvas.parentElement);
+    }
   }
-}
 </script>
 </body>
 </html>
-
