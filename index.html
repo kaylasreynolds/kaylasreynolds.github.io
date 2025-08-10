@@ -914,10 +914,10 @@
           </div>
         </div>
           ${Number(c.initialSales)>0 ? `
-          <div style="padding:10px 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between">␊
-            <div style="font-weight:600">Initial Sales</div>␊
+          <div style="padding:10px 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between">
+            <div style="font-weight:600">Initial Sales</div
             <div style="font-weight:800;color:#2f855a">${fmtUSD.format(Number(c.initialSales) || 0)}</div>
-          </div>` : ''}␊
+          </div>` : ''}
         ${rows.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(s => `
           <div style="padding:10px 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center">
             <div>
@@ -1019,3 +1019,4 @@
 </script>
 </body>
 </html>
+
