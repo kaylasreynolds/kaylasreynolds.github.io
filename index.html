@@ -433,9 +433,14 @@
         if (!data || !Array.isArray(data.clients) || !Array.isArray(data.interactions) || !Array.isArray(data.sales)) {
           alert('Invalid file format.'); return;
         }
-        clients = data.clients.map(c => ({ ...c, styles: normalizeStyles(c.styles ?? c.style), status: mapOldStatus(c.status)}));
-        interactions = data.interactions.map(i => ({...i, date: (i.date||'').slice(0,10)}));
-        sales = data.sales;
+         clients = data.clients.map(c => ({
+          ...c,
+          styles: normalizeStyles(c.styles ?? c.style),
+          status: mapOldStatus(c.status),
+          initialSales: Number(c.initialSales) || 0
+        }));
+        interactions = data.interactions.map(i => ({ ...i, date: (i.date||'').slice(0,10) }));
+        sales = data.sales.map(s => ({ ...s, amount: Number(s.amount) || 0 }));
         saveData(); renderClients(); renderInteractions(); renderSalesView(); updateDashboard();
         alert('Import complete ✔️');
       } catch (e) { console.error(e); alert('Could not parse the file.'); }
@@ -596,8 +601,10 @@
 
   function totalSpentFor(clientId){
     const c = clients.find(x => x.id === clientId);
-    const extra = sales.filter(s => s.clientId === clientId).reduce((sum, s) => sum + s.amount, 0);
-    return (c?.initialSales || 0) + extra;
+    const extra = sales
+      .filter(s => s.clientId === clientId)
+      .reduce((sum, s) => sum + (Number(s.amount) || 0), 0);
+    return (Number(c?.initialSales) || 0) + extra;
   }
 
   function renderClients(source = clients){
@@ -738,7 +745,7 @@
 
         <div style="margin-top:16px;display:grid;gap:10px">
           <div><strong>Interactions:</strong> ${its.length}${lastIt ? ` — Last: ${new Date(lastIt.date).toLocaleDateString()}` : ''}</div>
-          <div><strong>Initial Sales:</strong> ${fmtUSD.format(c.initialSales || 0)}</div>
+           <div><strong>Initial Sales:</strong> ${fmtUSD.format(Number(c.initialSales) || 0)}</div>
         </div>
 
         <div style="margin-top:16px">
@@ -751,7 +758,7 @@
                     <div style="font-weight:600">${escapeHTML(s.description || 'Sale')}</div>
                     <div class="muted" style="font-size:.85rem">${new Date(s.date).toLocaleDateString()}</div>
                   </div>
-                  <div style="font-weight:800;color:#2f855a">${fmtUSD.format(s.amount)}</div>
+                   <div style="font-weight:800;color:#2f855a">${fmtUSD.format(Number(s.amount) || 0)}</div>
                 </div>`).join('')}
             </div>`}
         </div>
@@ -883,7 +890,8 @@
 
     clients.forEach(c => {
       const rows = sales.filter(s => s.clientId === c.id);
-      const total = (c.initialSales || 0) + rows.reduce((sum, s) => sum + s.amount, 0);
+      const total = (Number(c.initialSales) || 0) +
+        rows.reduce((sum, s) => sum + (Number(s.amount) || 0), 0);
       if (total > 0 || rows.length > 0) map.set(c.id, { client:c, rows, total });
     });
 
@@ -905,11 +913,11 @@
             <div class="muted" style="margin-top:4px">Total Sales: <strong style="color:#2f855a">${fmtUSD.format(total)}</strong></div>
           </div>
         </div>
-        ${c.initialSales>0 ? `
-          <div style="padding:10px 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between">
-            <div style="font-weight:600">Initial Sales</div>
-            <div style="font-weight:800;color:#2f855a">${fmtUSD.format(c.initialSales)}</div>
-          </div>` : ''}
+          ${Number(c.initialSales)>0 ? `
+          <div style="padding:10px 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between">␊
+            <div style="font-weight:600">Initial Sales</div>␊
+            <div style="font-weight:800;color:#2f855a">${fmtUSD.format(Number(c.initialSales) || 0)}</div>
+          </div>` : ''}␊
         ${rows.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(s => `
           <div style="padding:10px 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center">
             <div>
@@ -917,7 +925,7 @@
               <div class="muted" style="font-size:.85rem">${new Date(s.date).toLocaleDateString()}</div>
             </div>
             <div style="display:flex;gap:8px;align-items:center">
-              <span style="font-weight:800;color:#2f855a">${fmtUSD.format(s.amount)}</span>
+              <span style="font-weight:800;color:#2f855a">${fmtUSD.format(Number(s.amount) || 0)}</span>
               <button class="btn danger" style="padding:4px 8px" onclick="deleteSale('${s.id}')">×</button>
             </div>
           </div>`).join('')}
@@ -941,7 +949,9 @@
     sales.forEach(s => { const d=new Date(s.date); if (d.getMonth()===m && d.getFullYear()===y) active.add(s.clientId); });
     document.getElementById('activeThisMonth').textContent = active.size;
 
-    const total = clients.reduce((sum,c)=>sum+(c.initialSales||0),0) + sales.reduce((sum,s)=>sum+s.amount,0);
+     const total =
+      clients.reduce((sum,c)=> sum + (Number(c.initialSales) || 0), 0) +
+      sales.reduce((sum,s)=> sum + (Number(s.amount) || 0), 0);
     document.getElementById('totalSales').textContent = fmtUSD.format(total);
 
     renderRecentActivity();
@@ -999,7 +1009,7 @@
                 <div class="client-name">${escapeHTML(c ? `${(c.firstName??'')} ${(c.lastName??'')}`.trim() : 'Unknown Client')}</div>
                 <div class="muted" style="margin-top:4px">${whenFmt(s.date)}</div>
               </div>
-              <div class="badge-sale">${fmtUSD.format(s.amount || 0)}</div>
+              <div class="badge-sale">${fmtUSD.format(Number(s.amount) || 0)}</div>
             </div>
             ${s.description ? `<div style="margin-top:8px">${escapeHTML(s.description)}</div>` : ''}
           </div>`;
