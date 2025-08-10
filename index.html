@@ -34,10 +34,10 @@
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap:20px;
     margin-bottom:30px;
-    align-items:stretch; /* equal heights */
+    align-items:stretch;
   }
   .card{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:20px}
-  /* removed the old "#dashboard .card + .card {margin-top:20px}" that staggered the grid */
+  /* removed the old "#dashboard .card + .card" staggering rule */
   .stat-number{font-size:2rem;font-weight:800;background:linear-gradient(135deg,var(--grad1),var(--grad2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
   .muted{color:var(--muted);font-size:.95rem}
   .search{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;margin-bottom:12px}
@@ -60,6 +60,8 @@
   .btn.danger{color:#fff;background:linear-gradient(135deg,var(--danger),var(--danger2))}
   .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
   .tag{background:#eef;color:#333;padding:4px 10px;border-radius:999px;font-size:.75rem;font-weight:700}
+
+  /* modal */
   .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.45);z-index:10}
   .modal.active{display:flex}
   .panel{background:#fff;border-radius:16px;width:min(560px,92vw);max-height:90vh;overflow:auto;padding:20px}
@@ -70,12 +72,32 @@
   textarea{min-height:90px;resize:vertical}
   .row-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
   .empty-state{text-align:center;color:var(--muted2);padding:28px}
+
+  /* Activity columns on dashboard */
+  .activity-columns{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:16px;
+  }
+  @media (max-width: 800px){
+    .activity-columns{ grid-template-columns: 1fr; }
+  }
+  .activity-col{ min-width:0; }
+  .col-title{
+    margin:0 0 8px;
+    font-size:1rem;
+    color:var(--muted);
+    font-weight:700;
+  }
   .activity-list{display:grid;gap:12px}
   .activity-item{display:flex;gap:12px;align-items:flex-start}
   .activity-icon{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:18px;color:#fff;flex-shrink:0}
   .activity-icon.sale{background:linear-gradient(135deg,var(--ok),var(--ok2))}
   .activity-icon.interaction{background:linear-gradient(135deg,var(--grad1),var(--grad2))}
+
   @media (max-width:768px){.container{padding:12px}}
+
+  /* Filters */
   .filters{display:flex;flex-direction:column;gap:8px;margin:8px 0 12px}
   .filters-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
   .filters-title{font-weight:800;margin-right:6px}
@@ -83,42 +105,12 @@
   .chk input{accent-color:#4c51bf}
   .filters-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
   .filters-controls select{padding:8px 10px;border-radius:10px;border:2px solid var(--ring)}
-.activity-columns{
-  display:grid;
-  grid-template-columns: 1fr 1fr;
-  gap:16px;
-}
-@media (max-width: 800px){
-  .activity-columns{ grid-template-columns: 1fr; }
-}
-.activity-col{ min-width:0; }
-.col-title{
-  margin:0 0 8px;
-  font-size:1rem;
-  color:var(--muted);
-  font-weight:700;
-}
-
-  /* Recent Activity timeline */
-  .ra-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-  .ra-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-  .ra-controls select{padding:8px 10px;border-radius:10px;border:2px solid var(--ring);background:#fff}
-  .ra-toggle{display:flex;gap:6px}
-  .pill{padding:8px 12px;border:0;border-radius:999px;background:#eee;font-weight:700;cursor:pointer}
-  .pill.active{color:#fff;background:linear-gradient(135deg,var(--grad1),var(--grad2))}
-  .ra-chart-wrap{margin-top:10px;background:#fff;border-radius:12px;padding:10px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
-  .ra-legend{font-size:.85rem;color:var(--muted);margin-top:6px;display:flex;align-items:center}
-  .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
-  .dot-int{background:linear-gradient(135deg,var(--grad1),var(--grad2))}
-  .dot-sale{background:linear-gradient(135deg,var(--ok),var(--ok2))}
-  .ra-subtitle{margin:12px 0 8px;font-size:1rem;color:var(--muted)}
 </style>
 </head>
 <body>
   <div class="container">
     <header>
       <h1>Client Management</h1>
-      <!-- Export / Import / Clear (moved inside header, extra </header> removed) -->
       <div class="toolbar">
         <button id="exportBtn" class="btn ghost">⬇️ Export Data</button>
         <button id="importBtn" class="btn ghost">⬆️ Import Data</button>
@@ -143,34 +135,35 @@
         <div class="card"><div class="stat-number" id="totalSales">$0.00</div><div class="muted">Total Sales</div></div>
       </div>
 
+      <!-- Recent Activity: two running columns -->
       <div class="card" style="margin-top:20px">
-  <h2 style="margin:0 0 12px">Recent Activity</h2>
+        <h2 style="margin:0 0 12px">Recent Activity</h2>
 
-  <div class="activity-columns">
-    <!-- Interactions column -->
-    <div class="activity-col">
-      <h3 class="col-title">Interactions</h3>
-      <div class="activity-list" id="interactionActivityList">
-        <div class="empty-state">
-          <div style="font-size:42px;opacity:.6">💬</div>
-          <p>No interactions yet</p>
+        <div class="activity-columns">
+          <!-- Interactions column -->
+          <div class="activity-col">
+            <h3 class="col-title">Interactions</h3>
+            <div class="activity-list" id="interactionActivityList">
+              <div class="empty-state">
+                <div style="font-size:42px;opacity:.6">💬</div>
+                <p>No interactions yet</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sales column -->
+          <div class="activity-col">
+            <h3 class="col-title">Sales</h3>
+            <div class="activity-list" id="salesActivityList">
+              <div class="empty-state">
+                <div style="font-size:42px;opacity:.6">💰</div>
+                <p>No sales yet</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-
-    <!-- Sales column -->
-    <div class="activity-col">
-      <h3 class="col-title">Sales</h3>
-      <div class="activity-list" id="salesActivityList">
-        <div class="empty-state">
-          <div style="font-size:42px;opacity:.6">💰</div>
-          <p>No sales yet</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
 
     <!-- Clients -->
     <div id="clients" class="tab-content" style="display:none">
@@ -498,7 +491,7 @@
     const styleMatchSel = document.getElementById('styleMatch');
     if (styleMatchSel) styleMatchSel.addEventListener('change', applyFiltersAndSort);
 
-    // ✅ rename to avoid duplicate const name
+    // ✅ distinct name for filters clear button
     const clearFiltersBtn = document.getElementById('clearFiltersBtn');
     if (clearFiltersBtn) clearFiltersBtn.addEventListener('click', () => {
       document.querySelectorAll('.style-filter').forEach(cb => cb.checked = false);
@@ -528,10 +521,6 @@
         }
       });
     }
-
-    // Timeline controls + first render
-    initActivityTimelineControls();
-    renderActivityTimeline();
   });
 
   function closeAllModals(){ $$('.modal.active').forEach(m => m.classList.remove('active')); }
@@ -667,7 +656,8 @@
     }).join('');
   }
 
-  function searchClients(){ applyFiltersAndSort(); } // ✅ keep only this; removed stray duplicate block
+  // compact search wrapper; full logic lives in applyFiltersAndSort()
+  function searchClients(){ applyFiltersAndSort(); }
 
   function applyClientSort(){ applyFiltersAndSort(); }
 
@@ -691,6 +681,38 @@
       case 'createdAt_desc':
       default:              return arr.sort((a,b) => byCreated(b,a));
     }
+  }
+
+  function applyFiltersAndSort(){
+    const term = (document.getElementById('clientSearch').value || '').toLowerCase();
+    const selected = getActiveStyleFilters();
+    const matchModeEl = document.getElementById('styleMatch');
+    const matchMode = matchModeEl ? matchModeEl.value : 'any';
+
+    // 1) search filter
+    let list = clients.filter(c => {
+      const matchesSearch =
+        fullNameOf(c).toLowerCase().includes(term) ||
+        (c.email && c.email.toLowerCase().includes(term)) ||
+        (c.phone && c.phone.includes(term)) ||
+        (c.styles && c.styles.some(s => s.toLowerCase().includes(term)));
+
+      if (!matchesSearch) return false;
+
+      // 2) style filter
+      if (!selected.length) return true;
+      const styles = c.styles || [];
+      return (matchMode === 'all')
+        ? selected.every(s => styles.includes(s))
+        : selected.some(s => styles.includes(s));
+    });
+
+    // 3) sort
+    const mode = document.getElementById('clientSort').value || 'createdAt_desc';
+    list = sortClients(list, mode);
+
+    // 4) render
+    renderClients(list);
   }
 
   // ---------- Client View (recap) ----------
@@ -916,73 +938,69 @@
     document.getElementById('totalSales').textContent = fmtUSD.format(total);
 
     renderRecentActivity();
-    renderActivityTimeline(); // keep sparkline in sync
   }
 
-  <script>
-function renderRecentActivity(){
-  const interEl = document.getElementById('interactionActivityList');
-  const salesEl = document.getElementById('salesActivityList');
-  if (!interEl || !salesEl) return;
+  // ---------- Dashboard: Recent Activity (two running columns) ----------
+  function renderRecentActivity(){
+    const interEl = document.getElementById('interactionActivityList');
+    const salesEl = document.getElementById('salesActivityList');
+    if (!interEl || !salesEl) return;
 
-  // Build + sort newest -> oldest
-  const interSorted = [...interactions].sort((a,b)=>new Date(b.date)-new Date(a.date));
-  const salesSorted = [...sales].sort((a,b)=>new Date(b.date)-new Date(a.date));
+    // Build + sort newest -> oldest
+    const interSorted = [...interactions].sort((a,b)=>new Date(b.date)-new Date(a.date));
+    const salesSorted = [...sales].sort((a,b)=>new Date(b.date)-new Date(a.date));
 
-  // Helpers
-  const clientById = (id)=>clients.find(c=>c.id===id);
-  const whenFmt = (iso)=>new Date(iso).toLocaleString([], { hour:'2-digit', minute:'2-digit', year:'numeric', month:'short', day:'numeric' });
+    // Helpers
+    const clientById = (id)=>clients.find(c=>c.id===id);
+    const whenFmt = (iso)=>new Date(iso).toLocaleString([], { hour:'2-digit', minute:'2-digit', year:'numeric', month:'short', day:'numeric' });
 
-  // Render Interactions (running list; cap to 25 for performance)
-  if (interSorted.length === 0){
-    interEl.innerHTML = `
-      <div class="empty-state">
-        <div style="font-size:42px;opacity:.6">💬</div>
-        <p>No interactions yet</p>
-      </div>`;
-  } else {
-    interEl.innerHTML = interSorted.slice(0,25).map(i=>{
-      const c = clientById(i.clientId);
-      return `
-        <div class="interaction-item">
-          <div class="client-header">
-            <div>
-              <div class="client-name">${(c ? `${(c.firstName??'')} ${(c.lastName??'')}`.trim() : 'Unknown Client')}</div>
-              <div class="muted" style="margin-top:4px">${i.type ? String(i.type) : 'Interaction'} • ${whenFmt(i.date)}</div>
-            </div>
-          </div>
-          ${i.notes ? `<div style="margin-top:8px">${String(i.notes).replace(/[&<>"]/g, s=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[s]))}</div>` : ''}
+    // Render Interactions (cap to 25 for performance)
+    if (interSorted.length === 0){
+      interEl.innerHTML = `
+        <div class="empty-state">
+          <div style="font-size:42px;opacity:.6">💬</div>
+          <p>No interactions yet</p>
         </div>`;
-    }).join('');
-  }
-
-  // Render Sales (running list; cap to 25)
-  if (salesSorted.length === 0){
-    salesEl.innerHTML = `
-      <div class="empty-state">
-        <div style="font-size:42px;opacity:.6">💰</div>
-        <p>No sales yet</p>
-      </div>`;
-  } else {
-    const fmtUSD = new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:2});
-    salesEl.innerHTML = salesSorted.slice(0,25).map(s=>{
-      const c = clientById(s.clientId);
-      return `
-        <div class="interaction-item">
-          <div class="client-header">
-            <div>
-              <div class="client-name">${(c ? `${(c.firstName??'')} ${(c.lastName??'')}`.trim() : 'Unknown Client')}</div>
-              <div class="muted" style="margin-top:4px">${whenFmt(s.date)}</div>
+    } else {
+      interEl.innerHTML = interSorted.slice(0,25).map(i=>{
+        const c = clientById(i.clientId);
+        return `
+          <div class="interaction-item">
+            <div class="client-header">
+              <div>
+                <div class="client-name">${escapeHTML(c ? `${(c.firstName??'')} ${(c.lastName??'')}`.trim() : 'Unknown Client')}</div>
+                <div class="muted" style="margin-top:4px">${escapeHTML(i.type || 'Interaction')} • ${whenFmt(i.date)}</div>
+              </div>
             </div>
-            <div class="badge-sale">${fmtUSD.format(s.amount || 0)}</div>
-          </div>
-          ${s.description ? `<div style="margin-top:8px">${String(s.description).replace(/[&<>"]/g, s=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[s]))}</div>` : ''}
-        </div>`;
-    }).join('');
-  }
-}
-</script>
+            ${i.notes ? `<div style="margin-top:8px">${escapeHTML(i.notes)}</div>` : ''}
+          </div>`;
+      }).join('');
+    }
 
+    // Render Sales (cap to 25)
+    if (salesSorted.length === 0){
+      salesEl.innerHTML = `
+        <div class="empty-state">
+          <div style="font-size:42px;opacity:.6">💰</div>
+          <p>No sales yet</p>
+        </div>`;
+    } else {
+      salesEl.innerHTML = salesSorted.slice(0,25).map(s=>{
+        const c = clientById(s.clientId);
+        return `
+          <div class="interaction-item">
+            <div class="client-header">
+              <div>
+                <div class="client-name">${escapeHTML(c ? `${(c.firstName??'')} ${(c.lastName??'')}`.trim() : 'Unknown Client')}</div>
+                <div class="muted" style="margin-top:4px">${whenFmt(s.date)}</div>
+              </div>
+              <div class="badge-sale">${fmtUSD.format(s.amount || 0)}</div>
+            </div>
+            ${s.description ? `<div style="margin-top:8px">${escapeHTML(s.description)}</div>` : ''}
+          </div>`;
+      }).join('');
+    }
+  }
 
   function timeAgo(date){
     const s = Math.floor((Date.now()-date.getTime())/1000);
@@ -994,105 +1012,6 @@ function renderRecentActivity(){
     if (s>=60)       return t(Math.floor(s/60),'minute');
     return 'Just now';
   }
-
-  /* ====== Compact timeline for Recent Activity ====== */
-  function buildDailySeries(kind='all', days=30){
-    const end = new Date(); end.setHours(0,0,0,0);
-    const start = new Date(end); start.setDate(end.getDate() - (days-1));
-    const keyOf = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).toISOString().slice(0,10);
-    const daysArr = []; const mapInt = new Map(), mapSale = new Map();
-    for (let d=new Date(start); d<=end; d.setDate(d.getDate()+1)){
-      const k = keyOf(d); mapInt.set(k,0); mapSale.set(k,0); daysArr.push(k);
-    }
-    interactions.forEach(i => { const k = keyOf(new Date(i.date)); if (mapInt.has(k)) mapInt.set(k, mapInt.get(k)+1); });
-    sales.forEach(s => { const k = keyOf(new Date(s.date)); if (mapSale.has(k)) mapSale.set(k, mapSale.get(k)+1); });
-    const ints = daysArr.map(k => mapInt.get(k));
-    const sls  = daysArr.map(k => mapSale.get(k));
-    const all  = ints.map((v,i)=>v+sls[i]);
-    return { labels: daysArr, seriesInt: ints, seriesSale: sls, seriesAll: all, start, end };
-  }
-
-  function prepCanvas(canvas){
-    if (!canvas) return {ctx:null,w:0,h:0,dpr:1};
-    const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = Math.max(1, Math.floor(rect.width * dpr));
-    canvas.height= Math.max(1, Math.floor(rect.height* dpr));
-    const ctx = canvas.getContext('2d'); ctx.scale(dpr,dpr);
-    return {ctx, w:rect.width, h:rect.height, dpr};
-  }
-
-  function drawSparkline(canvas, data, opts={}){
-    const {ctx, w, h} = prepCanvas(canvas); if (!ctx) return;
-    const {
-      colorLine='#5b61d9', colorFill='rgba(91,97,217,0.12)',
-      colorLine2='#2f855a', colorFill2='rgba(47,133,90,0.10)',
-      gridColor='rgba(0,0,0,0.06)', strokeWidth=2, dual=false,
-      seriesA=[], seriesB=[]
-    } = opts;
-
-    ctx.clearRect(0,0,w,h);
-    const max = Math.max(1, ...seriesA, ...(dual?seriesB:[]));
-    const pad = 8, gh = h - pad*2, gw = w - pad*2;
-
-    // guides
-    ctx.strokeStyle = gridColor; ctx.lineWidth = 1;
-    [0,.5,1].forEach(t=>{ const y = pad + gh*(1-t); ctx.beginPath(); ctx.moveTo(pad,y); ctx.lineTo(pad+gw,y); ctx.stroke(); });
-
-    function drawSeries(series, colorL, colorF){
-      const n = series.length, step = gw / Math.max(1, n-1);
-      // area
-      ctx.beginPath();
-      series.forEach((v,i)=>{ const x=pad+i*step, y=pad+gh*(1 - v/max); i?ctx.lineTo(x,y):ctx.moveTo(x,y); });
-      ctx.lineTo(pad+gw, pad+gh); ctx.lineTo(pad, pad+gh); ctx.closePath();
-      ctx.fillStyle = colorF; ctx.fill();
-      // line
-      ctx.beginPath();
-      series.forEach((v,i)=>{ const x=pad+i*step, y=pad+gh*(1 - v/max); i?ctx.lineTo(x,y):ctx.moveTo(x,y); });
-      ctx.strokeStyle = colorL; ctx.lineWidth = strokeWidth; ctx.lineJoin='round'; ctx.lineCap='round'; ctx.stroke();
-    }
-
-    if (dual){ drawSeries(seriesA, colorLine, colorFill); drawSeries(seriesB, colorLine2, colorFill2); }
-    else { drawSeries(seriesA, colorLine, colorFill); }
-  }
-
-  function renderActivityTimeline(){
-    const canvas = document.getElementById('raSpark'); if (!canvas) return;
-    const days = parseInt(document.getElementById('raRange')?.value || '30', 10);
-    const activeBtn = document.querySelector('.ra-toggle .pill.active');
-    const kind = activeBtn?.dataset.kind || 'all';
-    const d = buildDailySeries(kind, days);
-
-    if (kind === 'all'){
-      drawSparkline(canvas, d.seriesAll, { seriesA: d.seriesAll, colorLine: '#4c51bf', colorFill: 'rgba(76,81,191,0.15)' });
-    } else if (kind === 'interactions'){
-      drawSparkline(canvas, d.seriesInt, { seriesA: d.seriesInt, colorLine: '#5b61d9', colorFill: 'rgba(91,97,217,0.12)' });
-    } else {
-      drawSparkline(canvas, d.seriesSale, { seriesA: d.seriesSale, colorLine: '#2f855a', colorFill: 'rgba(47,133,90,0.10)' });
-    }
-  }
-
-  function initActivityTimelineControls(){
-    const rangeSel = document.getElementById('raRange');
-    if (rangeSel) rangeSel.addEventListener('change', renderActivityTimeline);
-
-    document.querySelectorAll('.ra-toggle .pill').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        document.querySelectorAll('.ra-toggle .pill').forEach(b=>{
-          b.classList.toggle('active', b===btn);
-          b.setAttribute('aria-selected', b===btn ? 'true' : 'false');
-        });
-        renderActivityTimeline();
-      });
-    });
-
-    const canvas = document.getElementById('raSpark');
-    if (canvas){
-      const ro = new ResizeObserver(()=>renderActivityTimeline());
-      ro.observe(canvas.parentElement);
-    }
-  }
 </script>
 </body>
 </html>
-
