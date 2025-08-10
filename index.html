@@ -6,8 +6,7 @@
 <title>Client Management</title>
 <style>
   :root{
-    --grad1:#4c51bf; /* indigo-700 */
-    --grad2:#553c9a; /* purple-700 */
+    --grad1:#4c51bf; --grad2:#553c9a;
     --ok:#2f855a;--ok2:#276749;
     --danger:#c53030;--danger2:#97266d;
     --text:#222;--muted:#555;--muted2:#888;
@@ -15,12 +14,7 @@
     --shadow:0 10px 30px rgba(0,0,0,.12);
   }
   *{box-sizing:border-box}html,body{height:100%}
-  body{
-    margin:0;
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Ubuntu,system-ui,sans-serif;
-    background:linear-gradient(135deg,#667eea,#764ba2);
-    color:var(--text)
-  }
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Ubuntu,system-ui,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);color:var(--text)}
   .container{max-width:1200px;margin:auto;padding:20px}
   header{background:var(--card);backdrop-filter:blur(10px);border-radius:20px;padding:24px;margin-bottom:20px;box-shadow:var(--shadow)}
   h1{margin:0 0 6px;background:linear-gradient(135deg,var(--grad1),var(--grad2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
@@ -28,16 +22,8 @@
   .tabs{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}
   .tab{padding:10px 18px;border:0;border-radius:999px;background:#ffffff;cursor:pointer;font-weight:700;box-shadow:0 4px 15px rgba(0,0,0,.1)}
   .tab.active,[aria-selected="true"]{color:#fff;background:linear-gradient(135deg,var(--grad1),var(--grad2))}
-  .grid{display:grid;gap:16px}
-  .stats-grid{
-    display:grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap:20px;
-    margin-bottom:30px;
-    align-items:stretch;
-  }
+  .stats-grid{display:grid;grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));gap:20px;margin-bottom:30px;align-items:stretch}
   .card{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:20px}
-  /* removed the old "#dashboard .card + .card" staggering rule */
   .stat-number{font-size:2rem;font-weight:800;background:linear-gradient(135deg,var(--grad1),var(--grad2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
   .muted{color:var(--muted);font-size:.95rem}
   .search{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;margin-bottom:12px}
@@ -49,9 +35,10 @@
   .client-header{display:flex;justify-content:space-between;gap:12px}
   .client-name{font-weight:800}
   .chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:.75rem;font-weight:700}
-  .status-introductory{background:#e6f0ff;color:#1a365d}        /* soft blue */
-  .status-first-appointment{background:#fffbea;color:#744210}   /* soft amber */
-  .status-established{background:#c6f6d5;color:#22543d}          /* soft green */
+  /* NEW status pills */
+  .status-introductory{background:#e6f0ff;color:#1a365d}
+  .status-first-appointment{background:#fffbea;color:#744210}
+  .status-established{background:#c6f6d5;color:#22543d}
   .badge-sale{background:linear-gradient(135deg,var(--ok),var(--ok2));color:#fff;padding:4px 10px;border-radius:999px;font-size:.75rem;font-weight:800;margin-left:8px}
   .buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
   .btn{padding:10px 16px;border:0;border-radius:999px;font-weight:800;cursor:pointer}
@@ -73,27 +60,12 @@
   .row-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
   .empty-state{text-align:center;color:var(--muted2);padding:28px}
 
-  /* Activity columns on dashboard */
-  .activity-columns{
-    display:grid;
-    grid-template-columns: 1fr 1fr;
-    gap:16px;
-  }
-  @media (max-width: 800px){
-    .activity-columns{ grid-template-columns: 1fr; }
-  }
-  .activity-col{ min-width:0; }
-  .col-title{
-    margin:0 0 8px;
-    font-size:1rem;
-    color:var(--muted);
-    font-weight:700;
-  }
+  /* Dashboard: two activity columns */
+  .activity-columns{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media (max-width: 800px){ .activity-columns{grid-template-columns:1fr} }
+  .activity-col{min-width:0}
+  .col-title{margin:0 0 8px;font-size:1rem;color:var(--muted);font-weight:700}
   .activity-list{display:grid;gap:12px}
-  .activity-item{display:flex;gap:12px;align-items:flex-start}
-  .activity-icon{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:18px;color:#fff;flex-shrink:0}
-  .activity-icon.sale{background:linear-gradient(135deg,var(--ok),var(--ok2))}
-  .activity-icon.interaction{background:linear-gradient(135deg,var(--grad1),var(--grad2))}
 
   @media (max-width:768px){.container{padding:12px}}
 
@@ -138,9 +110,7 @@
       <!-- Recent Activity: two running columns -->
       <div class="card" style="margin-top:20px">
         <h2 style="margin:0 0 12px">Recent Activity</h2>
-
         <div class="activity-columns">
-          <!-- Interactions column -->
           <div class="activity-col">
             <h3 class="col-title">Interactions</h3>
             <div class="activity-list" id="interactionActivityList">
@@ -150,8 +120,6 @@
               </div>
             </div>
           </div>
-
-          <!-- Sales column -->
           <div class="activity-col">
             <h3 class="col-title">Sales</h3>
             <div class="activity-list" id="salesActivityList">
@@ -283,9 +251,9 @@
           <div>
             <label>Status</label>
             <select id="clientStatus">
-                <option>Introductory</option>
-                <option>First Appointment</option>
-                <option>Established</option>
+              <option>Introductory</option>
+              <option>First Appointment</option>
+              <option>Established</option>
             </select>
           </div>
           <div>
@@ -338,7 +306,11 @@
               <option>Call</option><option>Email</option><option>Meeting</option><option>Message</option><option>Other</option>
             </select>
           </div>
-          <div><label>Date *</label><input type="date" id="interactionDate" required></div>
+          <div>
+            <label>Date *</label>
+            <!-- date-only (no time) -->
+            <input type="date" id="interactionDate" required>
+          </div>
         </div>
         <div><label>Notes</label><textarea id="interactionNotes" placeholder="Describe the interaction..."></textarea></div>
         <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
@@ -382,13 +354,11 @@
   const escapeHTML = (str) => String(str ?? '')
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+
+  // Status helpers
   const VALID_STATUSES = ["Introductory","First Appointment","Established"];
-  const statusSlug = s => String(s||"").toLowerCase().replace(/\s+/g,'-'); // "First Appointment" -> "first-appointment"
-  const mapOldStatus = s => ({
-    "Prospect":"Introductory",
-    "Active":"Established",
-    "Inactive":"Introductory"
-  }[s] || (VALID_STATUSES.includes(s)? s : "Introductory"));
+  const statusSlug = s => String(s||"").toLowerCase().replace(/\s+/g,'-');
+  const mapOldStatus = s => ({ "Prospect":"Introductory","Active":"Established","Inactive":"Introductory" }[s] || (VALID_STATUSES.includes(s)? s : "Introductory"));
 
   // Styles config + helpers
   const ALLOWED_STYLES = ["Bohemian","Classic","Edgy","Casual","Vintage","Trendy"];
@@ -404,8 +374,8 @@
 
   // ---------- Data ----------
   let clients = [];        // {id, firstName, lastName, email, phone, styles[], status, initialSales, notes, createdAt}
-  let interactions = [];   // {id, clientId, type, date, notes, createdAt}
-  let sales = [];          // {id, clientId, amount, date, description, createdAt}
+  let interactions = [];   // {id, clientId, type, date(YYYY-MM-DD), notes, createdAt}
+  let sales = [];          // {id, clientId, amount, date(YYYY-MM-DD), description, createdAt}
   let editingClientId = null;
 
   // ---------- Local Storage + Backup ----------
@@ -420,27 +390,26 @@
       interactions = JSON.parse(localStorage.getItem('crm_interactions') || '[]');
       sales = JSON.parse(localStorage.getItem('crm_sales') || '[]');
 
-      // Migration: old "name" -> first/last AND old "style" -> styles[]
+      // Migration: client name -> first/last, style -> styles[], status -> new set
       let migrated = false;
       clients.forEach(c => {
         if (!c.firstName && c.name) {
           const parts = String(c.name).trim().split(/\s+/);
           c.firstName = parts.shift() || '';
           c.lastName = parts.join(' ');
-          delete c.name;
-          migrated = true;
+          delete c.name; migrated = true;
         }
-        if (!c.styles) {
-          c.styles = normalizeStyles(c.style);
-          delete c.style;
-          if (c.styles.length) migrated = true;
-        } else {
-          c.styles = normalizeStyles(c.styles);
-            // after styles migration inside clients.forEach(c => { ... })
-          c.status = mapOldStatus(c.status);
-  
-        }
+        if (!c.styles) { c.styles = normalizeStyles(c.style); delete c.style; migrated = true; }
+        else { c.styles = normalizeStyles(c.styles); }
+        const mapped = mapOldStatus(c.status);
+        if (mapped !== c.status) { c.status = mapped; migrated = true; }
       });
+
+      // Migration: ensure interaction dates are YYYY-MM-DD (strip time if present)
+      interactions.forEach(i => {
+        if (i.date && i.date.length > 10) { i.date = i.date.slice(0,10); migrated = true; }
+      });
+
       if (migrated) saveData();
     } catch(e) {
       console.warn('Failed to load saved data:', e);
@@ -463,8 +432,8 @@
         if (!data || !Array.isArray(data.clients) || !Array.isArray(data.interactions) || !Array.isArray(data.sales)) {
           alert('Invalid file format.'); return;
         }
-        clients = data.clients.map(c => ({ ...c, styles: normalizeStyles(c.styles ?? c.style) }));
-        interactions = data.interactions;
+        clients = data.clients.map(c => ({ ...c, styles: normalizeStyles(c.styles ?? c.style), status: mapOldStatus(c.status)}));
+        interactions = data.interactions.map(i => ({...i, date: (i.date||'').slice(0,10)}));
         sales = data.sales;
         saveData();
         renderClients(); renderInteractions(); renderSalesView(); updateDashboard();
@@ -476,20 +445,14 @@
 
   // ---------- Startup ----------
   document.addEventListener('DOMContentLoaded', () => {
-    // Load saved data
     loadData();
-
-    // Render initial UI
     renderClients(); renderInteractions(); renderSalesView(); updateDashboard();
 
-    // Default dates
+    // Default dates (date-only)
     const interactionDate = document.getElementById('interactionDate');
-    if (interactionDate) {
-      const now = new Date(); now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-      interactionDate.value = now.toISOString().slice(0, 16);
-    }
+    if (interactionDate) interactionDate.value = new Date().toISOString().slice(0,10);
     const saleDate = document.getElementById('saleDate');
-    if (saleDate) saleDate.value = new Date().toISOString().split('T')[0];
+    if (saleDate) saleDate.value = new Date().toISOString().slice(0,10);
 
     // ESC to close modals
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAllModals(); });
@@ -505,7 +468,6 @@
     const styleMatchSel = document.getElementById('styleMatch');
     if (styleMatchSel) styleMatchSel.addEventListener('change', applyFiltersAndSort);
 
-    // ✅ distinct name for filters clear button
     const clearFiltersBtn = document.getElementById('clearFiltersBtn');
     if (clearFiltersBtn) clearFiltersBtn.addEventListener('click', () => {
       document.querySelectorAll('.style-filter').forEach(cb => cb.checked = false);
@@ -513,7 +475,7 @@
       applyFiltersAndSort();
     });
 
-    // Wire header buttons
+    // Header buttons
     const exportBtn = document.getElementById('exportBtn');
     const importBtn = document.getElementById('importBtn');
     const importFile = document.getElementById('importFile');
@@ -550,11 +512,7 @@
   // ---------- Name helpers ----------
   const fullNameOf = (c) => `${c.firstName ?? ''} ${c.lastName ?? ''}`.trim();
   const lastNameKey = (c) => (c.lastName || '').toLowerCase();
-
-  // --- Style filter helpers ---
-  function getActiveStyleFilters(){
-    return Array.from(document.querySelectorAll('.style-filter:checked')).map(c => c.value);
-  }
+  function getActiveStyleFilters(){ return Array.from(document.querySelectorAll('.style-filter:checked')).map(c => c.value); }
 
   // ---------- Clients ----------
   function openClientModal(clientId=null){
@@ -572,13 +530,13 @@
       const stylesSel = document.getElementById('clientStyles');
       const stylesArr = normalizeStyles(c.styles ?? c.style);
       [...stylesSel.options].forEach(o => o.selected = stylesArr.includes(o.value));
-      document.getElementById('clientStatus').value = 'Introductory';
+      document.getElementById('clientStatus').value    = VALID_STATUSES.includes(c.status)? c.status : 'Introductory';
       document.getElementById('clientInitialSales').value = c.initialSales ?? '';
       document.getElementById('clientNotes').value     = c.notes || '';
     } else {
       document.getElementById('clientModalTitle').textContent = 'Add New Client';
       form.reset();
-      document.getElementById('clientStatus').value = 'Prospect';
+      document.getElementById('clientStatus').value = 'Introductory';
       const stylesSel = document.getElementById('clientStyles');
       [...stylesSel.options].forEach(o => o.selected = false);
     }
@@ -660,7 +618,8 @@
                 </div>` : ''}
             </div>
             <span class="chip status-${statusSlug(c.status||'Introductory')}">
-              ${escapeHTML(c.status || 'Introductory')} </span>
+              ${escapeHTML(c.status || 'Introductory')}
+            </span>
           </div>
           <div class="buttons">
             <button class="btn primary" onclick="openClientView('${c.id}')">View</button>
@@ -671,9 +630,7 @@
     }).join('');
   }
 
-  // compact search wrapper; full logic lives in applyFiltersAndSort()
   function searchClients(){ applyFiltersAndSort(); }
-
   function applyClientSort(){ applyFiltersAndSort(); }
 
   function sortClients(arr, mode){
@@ -684,17 +641,17 @@
       const sb = (b.styles && b.styles.length) ? [...b.styles].sort()[0] : '';
       return sa.toLowerCase().localeCompare(sb.toLowerCase());
     };
-    const byCreated = (a,b) => new Date(a.createdAt) - new Date(b.createdAt);
+    const byCreated = (a,b) => new Date(a.createdAt) - new Date(a.createdAt);
 
     switch(mode){
-      case 'lastName_asc':  return arr.sort((a,b) => byLast(a,b) || byCreated(b,a));
-      case 'lastName_desc': return arr.sort((a,b) => byLast(b,a) || byCreated(b,a));
+      case 'lastName_asc':  return arr.sort((a,b) => byLast(a,b));
+      case 'lastName_desc': return arr.sort((a,b) => byLast(b,a));
       case 'style_asc':     return arr.sort((a,b) => byStyle(a,b) || byLast(a,b));
       case 'style_desc':    return arr.sort((a,b) => byStyle(b,a) || byLast(a,b));
       case 'spent_asc':     return arr.sort((a,b) => bySpent(a,b) || byLast(a,b));
       case 'spent_desc':    return arr.sort((a,b) => bySpent(b,a) || byLast(a,b));
       case 'createdAt_desc':
-      default:              return arr.sort((a,b) => byCreated(b,a));
+      default:              return arr.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
     }
   }
 
@@ -704,7 +661,6 @@
     const matchModeEl = document.getElementById('styleMatch');
     const matchMode = matchModeEl ? matchModeEl.value : 'any';
 
-    // 1) search filter
     let list = clients.filter(c => {
       const matchesSearch =
         fullNameOf(c).toLowerCase().includes(term) ||
@@ -714,7 +670,6 @@
 
       if (!matchesSearch) return false;
 
-      // 2) style filter
       if (!selected.length) return true;
       const styles = c.styles || [];
       return (matchMode === 'all')
@@ -722,11 +677,8 @@
         : selected.some(s => styles.includes(s));
     });
 
-    // 3) sort
     const mode = document.getElementById('clientSort').value || 'createdAt_desc';
     list = sortClients(list, mode);
-
-    // 4) render
     renderClients(list);
   }
 
@@ -751,8 +703,8 @@
               <div class="tags" style="margin-top:6px">
                 ${c.styles.map(s => `<span class="tag">${escapeHTML(s)}</span>`).join('')}
               </div>` : ''}
-            <span class="chip status-${(c.status||'Prospect').toLowerCase()}" style="margin-top:8px;display:inline-block">
-              ${escapeHTML(c.status||'Prospect')}
+            <span class="chip status-${statusSlug(c.status||'Introductory')}" style="margin-top:8px;display:inline-block">
+              ${escapeHTML(c.status||'Introductory')}
             </span>
           </div>
           <div class="badge-sale">${fmtUSD.format(total)}</div>
@@ -761,7 +713,7 @@
         ${c.notes ? `<div style="margin-top:12px"><strong>Notes:</strong><br>${escapeHTML(c.notes)}</div>` : ''}
 
         <div style="margin-top:16px;display:grid;gap:10px">
-          <div><strong>Interactions:</strong> ${its.length}${lastIt ? ` — Last: ${new Date(lastIt.date).toLocaleString()}` : ''}</div>
+          <div><strong>Interactions:</strong> ${its.length}${lastIt ? ` — Last: ${new Date(lastIt.date).toLocaleDateString()}` : ''}</div>
           <div><strong>Initial Sales:</strong> ${fmtUSD.format(c.initialSales || 0)}</div>
         </div>
 
@@ -790,6 +742,7 @@
     const select = document.getElementById('interactionClient');
     select.innerHTML = '<option value="">Select client...</option>' +
       clients.map(c => `<option value="${c.id}">${escapeHTML(fullNameOf(c))}</option>`).join('');
+    document.getElementById('interactionDate').value = new Date().toISOString().slice(0,10);
     document.getElementById('interactionModal').classList.add('active');
   }
   function closeInteractionModal(){ document.getElementById('interactionModal').classList.remove('active'); document.getElementById('interactionForm').reset(); }
@@ -802,7 +755,8 @@
       id: Date.now().toString(),
       clientId,
       type: document.getElementById('interactionType').value,
-      date: document.getElementById('interactionDate').value,new Date().toISOString().slice(0,10)),
+      // store date-only YYYY-MM-DD
+      date: (document.getElementById('interactionDate').value || new Date().toISOString().slice(0,10)),
       notes: document.getElementById('interactionNotes').value.trim(),
       createdAt: new Date().toISOString()
     });
@@ -822,7 +776,7 @@
     const sorted = [...source].sort((a,b) => new Date(b.date) - new Date(a.date));
     el.innerHTML = sorted.map(i => {
       const c = clients.find(x => x.id === i.clientId);
-      const when = new Date(i.date).toLocaleString([], { hour:'2-digit', minute:'2-digit', year:'numeric', month:'short', day:'numeric' });
+      const when = new Date(i.date).toLocaleDateString([], { year:'numeric', month:'short', day:'numeric' });
       return `
         <div class="interaction-item">
           <div class="client-header">
@@ -865,6 +819,7 @@
     const select = document.getElementById('saleClient');
     select.innerHTML = '<option value="">Select client...</option>' +
       clients.map(c => `<option value="${c.id}">${escapeHTML(fullNameOf(c))}</option>`).join('');
+    document.getElementById('saleDate').value = new Date().toISOString().slice(0,10);
     document.getElementById('saleModal').classList.add('active');
   }
   function closeSaleModal(){ document.getElementById('saleModal').classList.remove('active'); document.getElementById('saleForm').reset(); }
@@ -955,21 +910,19 @@
     renderRecentActivity();
   }
 
-  // ---------- Dashboard: Recent Activity (two running columns) ----------
+  // ---------- Dashboard: Recent Activity (two running columns, 10 each) ----------
   function renderRecentActivity(){
     const interEl = document.getElementById('interactionActivityList');
     const salesEl = document.getElementById('salesActivityList');
     if (!interEl || !salesEl) return;
 
-    // Build + sort newest -> oldest
     const interSorted = [...interactions].sort((a,b)=>new Date(b.date)-new Date(a.date));
     const salesSorted = [...sales].sort((a,b)=>new Date(b.date)-new Date(a.date));
 
-    // Helpers
     const clientById = (id)=>clients.find(c=>c.id===id);
-    const whenFmt = (iso)=>new Date(iso).toLocaleString([], { year:'numeric', month:'short', day:'numeric' });
+    const whenFmt = (iso)=>new Date(iso).toLocaleDateString([], { year:'numeric', month:'short', day:'numeric' });
 
-    // Render Interactions (cap to 25 for performance)
+    // Interactions (max 10)
     if (interSorted.length === 0){
       interEl.innerHTML = `
         <div class="empty-state">
@@ -977,7 +930,7 @@
           <p>No interactions yet</p>
         </div>`;
     } else {
-      interEl.innerHTML = interSorted.slice(0,25).map(i=>{
+      interEl.innerHTML = interSorted.slice(0,10).map(i=>{
         const c = clientById(i.clientId);
         return `
           <div class="interaction-item">
@@ -992,7 +945,7 @@
       }).join('');
     }
 
-    // Render Sales (cap to 25)
+    // Sales (max 10)
     if (salesSorted.length === 0){
       salesEl.innerHTML = `
         <div class="empty-state">
@@ -1000,7 +953,7 @@
           <p>No sales yet</p>
         </div>`;
     } else {
-      salesEl.innerHTML = salesSorted.slice(0,25).map(s=>{
+      salesEl.innerHTML = salesSorted.slice(0,10).map(s=>{
         const c = clientById(s.clientId);
         return `
           <div class="interaction-item">
@@ -1016,19 +969,6 @@
       }).join('');
     }
   }
-
-  function timeAgo(date){
-    const s = Math.floor((Date.now()-date.getTime())/1000);
-    const t = (n,u)=>`${n} ${u}${n>1?'s':''} ago`;
-    if (s>=31536000) return t(Math.floor(s/31536000),'year');
-    if (s>=2592000)  return t(Math.floor(s/2592000),'month');
-    if (s>=86400)    return t(Math.floor(s/86400),'day');
-    if (s>=3600)     return t(Math.floor(s/3600),'hour');
-    if (s>=60)       return t(Math.floor(s/60),'minute');
-    return 'Just now';
-  }
 </script>
 </body>
 </html>
-
-
