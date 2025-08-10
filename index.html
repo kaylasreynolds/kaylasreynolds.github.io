@@ -83,6 +83,19 @@
   .chk input{accent-color:#4c51bf}
   .filters-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
   .filters-controls select{padding:8px 10px;border-radius:10px;border:2px solid var(--ring)}
+  .ra-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.ra-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ra-controls select{padding:8px 10px;border-radius:10px;border:2px solid var(--ring);background:#fff}
+.ra-toggle{display:flex;gap:6px}
+.pill{padding:8px 12px;border:0;border-radius:999px;background:#eee;font-weight:700;cursor:pointer}
+.pill.active{color:#fff;background:linear-gradient(135deg,var(--grad1),var(--grad2))}
+.ra-chart-wrap{margin-top:10px;background:#fff;border-radius:12px;padding:10px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.ra-legend{font-size:.85rem;color:var(--muted);margin-top:6px;display:flex;align-items:center}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+.dot-int{background:linear-gradient(135deg,var(--grad1),var(--grad2))}
+.dot-sale{background:linear-gradient(135deg,var(--ok),var(--ok2))}
+.ra-subtitle{margin:12px 0 8px;font-size:1rem;color:var(--muted)}
+
 </style>
 </head>
 <body>
@@ -128,15 +141,41 @@
       </div>
 
       <div class="card" style="margin-top:20px">
-        <h2 style="margin:0 0 12px">Recent Activity</h2>
-        <div class="activity-list" id="activityList">
-          <div class="empty-state">
-            <div style="font-size:42px;opacity:.6">📋</div>
-            <p>No recent activity</p>
-          </div>
-        </div>
+        <div class=ra-head">
+        <h2 style="margin:0">Recent Activity</h2>
+          
+        <!-- tiny timeline controls -->
+    <div class="ra-controls">
+      <select id="raRange">
+        <option value="7">Last 7 days</option>
+        <option value="14">Last 14 days</option>
+        <option value="30" selected>Last 30 days</option>
+      </select>
+      <div class="ra-toggle" role="tablist" aria-label="Activity type">
+        <button class="pill active" data-kind="all" aria-selected="true">All</button>
+        <button class="pill" data-kind="interactions" aria-selected="false">Interactions</button>
+        <button class="pill" data-kind="sales" aria-selected="false">Sales</button>
       </div>
     </div>
+  </div>
+
+  <!-- compact timeline -->
+  <div class="ra-chart-wrap">
+    <canvas id="raSpark" width="600" height="120"></canvas>
+    <div class="ra-legend">
+      <span class="dot dot-int"></span> Interactions
+      <span class="dot dot-sale" style="margin-left:12px"></span> Sales
+    </div>
+  </div>
+
+  <h3 class="ra-subtitle">Latest items</h3>
+  <div class="activity-list" id="activityList">
+    <div class="empty-state">
+      <div style="font-size:42px;opacity:.6">📋</div>
+      <p>No recent activity</p>
+    </div>
+  </div>
+</div>
 
     <!-- Clients -->
     <div id="clients" class="tab-content" style="display:none">
@@ -495,6 +534,9 @@
     renderInteractions();
     renderSalesView();
     updateDashboard();
+    
+initActivityTimelineControls();
+renderActivityTimeline();
 
     // Default dates
     const interactionDate = document.getElementById('interactionDate');
@@ -996,6 +1038,8 @@
     document.getElementById('totalSales').textContent = fmtUSD.format(total);
 
     renderRecentActivity();
+    renderActivityTimeline();
+
   }
 
   function renderRecentActivity(){
@@ -1043,6 +1087,191 @@
     if (s>=60)       return t(Math.floor(s/60),'minute');
     return 'Just now';
   }
+  <script>
+/* ====== Compact timeline for Recent Activity ====== */
+
+// Build daily series for last N days (inclusive of today)
+function buildDailySeries(kind='all', days=30){
+  const end = new Date(); end.setHours(0,0,0,0);
+  const start = new Date(end); start.setDate(end.getDate() - (days-1));
+
+  // make a map of YYYY-MM-DD -> counts
+  const keyOf = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).toISOString().slice(0,10);
+  const daysArr = [];
+  const mapInt = new Map(), mapSale = new Map();
+
+  // initialize maps with 0
+  for (let d=new Date(start); d<=end; d.setDate(d.getDate()+1)){
+    const k = keyOf(d);
+    mapInt.set(k, 0);
+    mapSale.set(k, 0);
+    daysArr.push(k);
+  }
+
+  // fill
+  interactions.forEach(i => {
+    const dt = new Date(i.date);
+    const k = keyOf(dt);
+    if (mapInt.has(k)) mapInt.set(k, mapInt.get(k)+1);
+  });
+  sales.forEach(s => {
+    const dt = new Date(s.date);
+    const k = keyOf(dt);
+    if (mapSale.has(k)) mapSale.set(k, mapSale.get(k)+1);
+  });
+
+  // return arrays in order
+  const ints = daysArr.map(k => mapInt.get(k));
+  const sls  = daysArr.map(k => mapSale.get(k));
+  const all  = ints.map((v,i)=>v+sls[i]);
+
+  return {
+    labels: daysArr,               // e.g. "2025-08-03"
+    seriesInt: ints,
+    seriesSale: sls,
+    seriesAll: all,
+    start, end
+  };
+}
+
+// Crisp canvas helpers (handles HiDPI)
+function prepCanvas(canvas){
+  if (!canvas) return {ctx:null, w:0, h:0, dpr:1};
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width  = Math.max(1, Math.floor(rect.width  * dpr));
+  canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  return {ctx, w:rect.width, h:rect.height, dpr};
+}
+
+// Draw a smooth-ish sparkline with optional bars background
+function drawSparkline(canvas, data, opts={}){
+  const {ctx, w, h} = prepCanvas(canvas);
+  if (!ctx) return;
+
+  const {
+    colorLine='#5b61d9', colorFill='rgba(91,97,217,0.12)',
+    colorLine2='#2f855a', colorFill2='rgba(47,133,90,0.10)',
+    gridColor='rgba(0,0,0,0.06)',
+    strokeWidth=2,
+    dual=false, // when true, draw both lines (interactions + sales)
+    seriesA=[], seriesB=[]
+  } = opts;
+
+  ctx.clearRect(0,0,w,h);
+
+  const max = Math.max(1, ...seriesA, ...(dual?seriesB:[]));
+  const pad = 8;
+  const gh  = h - pad*2;
+  const gw  = w - pad*2;
+
+  // horizontal guides (0, 50%, 100%)
+  ctx.strokeStyle = gridColor; ctx.lineWidth = 1;
+  [0, .5, 1].forEach(t=>{
+    const y = pad + gh*(1-t);
+    ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(pad+gw, y); ctx.stroke();
+  });
+
+  function drawSeries(series, colorL, colorF){
+    const n = series.length;
+    if (n===0) return;
+    const step = gw / Math.max(1, n-1);
+
+    // Area fill
+    ctx.beginPath();
+    series.forEach((v,i)=>{
+      const x = pad + i*step;
+      const y = pad + gh*(1 - v/max);
+      if (i===0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.lineTo(pad+gw, pad+gh);
+    ctx.lineTo(pad, pad+gh);
+    ctx.closePath();
+    ctx.fillStyle = colorF;
+    ctx.fill();
+
+    // Line
+    ctx.beginPath();
+    series.forEach((v,i)=>{
+      const x = pad + i*step;
+      const y = pad + gh*(1 - v/max);
+      if (i===0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.strokeStyle = colorL;
+    ctx.lineWidth = strokeWidth;
+    ctx.lineJoin = 'round';
+    ctx.lineCap  = 'round';
+    ctx.stroke();
+  }
+
+  // draw in order so “All” (purple) doesn’t hide green
+  if (dual){
+    drawSeries(seriesA, colorLine,  colorFill);   // Interactions (purple)
+    drawSeries(seriesB, colorLine2, colorFill2);  // Sales (green)
+  } else {
+    drawSeries(seriesA, colorLine,  colorFill);
+  }
+}
+
+// Render the activity timeline based on controls
+function renderActivityTimeline(){
+  const canvas = document.getElementById('raSpark');
+  if (!canvas) return;
+
+  const days = parseInt(document.getElementById('raRange')?.value || '30', 10);
+  const activeBtn = document.querySelector('.ra-toggle .pill.active');
+  const kind = activeBtn?.dataset.kind || 'all';
+
+  const d = buildDailySeries(kind, days);
+
+  if (kind === 'all'){
+    drawSparkline(canvas, d.seriesAll, {
+      seriesA: d.seriesAll,
+      colorLine: getComputedStyle(document.documentElement).getPropertyValue('--grad1').trim() || '#4c51bf',
+      colorFill: 'rgba(76,81,191,0.15)'
+    });
+  } else if (kind === 'interactions'){
+    drawSparkline(canvas, d.seriesInt, {
+      seriesA: d.seriesInt,
+      colorLine: '#5b61d9',
+      colorFill: 'rgba(91,97,217,0.12)'
+    });
+  } else { // sales
+    drawSparkline(canvas, d.seriesSale, {
+      seriesA: d.seriesSale,
+      colorLine: '#2f855a',
+      colorFill: 'rgba(47,133,90,0.10)'
+    });
+  }
+}
+
+// Wire controls once at startup
+function initActivityTimelineControls(){
+  const rangeSel = document.getElementById('raRange');
+  if (rangeSel) rangeSel.addEventListener('change', renderActivityTimeline);
+
+  document.querySelectorAll('.ra-toggle .pill').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.ra-toggle .pill').forEach(b=>{
+        b.classList.toggle('active', b===btn);
+        b.setAttribute('aria-selected', b===btn ? 'true' : 'false');
+      });
+      renderActivityTimeline();
+    });
+  });
+
+  // Resize observer to keep canvas crisp on container resizing
+  const canvas = document.getElementById('raSpark');
+  if (canvas){
+    const ro = new ResizeObserver(()=>renderActivityTimeline());
+    ro.observe(canvas.parentElement);
+  }
+}
 </script>
 </body>
 </html>
+
