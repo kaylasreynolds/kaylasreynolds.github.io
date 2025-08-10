@@ -221,12 +221,12 @@
         </div>
 
         <div class="list" id="salesList">
-        <div class="empty-state">
-          <div style="font-size:42px;opacity:.6">💰</div>
-          <p>No sales data available</p>
+          <div class="empty-state">
+            <div style="font-size:42px;opacity:.6">💰</div>
+            <p>No sales data available</p>
+          </div>
         </div>
       </div>
-    </div>
     </div>
 
     <!-- Follow Up -->
@@ -356,9 +356,9 @@
   </div>
 
   <!-- Sale Modal -->
-   <div id="saleModal" class="modal">
+  <div id="saleModal" class="modal">
     <div class="panel">
-      <header>␊
+      <header>
         <h3 style="margin:0">Record Sale</h3>
         <button class="x" onclick="closeSaleModal()">×</button>
       </header>
@@ -374,10 +374,10 @@
         <div><label>Description</label><input type="text" id="saleDescription" placeholder="What was sold?"></div>
         <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
           <button type="button" class="btn ghost" onclick="closeSaleModal()">Cancel</button>
-           <button type="submit" class="btn primary">Record Sale</button>
+          <button type="submit" class="btn primary">Record Sale</button>
+        </div>
+      </form>
     </div>
-    </form>
-  </div>
   </div>
 
   <!-- Follow Up Modal -->
@@ -438,7 +438,7 @@
   let editingClientId = null;
 
   // ---------- Local Storage + Backup ----------
-   function saveData() {
+  function saveData() {
     localStorage.setItem('crm_clients', JSON.stringify(clients));
     localStorage.setItem('crm_interactions', JSON.stringify(interactions));
     localStorage.setItem('crm_sales', JSON.stringify(sales));
@@ -469,10 +469,10 @@
       if (migrated) saveData();
     } catch(e) {
       console.warn('Failed to load saved data:', e);
-       clients = []; interactions = []; sales = []; followUps = [];
-    }␊
-  }␊
-  function exportData() {␊
+      clients = []; interactions = []; sales = []; followUps = [];
+    }
+  }
+  function exportData() {
     const payload = { exportedAt: new Date().toISOString(), version: 1, clients, interactions, sales, followUps };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -485,16 +485,16 @@
     reader.onload = () => {
       try {
         const data = JSON.parse(reader.result);
-         if (!data || !Array.isArray(data.clients) || !Array.isArray(data.interactions) || !Array.isArray(data.sales)) {
+        if (!data || !Array.isArray(data.clients) || !Array.isArray(data.interactions) || !Array.isArray(data.sales)) {
           alert('Invalid file format.'); return;
         }
-         clients = data.clients.map(c => ({
+        clients = data.clients.map(c => ({
           ...c,
           styles: normalizeStyles(c.styles ?? c.style),
           status: mapOldStatus(c.status),
           initialSales: Number(c.initialSales) || 0
         }));
-         interactions = data.interactions.map(i => ({ ...i, date: (i.date||'').slice(0,10) }));
+        interactions = data.interactions.map(i => ({ ...i, date: (i.date||'').slice(0,10) }));
         sales = data.sales.map(s => ({ ...s, amount: Number(s.amount) || 0 }));
         followUps = (data.followUps || []).map(f => ({ ...f, date: (f.date||'').slice(0,10) }));
         saveData(); renderClients(); renderInteractions(); renderSalesView(); renderFollowUps(); updateDashboard();
@@ -510,12 +510,13 @@
     renderClients(); renderInteractions(); renderSalesView(); renderFollowUps(); updateDashboard();
 
     // Default dates (date-only)
+    const today = new Date().toISOString().slice(0,10);
     const interactionDate = document.getElementById('interactionDate');
-    if (interactionDate) interactionDate.value = new Date().toISOString().slice(0,10);
+    if (interactionDate) interactionDate.value = today;
     const saleDate = document.getElementById('saleDate');
-    if (saleDate) saleDate.value = new Date().toISOString().slice(0,10);
+    if (saleDate) saleDate.value = today;
     const followupDate = document.getElementById('followupDate');
-    if (followupDate) followupDate.value = new Date().toISOString().slice(0,10);
+    if (followupDate) followupDate.value = today;
 
     // ESC to close modals
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAllModals(); });
@@ -730,18 +731,18 @@
       case 'lastInteraction_desc':
         return arr.sort((a,b)=>{
           const da = lastInteractionDate(a.id), db = lastInteractionDate(b.id);
-          if (da && db) return db - da;         // newest first
-          if (da && !db) return -1;             // with interactions first
+          if (da && db) return db - da;
+          if (da && !db) return -1;
           if (!da && db) return 1;
-          return byLast(a,b);                    // tie-breaker
+          return byLast(a,b);
         });
       case 'lastInteraction_asc':
         return arr.sort((a,b)=>{
           const da = lastInteractionDate(a.id), db = lastInteractionDate(b.id);
-          if (da && db) return da - db;         // oldest first
-          if (da && !db) return -1;             // with interactions first
+          if (da && db) return da - db;
+          if (da && !db) return -1;
           if (!da && db) return 1;
-          return byLast(a,b);                    // tie-breaker
+          return byLast(a,b);
         });
       case 'lastName_asc':  return arr.sort((a,b) => byLast(a,b));
       case 'lastName_desc': return arr.sort((a,b) => byLast(b,a));
@@ -813,7 +814,7 @@
 
         <div style="margin-top:16px;display:grid;gap:10px">
           <div><strong>Interactions:</strong> ${its.length}${lastIt ? ` — Last: ${new Date(lastIt.date).toLocaleDateString()}` : ''}</div>
-           <div><strong>Initial Sales:</strong> ${fmtUSD.format(Number(c.initialSales) || 0)}</div>
+          <div><strong>Initial Sales:</strong> ${fmtUSD.format(Number(c.initialSales) || 0)}</div>
         </div>
 
         <div style="margin-top:16px">
@@ -826,7 +827,7 @@
                     <div style="font-weight:600">${escapeHTML(s.description || 'Sale')}</div>
                     <div class="muted" style="font-size:.85rem">${new Date(s.date).toLocaleDateString()}</div>
                   </div>
-                   <div style="font-weight:800;color:#2f855a">${fmtUSD.format(Number(s.amount) || 0)}</div>
+                  <div style="font-weight:800;color:#2f855a">${fmtUSD.format(Number(s.amount) || 0)}</div>
                 </div>`).join('')}
             </div>`}
         </div>
@@ -983,7 +984,7 @@
         </div>
           ${Number(c.initialSales)>0 ? `
           <div style="padding:10px 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between">
-            <div style="font-weight:600">Initial Sales</div
+            <div style="font-weight:600">Initial Sales</div>
             <div style="font-weight:800;color:#2f855a">${fmtUSD.format(Number(c.initialSales) || 0)}</div>
           </div>` : ''}
         ${rows.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(s => `
@@ -1090,7 +1091,7 @@
     sales.forEach(s => { const d=new Date(s.date); if (d.getMonth()===m && d.getFullYear()===y) active.add(s.clientId); });
     document.getElementById('activeThisMonth').textContent = active.size;
 
-     const total =
+    const total =
       clients.reduce((sum,c)=> sum + (Number(c.initialSales) || 0), 0) +
       sales.reduce((sum,s)=> sum + (Number(s.amount) || 0), 0);
     document.getElementById('totalSales').textContent = fmtUSD.format(total);
@@ -1160,7 +1161,3 @@
 </script>
 </body>
 </html>
-
-
-
-
