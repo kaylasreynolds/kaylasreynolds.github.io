@@ -83,6 +83,21 @@
   .chk input{accent-color:#4c51bf}
   .filters-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
   .filters-controls select{padding:8px 10px;border-radius:10px;border:2px solid var(--ring)}
+.activity-columns{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:16px;
+}
+@media (max-width: 800px){
+  .activity-columns{ grid-template-columns: 1fr; }
+}
+.activity-col{ min-width:0; }
+.col-title{
+  margin:0 0 8px;
+  font-size:1rem;
+  color:var(--muted);
+  font-weight:700;
+}
 
   /* Recent Activity timeline */
   .ra-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
@@ -129,39 +144,33 @@
       </div>
 
       <div class="card" style="margin-top:20px">
-        <div class="ra-head">
-          <h2 style="margin:0">Recent Activity</h2>
-          <div class="ra-controls">
-            <select id="raRange">
-              <option value="7">Last 7 days</option>
-              <option value="14">Last 14 days</option>
-              <option value="30" selected>Last 30 days</option>
-            </select>
-            <div class="ra-toggle" role="tablist" aria-label="Activity type">
-              <button class="pill active" data-kind="all" aria-selected="true">All</button>
-              <button class="pill" data-kind="interactions" aria-selected="false">Interactions</button>
-              <button class="pill" data-kind="sales" aria-selected="false">Sales</button>
-            </div>
-          </div>
-        </div>
+  <h2 style="margin:0 0 12px">Recent Activity</h2>
 
-        <div class="ra-chart-wrap">
-          <canvas id="raSpark" width="600" height="120" style="width:100%;height:120px;"></canvas>
-          <div class="ra-legend">
-            <span class="dot dot-int"></span> Interactions
-            <span class="dot dot-sale" style="margin-left:12px"></span> Sales
-          </div>
-        </div>
-
-        <h3 class="ra-subtitle">Latest items</h3>
-        <div class="activity-list" id="activityList">
-          <div class="empty-state">
-            <div style="font-size:42px;opacity:.6">📋</div>
-            <p>No recent activity</p>
-          </div>
+  <div class="activity-columns">
+    <!-- Interactions column -->
+    <div class="activity-col">
+      <h3 class="col-title">Interactions</h3>
+      <div class="activity-list" id="interactionActivityList">
+        <div class="empty-state">
+          <div style="font-size:42px;opacity:.6">💬</div>
+          <p>No interactions yet</p>
         </div>
       </div>
     </div>
+
+    <!-- Sales column -->
+    <div class="activity-col">
+      <h3 class="col-title">Sales</h3>
+      <div class="activity-list" id="salesActivityList">
+        <div class="empty-state">
+          <div style="font-size:42px;opacity:.6">💰</div>
+          <p>No sales yet</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 
     <!-- Clients -->
     <div id="clients" class="tab-content" style="display:none">
@@ -910,40 +919,70 @@
     renderActivityTimeline(); // keep sparkline in sync
   }
 
-  function renderRecentActivity(){
-    const wrap = document.getElementById('activityList');
-    const items = [];
-    interactions.forEach(i => {
-      const c = clients.find(x=>x.id===i.clientId);
-      items.push({type:'interaction', date:new Date(i.date), icon:'💬',
-        title:`${i.type} with ${c?fullNameOf(c):'Unknown Client'}`, details:i.notes||'No notes'});
-    });
-    sales.forEach(s => {
-      const c = clients.find(x=>x.id===s.clientId);
-      items.push({type:'sale', date:new Date(s.date), icon:'💰',
-        title:`Sale to ${c?fullNameOf(c):'Unknown Client'}`, details:`${fmtUSD.format(s.amount)}${s.description?' - '+s.description:''}`});
-    });
+  <script>
+function renderRecentActivity(){
+  const interEl = document.getElementById('interactionActivityList');
+  const salesEl = document.getElementById('salesActivityList');
+  if (!interEl || !salesEl) return;
 
-    if (items.length===0){
-      wrap.innerHTML = `
-        <div class="empty-state">
-          <div style="font-size:42px;opacity:.6">📋</div>
-          <p>No recent activity</p>
+  // Build + sort newest -> oldest
+  const interSorted = [...interactions].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const salesSorted = [...sales].sort((a,b)=>new Date(b.date)-new Date(a.date));
+
+  // Helpers
+  const clientById = (id)=>clients.find(c=>c.id===id);
+  const whenFmt = (iso)=>new Date(iso).toLocaleString([], { hour:'2-digit', minute:'2-digit', year:'numeric', month:'short', day:'numeric' });
+
+  // Render Interactions (running list; cap to 25 for performance)
+  if (interSorted.length === 0){
+    interEl.innerHTML = `
+      <div class="empty-state">
+        <div style="font-size:42px;opacity:.6">💬</div>
+        <p>No interactions yet</p>
+      </div>`;
+  } else {
+    interEl.innerHTML = interSorted.slice(0,25).map(i=>{
+      const c = clientById(i.clientId);
+      return `
+        <div class="interaction-item">
+          <div class="client-header">
+            <div>
+              <div class="client-name">${(c ? `${(c.firstName??'')} ${(c.lastName??'')}`.trim() : 'Unknown Client')}</div>
+              <div class="muted" style="margin-top:4px">${i.type ? String(i.type) : 'Interaction'} • ${whenFmt(i.date)}</div>
+            </div>
+          </div>
+          ${i.notes ? `<div style="margin-top:8px">${String(i.notes).replace(/[&<>"]/g, s=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[s]))}</div>` : ''}
         </div>`;
-      return;
-    }
-
-    items.sort((a,b)=>b.date-a.date);
-    wrap.innerHTML = items.slice(0,10).map(a => `
-      <div class="activity-item">
-        <div class="activity-icon ${a.type}">${a.icon}</div>
-        <div>
-          <div style="font-weight:800">${escapeHTML(a.title)}</div>
-          <div class="muted">${escapeHTML(a.details)}</div>
-          <div class="muted" style="font-size:.85rem">${timeAgo(a.date)}</div>
-        </div>
-      </div>`).join('');
+    }).join('');
   }
+
+  // Render Sales (running list; cap to 25)
+  if (salesSorted.length === 0){
+    salesEl.innerHTML = `
+      <div class="empty-state">
+        <div style="font-size:42px;opacity:.6">💰</div>
+        <p>No sales yet</p>
+      </div>`;
+  } else {
+    const fmtUSD = new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:2});
+    salesEl.innerHTML = salesSorted.slice(0,25).map(s=>{
+      const c = clientById(s.clientId);
+      return `
+        <div class="interaction-item">
+          <div class="client-header">
+            <div>
+              <div class="client-name">${(c ? `${(c.firstName??'')} ${(c.lastName??'')}`.trim() : 'Unknown Client')}</div>
+              <div class="muted" style="margin-top:4px">${whenFmt(s.date)}</div>
+            </div>
+            <div class="badge-sale">${fmtUSD.format(s.amount || 0)}</div>
+          </div>
+          ${s.description ? `<div style="margin-top:8px">${String(s.description).replace(/[&<>"]/g, s=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[s]))}</div>` : ''}
+        </div>`;
+    }).join('');
+  }
+}
+</script>
+
 
   function timeAgo(date){
     const s = Math.floor((Date.now()-date.getTime())/1000);
@@ -1056,3 +1095,4 @@
 </script>
 </body>
 </html>
+
