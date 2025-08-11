@@ -273,22 +273,28 @@
         <!-- To‑Do block -->
         <div>
           <div class="todo-controls">
-            <div class="left">
-              <strong>To‑Do</strong>
-              <span class="muted" id="todoCount">0 items</span>
-            </div>
-            <div class="right">
-              <label for="todoSort" class="muted" style="font-weight:700">Sort</label>
-              <select id="todoSort">
-                <option value="date_asc">Due Date (Soonest)</option>
-                <option value="date_desc">Due Date (Latest)</option>
-                <option value="created_desc">Recently Added</option>
-                <option value="created_asc">Oldest Added</option>
-                <option value="title_asc">Title (A→Z)</option>
-                <option value="status">Status (Open→Done)</option>
-              </select>
-            </div>
-          </div>
+  <div class="left">
+    <strong>To‑Do</strong>
+    <span class="muted" id="todoCount">0 items</span>
+  </div>
+  <div class="right">
+    <label class="muted" style="font-weight:700">Filter</label>
+    <select id="todoFilter">
+      <option value="all">All</option>
+      <option value="open">Open</option>
+      <option value="done">Done</option>
+    </select>
+    <label for="todoSort" class="muted" style="font-weight:700">Sort</label>
+    <select id="todoSort">
+      <option value="date_asc">Due Date (Soonest)</option>
+      <option value="date_desc">Due Date (Latest)</option>
+      <option value="created_desc">Recently Added</option>
+      <option value="created_asc">Oldest Added</option>
+      <option value="title_asc">Title (A→Z)</option>
+      <option value="status">Status (Open→Done)</option>
+    </select>
+  </div>
+</div>
           <div class="todo-list" id="todoList">
             <div class="empty-state">
               <div style="font-size:42px;opacity:.6">📝</div>
@@ -706,7 +712,10 @@
     });
 
     // To‑Do controls
-    $('#todoSort')?.addEventListener('change', renderTodos);
+
+$('#todoSort')?.addEventListener('change', renderTodos);
+$('#todoFilter')?.addEventListener('change', renderTodos);
+
   });
 
   function renderAll(){
@@ -1270,49 +1279,62 @@
   }
 
   function renderTodos(){
-    const wrap = $('#todoList'); const sortMode = $('#todoSort')?.value || 'date_asc';
-    if (todos.length === 0){
-      wrap.innerHTML = `<div class="empty-state"><div style="font-size:42px;opacity:.6">📝</div><p>No to‑dos yet</p></div>`;
-      $('#todoCount').textContent = '0 items';
-      return;
-    }
-    const arr = [...todos];
-    const compare = {
-      'date_asc': (a,b)=> (a.date||'') < (b.date||'') ? -1 : (a.date||'') > (b.date||'') ? 1 : 0,
-      'date_desc': (a,b)=> (a.date||'') > (b.date||'') ? -1 : (a.date||'') < (b.date||'') ? 1 : 0,
-      'created_desc': (a,b)=> new Date(b.createdAt) - new Date(a.createdAt),
-      'created_asc': (a,b)=> new Date(a.createdAt) - new Date(b.createdAt),
-      'title_asc': (a,b)=> a.title.localeCompare(b.title),
-      'status': (a,b)=> (a.status === b.status) ? 0 : (a.status === 'open' ? -1 : 1)
-    }[sortMode] || ((a,b)=>0);
-    arr.sort(compare);
+  const wrap = $('#todoList');
+  const sortMode = $('#todoSort')?.value || 'date_asc';
+  const filterMode = $('#todoFilter')?.value || 'all';
 
-    $('#todoCount').textContent = `${arr.length} item${arr.length!==1?'s':''}`;
+  const source = (filterMode === 'open')
+    ? todos.filter(t => t.status === 'open')
+    : (filterMode === 'done')
+      ? todos.filter(t => t.status === 'done')
+      : [...todos];
 
-    wrap.innerHTML = arr.map(t => {
-      const clientChips = t.clientIds.map(id => {
-        const c = clients.find(cc => cc.id === id);
-        return `<span class="todo-client">${escapeHTML(c ? fullNameOf(c) : 'Unknown')}</span>`;
-      }).join('');
-      const dateStr = t.date ? new Date(t.date).toLocaleDateString() : '—';
-      return `
-        <div class="todo-item" data-todo-id="${t.id}" style="${t.status==='done'?'opacity:.7;':''}">
-          <div class="todo-head">
-            <div>
-              <div class="todo-title">${escapeHTML(t.title)}</div>
-              <div class="todo-meta">${t.status==='done'?'✅ Done':'⏰ Due'}: ${dateStr}</div>
-              ${t.notes ? `<div class="muted" style="margin-top:6px">${escapeHTML(t.notes)}</div>`:''}
-              <div class="todo-clients">${clientChips}</div>
-            </div>
-          </div>
-          <div class="todo-actions">
-            <button class="btn ${t.status==='done'?'ghost':'primary'} small" onclick="toggleTodo('${t.id}')">${t.status==='done'?'Reopen':'Mark Done'}</button>
-            <button class="btn ghost small" onclick="openTodoModal(null,'${t.id}')">Edit</button>
-            <button class="btn danger small" onclick="deleteTodo('${t.id}')">Delete</button>
-          </div>
-        </div>`;
-    }).join('');
+  if (source.length === 0){
+    wrap.innerHTML = `<div class="empty-state"><div style="font-size:42px;opacity:.6">📝</div><p>No to‑dos${filterMode!=='all' ? ' in this view' : ''}</p></div>`;
+    $('#todoCount').textContent = '0 items';
+    return;
   }
+
+  const compare = {
+    'date_asc': (a,b)=> (a.date||'') < (b.date||'') ? -1 : (a.date||'') > (b.date||'') ? 1 : 0,
+    'date_desc': (a,b)=> (a.date||'') > (b.date||'') ? -1 : (a.date||'') < (b.date||'') ? 1 : 0,
+    'created_desc': (a,b)=> new Date(b.createdAt) - new Date(a.createdAt),
+    'created_asc': (a,b)=> new Date(a.createdAt) - new Date(b.createdAt),
+    'title_asc': (a,b)=> a.title.localeCompare(b.title),
+    'status': (a,b)=> (a.status === b.status) ? 0 : (a.status === 'open' ? -1 : 1)
+  }[sortMode] || ((a,b)=>0);
+
+  const arr = [...source].sort(compare);
+
+  const openCount = todos.filter(t=>t.status==='open').length;
+  const doneCount = todos.filter(t=>t.status==='done').length;
+  $('#todoCount').textContent = `${arr.length} item${arr.length!==1?'s':''} • ${openCount} open / ${doneCount} done`;
+
+  wrap.innerHTML = arr.map(t => {
+    const clientChips = t.clientIds.map(id => {
+      const c = clients.find(cc => cc.id === id);
+      return `<span class="todo-client">${escapeHTML(c ? fullNameOf(c) : 'Unknown')}</span>`;
+    }).join('');
+    const dateStr = t.date ? new Date(t.date).toLocaleDateString() : '—';
+    return `
+      <div class="todo-item" data-todo-id="${t.id}" style="${t.status==='done'?'opacity:.7;':''}">
+        <div class="todo-head">
+          <div>
+            <div class="todo-title">${escapeHTML(t.title)}</div>
+            <div class="todo-meta">${t.status==='done'?'✅ Done':'⏰ Due'}: ${dateStr}</div>
+            ${t.notes ? `<div class="muted" style="margin-top:6px">${escapeHTML(t.notes)}</div>`:''}
+            <div class="todo-clients">${clientChips}</div>
+          </div>
+        </div>
+        <div class="todo-actions">
+          <button class="btn ${t.status==='done'?'ghost':'primary'} small" onclick="toggleTodo('${t.id}')">${t.status==='done'?'Reopen':'Mark Done'}</button>
+          <button class="btn ghost small" onclick="openTodoModal(null,'${t.id}')">Edit</button>
+          <button class="btn danger small" onclick="deleteTodo('${t.id}')">Delete</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
 
   // ---------- Follow Ups (unchanged logic, shown under Tasks) ----------
   function openFollowUpModal(prefillClientId=null, defaultNotes=''){
@@ -1472,3 +1494,4 @@
 </script>
 </body>
 </html>
+
