@@ -44,13 +44,14 @@
   .btn.primary{color:#fff;background:linear-gradient(135deg,var(--grad1),var(--grad2))}
   .btn.ghost{background:#e5e5e5}
   .btn.danger{color:#fff;background:linear-gradient(135deg,var(--danger),var(--danger2))}
+  .btn.small{padding:6px 10px;font-size:.85rem}
   .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
   .tag{background:#eef;color:#333;padding:4px 10px;border-radius:999px;font-size:.75rem;font-weight:700}
 
   /* modal */
   .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.45);z-index:10}
   .modal.active{display:flex}
-  .panel{background:#fff;border-radius:16px;width:min(560px,92vw);max-height:90vh;overflow:auto;padding:20px}
+  .panel{background:#fff;border-radius:16px;width:min(620px,92vw);max-height:90vh;overflow:auto;padding:20px}
   .panel header{display:flex;align-items:center;justify-content:space-between;margin:0 0 10px}
   .x{background:transparent;border:0;font-size:22px;cursor:pointer;color:var(--muted2)}
   label{display:block;font-weight:700;margin:12px 0 6px}
@@ -59,7 +60,20 @@
   .row-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
   .empty-state{text-align:center;color:var(--muted2);padding:28px}
 
-  /* Follow Up: 4 columns on one line, compact (no scrollbar) */
+  /* Tasks page: To‑Do block + Follow‑Up grid (4 cols) */
+  .tasks-block{display:grid;gap:16px}
+  .todo-controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+  .todo-controls .left{display:flex;gap:8px;align-items:center}
+  .todo-controls .right{display:flex;gap:8px;align-items:center}
+  .todo-list{display:grid;gap:10px}
+  .todo-item{background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.06);padding:12px;border-left:4px solid #4c51bf;display:flex;flex-direction:column}
+  .todo-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+  .todo-title{font-weight:800}
+  .todo-meta{font-size:.85rem;color:var(--muted)}
+  .todo-clients{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+  .todo-client{background:#eef;border-radius:999px;padding:2px 8px;font-size:.8rem}
+  .todo-actions{margin-top:10px;display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}
+
   .followup-sections{
     display:grid;
     grid-template-columns:repeat(4, minmax(0, 1fr));
@@ -68,7 +82,7 @@
   .followup-sections > div{min-width:0}
   .followup-sections h3{margin-top:0;font-size:.95rem;color:var(--muted);font-weight:700}
 
-  /* Follow-up cards: compact + bottom buttons */
+  /* Follow-up cards */
   .followup-card{
     background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.06);
     border-left:4px solid transparent;padding:12px;display:flex;flex-direction:column;min-height:140px
@@ -82,7 +96,7 @@
   .card-actions{margin-top:auto;display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}
   .pill-911{background:#ffe2e2;color:#7a0613;border-left-color:#c53030}
 
-  /* Filters: make "Filter by Style" smaller */
+  /* Filters: compact style pills */
   .filters{display:flex;flex-direction:column;gap:6px;margin:8px 0 12px}
   .filters-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
   .filters-title{font-weight:800;margin-right:6px;font-size:.9rem}
@@ -116,7 +130,7 @@
       <button class="tab" role="tab" aria-selected="false" data-tab="clients">👥 Clients</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="interactions">💬 Interactions</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="sales">💰 Sales</button>
-      <button class="tab" role="tab" aria-selected="false" data-tab="followups">📅 Follow Up</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="tasks">📅 Tasks</button>
     </div>
 
     <!-- Dashboard -->
@@ -158,7 +172,10 @@
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
           <h2 style="margin:0">Client Management</h2>
-          <button id="openClientBtn" class="btn primary">+ Add New Client</button>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button id="openClientBtn" class="btn primary">+ Add New Client</button>
+            <button id="createTodoFromClientsBtn" class="btn ghost">📝 Create To‑Do from Filter</button>
+          </div>
         </div>
 
         <div class="search">
@@ -245,29 +262,61 @@
       </div>
     </div>
 
-    <!-- Follow Up -->
-    <div id="followups" class="tab-content" style="display:none">
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
-          <h2 style="margin:0">Follow Up</h2>
-          <button id="openFollowUpBtn" class="btn primary">+ Add Follow Up</button>
+    <!-- Tasks (To‑Do + Follow‑Ups) -->
+    <div id="tasks" class="tab-content" style="display:none">
+      <div class="card tasks-block">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+          <h2 style="margin:0">Tasks</h2>
+          <button id="openTodoBtn" class="btn primary">📝 New To‑Do</button>
         </div>
-        <div class="followup-sections">
-          <div>
-            <h3>Past Due</h3>
-            <div id="followupPastDue" class="list"></div>
+
+        <!-- To‑Do block -->
+        <div>
+          <div class="todo-controls">
+            <div class="left">
+              <strong>To‑Do</strong>
+              <span class="muted" id="todoCount">0 items</span>
+            </div>
+            <div class="right">
+              <label for="todoSort" class="muted" style="font-weight:700">Sort</label>
+              <select id="todoSort">
+                <option value="date_asc">Due Date (Soonest)</option>
+                <option value="date_desc">Due Date (Latest)</option>
+                <option value="created_desc">Recently Added</option>
+                <option value="created_asc">Oldest Added</option>
+                <option value="title_asc">Title (A→Z)</option>
+                <option value="status">Status (Open→Done)</option>
+              </select>
+            </div>
           </div>
-          <div>
-            <h3>Upcoming</h3>
-            <div id="followupUpcoming" class="list"></div>
+          <div class="todo-list" id="todoList">
+            <div class="empty-state">
+              <div style="font-size:42px;opacity:.6">📝</div>
+              <p>No to‑dos yet</p>
+            </div>
           </div>
-          <div>
-            <h3>Future</h3>
-            <div id="followupFuture" class="list"></div>
-          </div>
-          <div>
-            <h3>🚨 911</h3>
-            <div id="followup911" class="list"></div>
+        </div>
+
+        <!-- Follow‑Up columns -->
+        <div>
+          <h3 style="margin:8px 0 8px">Follow‑Ups</h3>
+          <div class="followup-sections">
+            <div>
+              <h3>Past Due</h3>
+              <div id="followupPastDue" class="list"></div>
+            </div>
+            <div>
+              <h3>Upcoming</h3>
+              <div id="followupUpcoming" class="list"></div>
+            </div>
+            <div>
+              <h3>Future</h3>
+              <div id="followupFuture" class="list"></div>
+            </div>
+            <div>
+              <h3>🚨 911</h3>
+              <div id="followup911" class="list"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -320,20 +369,6 @@
           <button type="submit" class="btn primary">Save Client</button>
         </div>
       </form>
-    </div>
-  </div>
-
-  <!-- Client Recap Modal -->
-  <div id="clientViewModal" class="modal">
-    <div class="panel" id="clientViewPanel">
-      <header>
-        <h3 style="margin:0">Client Recap</h3>
-        <button class="x" data-close-modal>×</button>
-      </header>
-      <div id="clientViewBody"></div>
-      <div style="display:flex;justify-content:flex-end;margin-top:12px">
-        <button class="btn primary" data-close-modal>Close</button>
-      </div>
     </div>
   </div>
 
@@ -398,11 +433,47 @@
     </div>
   </div>
 
-  <!-- Follow Up Modal -->
+  <!-- To‑Do Modal -->
+  <div id="todoModal" class="modal">
+    <div class="panel">
+      <header>
+        <h3 id="todoModalTitle" style="margin:0">New To‑Do</h3>
+        <button class="x" data-close-modal>×</button>
+      </header>
+      <form id="todoForm" onsubmit="saveTodo(event)">
+        <div><label>Title *</label><input id="todoTitle" required placeholder="e.g., Send lookbook / Order samples"></div>
+        <div class="row-cols">
+          <div>
+            <label>Due Date *</label>
+            <input type="date" id="todoDate" required>
+          </div>
+          <div>
+            <label>Status</label>
+            <select id="todoStatus">
+              <option value="open">Open</option>
+              <option value="done">Done</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label>Clients (multi-select)</label>
+          <select id="todoClients" multiple size="8"></select>
+          <div class="muted" style="font-size:.85rem;margin-top:6px">Tip: this list preselects whatever clients match your current filters/search.</div>
+        </div>
+        <div><label>Notes</label><textarea id="todoNotes" placeholder="Details for this task..."></textarea></div>
+        <div class="card-actions" style="justify-content:flex-end">
+          <button type="button" class="btn ghost" data-close-modal>Cancel</button>
+          <button type="submit" class="btn primary">Save To‑Do</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Tasks page had old Follow‑Up Modal; keeping for manual follow‑ups -->
   <div id="followupModal" class="modal">
     <div class="panel">
       <header>
-        <h3 style="margin:0">Add Follow Up</h3>
+        <h3 style="margin:0">Add Follow‑Up</h3>
         <button class="x" data-close-modal>×</button>
       </header>
       <form id="followupForm" onsubmit="saveFollowUp(event)">
@@ -416,7 +487,7 @@
         <div><label>Notes</label><textarea id="followupNotes" placeholder="Follow up details..."></textarea></div>
         <div class="card-actions" style="justify-content:flex-end">
           <button type="button" class="btn ghost" data-close-modal>Cancel</button>
-          <button type="submit" class="btn primary">Save Follow Up</button>
+          <button type="submit" class="btn primary">Save Follow‑Up</button>
         </div>
       </form>
     </div>
@@ -428,44 +499,38 @@
   const $  = (s, r=document) => r.querySelector(s);
   const $$ = (s, r=document) => [...r.querySelectorAll(s)];
   const escapeHTML = (str) => String(str ?? '')
-  .replace(/&/g, '&amp;')
-  .replace(/</g, '&lt;')
-  .replace(/>/g, '&gt;')
-  .replace(/"/g, '&quot;')
-  .replace(/'/g, '&#039;');
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
 
-  // Status helpers
   const VALID_STATUSES = ["Introductory","First Appointment","Established"];
   const statusSlug = s => String(s||"").toLowerCase().replace(/\s+/g,'-');
   const mapOldStatus = s => ({ "Prospect":"Introductory","Active":"Established","Inactive":"Introductory" }[s] || (VALID_STATUSES.includes(s)? s : "Introductory"));
 
-  // Styles config + helpers
   const ALLOWED_STYLES = ["Bohemian","Classic","Edgy","Casual","Vintage","Trendy"];
-  const getSelectedValues = (selectEl) => [...selectEl.options].filter(o => o.selected).map(o => o.value);
-  const normalizeStyles = (arrOrStr) => {
-    if (Array.isArray(arrOrStr)) return arrOrStr.filter(v => ALLOWED_STYLES.includes(v));
-    if (typeof arrOrStr === 'string' && arrOrStr.trim()) {
-      const parts = arrOrStr.split(',').map(s => s.trim()).filter(Boolean);
-      return parts.filter(v => ALLOWED_STYLES.includes(v));
-    }
-    return [];
-  };
+  const getSelectedValues = (sel) => [...sel.options].filter(o=>o.selected).map(o=>o.value);
+  const normalizeStyles = (v) => Array.isArray(v) ? v.filter(x=>ALLOWED_STYLES.includes(x))
+    : (typeof v==='string' && v.trim()? v.split(',').map(s=>s.trim()).filter(x=>ALLOWED_STYLES.includes(x)) : []);
 
   // ---------- Data ----------
-  let clients = [];        // {id, firstName, lastName, email, phone, styles[], status, initialSales, notes, createdAt}
-  let interactions = [];   // {id, clientId, type, date(YYYY-MM-DD), notes, createdAt}
-  let sales = [];          // {id, clientId, amount, date(YYYY-MM-DD), description, createdAt, interactionId?}
-  let followUps = [];      // {id, clientId, date(YYYY-MM-DD), notes, createdAt, completed, completedAt, type}
+  let clients = [];        // client objects
+  let interactions = [];   // interaction objects (includes Sale type)
+  let sales = [];          // sale objects (+ interactionId link)
+  let followUps = [];      // follow-up objects
+  let todos = [];          // NEW: to‑do tasks: {id, title, date, clientIds[], notes, status, createdAt, completedAt?}
+
   let editingClientId = null;
   let editingInteractionId = null;
   let editingSaleId = null;
+  let editingTodoId = null;
+  let lastClientFilterResult = []; // cache for multi-select To‑Do creation
 
-  // ---------- Local Storage + Backup ----------
+  // ---------- Local Storage + Migration ----------
   function saveData() {
     localStorage.setItem('crm_clients', JSON.stringify(clients));
     localStorage.setItem('crm_interactions', JSON.stringify(interactions));
     localStorage.setItem('crm_sales', JSON.stringify(sales));
     localStorage.setItem('crm_followups', JSON.stringify(followUps));
+    localStorage.setItem('crm_todos', JSON.stringify(todos));
   }
   function loadData() {
     try {
@@ -473,8 +538,8 @@
       interactions = JSON.parse(localStorage.getItem('crm_interactions') || '[]');
       sales = JSON.parse(localStorage.getItem('crm_sales') || '[]');
       followUps = JSON.parse(localStorage.getItem('crm_followups') || '[]');
+      todos = JSON.parse(localStorage.getItem('crm_todos') || '[]');
 
-      // Migration tweaks
       let migrated = false;
       clients.forEach(c => {
         if (!c.firstName && c.name) {
@@ -490,15 +555,16 @@
       });
       interactions.forEach(i => { if (i.date && i.date.length > 10) { i.date = i.date.slice(0,10); migrated = true; } });
       followUps.forEach(f => { if (f.completed === undefined) { f.completed = false; f.type = 'manual'; migrated = true; } });
+      todos.forEach(t => { if (!t.status) { t.status = 'open'; migrated = true; }});
       if (migrated) saveData();
     } catch(e) {
       console.warn('Failed to load saved data:', e);
-      clients = []; interactions = []; sales = []; followUps = [];
+      clients = []; interactions = []; sales = []; followUps = []; todos = [];
     }
   }
 
   function exportData() {
-    const payload = { exportedAt: new Date().toISOString(), version: 1, clients, interactions, sales, followUps };
+    const payload = { exportedAt: new Date().toISOString(), version: 2, clients, interactions, sales, followUps, todos };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -522,7 +588,8 @@
         interactions = data.interactions.map(i => ({ ...i, date: (i.date||'').slice(0,10) }));
         sales = data.sales.map(s => ({ ...s, amount: Number(s.amount) || 0 }));
         followUps = (data.followUps || []).map(f => ({ ...f, date: (f.date||'').slice(0,10) }));
-        saveData(); renderClients(); renderInteractions(); renderSalesView(); renderFollowUps(); updateDashboard();
+        todos = (data.todos || []).map(t => ({ ...t, date: (t.date||'').slice(0,10), status: t.status || 'open' }));
+        saveData(); renderAll();
         alert('Import complete ✔️');
       } catch (e) { console.error(e); alert('Could not parse the file.'); }
     };
@@ -532,11 +599,10 @@
   // ---------- Startup ----------
   document.addEventListener('DOMContentLoaded', () => {
     loadData();
-    renderClients(); renderInteractions(); renderSalesView(); renderFollowUps(); updateDashboard();
+    renderAll();
 
-    // Default dates
     const today = new Date().toISOString().slice(0,10);
-    ['interactionDate','saleDate','followupDate'].forEach(id => { const el = document.getElementById(id); if (el) el.value = today; });
+    ['interactionDate','saleDate','followupDate','todoDate'].forEach(id => { const el = document.getElementById(id); if (el) el.value = today; });
 
     // ESC to close modals
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAllModals(); });
@@ -547,12 +613,12 @@
       if (m && !e.target.closest('.panel')) m.classList.remove('active');
     });
 
-    // Filters & search wiring
+    // Filters & search
     $$('.style-filter').forEach(cb => cb.addEventListener('change', applyFiltersAndSort));
-    const styleMatchSel = $('#styleMatch'); if (styleMatchSel) styleMatchSel.addEventListener('change', applyFiltersAndSort);
+    $('#styleMatch')?.addEventListener('change', applyFiltersAndSort);
     $('#clearFiltersBtn')?.addEventListener('click', () => {
       $$('.style-filter').forEach(cb => cb.checked = false);
-      if (styleMatchSel) styleMatchSel.value = 'any';
+      const sel = $('#styleMatch'); if (sel) sel.value='any';
       applyFiltersAndSort();
     });
     $('#clientSearch')?.addEventListener('input', applyFiltersAndSort);
@@ -571,37 +637,24 @@
       });
     }
     $('#clearBtn')?.addEventListener('click', () => {
-      if (confirm('Clear ALL clients, interactions, sales, and follow ups? This cannot be undone.')) {
-        clients = []; interactions = []; sales = []; followUps = [];
-        saveData(); renderClients(); renderInteractions(); renderSalesView(); renderFollowUps(); updateDashboard();
+      if (confirm('Clear ALL data? This cannot be undone.')) {
+        clients = []; interactions = []; sales = []; followUps = []; todos = [];
+        saveData(); renderAll();
       }
     });
 
     // Tabs
     const tabs = $$('.tab');
     tabs.forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
-    const tabList = $('.tabs[role="tablist"]');
-    tabList?.addEventListener('keydown', (e) => {
-      const keys = ['ArrowLeft','ArrowRight','Home','End'];
-      if (!keys.includes(e.key)) return;
-      e.preventDefault();
-      const i = tabs.indexOf(document.activeElement);
-      if (i === -1) return;
-      let t = i;
-      if (e.key === 'ArrowLeft') t = (i - 1 + tabs.length) % tabs.length;
-      if (e.key === 'ArrowRight') t = (i + 1) % tabs.length;
-      if (e.key === 'Home') t = 0;
-      if (e.key === 'End') t = tabs.length - 1;
-      tabs[t].focus(); switchTab(tabs[t].dataset.tab);
-    });
 
-    // Modal openers
+    // Openers
     $('#openClientBtn')?.addEventListener('click', () => openClientModal());
-    $('#openInteractionBtn')?.addEventListener('click', () => { try { openInteractionModal(); } catch (e){ alert('Could not open the interaction window.'); }});
+    $('#openInteractionBtn')?.addEventListener('click', () => openInteractionModal());
     $('#openSaleBtn')?.addEventListener('click', () => openSaleModal());
-    $('#openFollowUpBtn')?.addEventListener('click', () => openFollowUpModal());
+    $('#openTodoBtn')?.addEventListener('click', () => openTodoModal());
+    $('#createTodoFromClientsBtn')?.addEventListener('click', () => openTodoModal(lastClientFilterResult.map(c=>c.id)));
 
-    // Any [data-close-modal]
+    // Close modal buttons
     document.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-close-modal]');
       if (!btn) return;
@@ -611,9 +664,10 @@
       modal.querySelector('form')?.reset();
       if (modal.id === 'interactionModal') editingInteractionId = null;
       if (modal.id === 'saleModal') editingSaleId = null;
+      if (modal.id === 'todoModal') editingTodoId = null;
     });
 
-    // Delegated actions for client list
+    // Client list button delegation
     $('#clientList')?.addEventListener('click', (e) => {
       const btn = e.target.closest('button[data-action]');
       if (!btn) return;
@@ -625,56 +679,49 @@
       if (action === 'delete') deleteClient(id);
     });
 
-    // Delegated delete/edit for interactions
+    // Interactions list delegation
     $('#interactionList')?.addEventListener('click', (e) => {
       const delBtn = e.target.closest('button[data-action="delete-interaction"]');
-      if (delBtn) { const id = delBtn.getAttribute('data-id'); if (id) deleteInteraction(id); return; }
+      if (delBtn) { deleteInteraction(delBtn.getAttribute('data-id')); return; }
       const editBtn = e.target.closest('button[data-action="edit-interaction"]');
-      if (editBtn) { const id = editBtn.getAttribute('data-id'); if (id) openInteractionModal(id); return; }
+      if (editBtn) { openInteractionModal(editBtn.getAttribute('data-id')); return; }
     });
 
-    // Delegated toggle/delete for follow-ups (and 911 "create" action)
+    // Follow-ups delegation
     document.addEventListener('click', (e) => {
       const toggleBtn = e.target.closest('button[data-action="toggle-followup"]');
-      if (toggleBtn) { const id = toggleBtn.getAttribute('data-id'); if (id) toggleFollowUp(id); return; }
+      if (toggleBtn) { toggleFollowUp(toggleBtn.getAttribute('data-id')); return; }
       const deleteBtn = e.target.closest('button[data-action="delete-followup"]');
-      if (deleteBtn) { const id = deleteBtn.getAttribute('data-id'); if (id) deleteFollowUp(id); return; }
+      if (deleteBtn) { deleteFollowUp(deleteBtn.getAttribute('data-id')); return; }
       const createBtn = e.target.closest('button[data-action="create-followup-for-client"]');
-      if (createBtn) {
-        const id = createBtn.getAttribute('data-id');
-        const notes = createBtn.getAttribute('data-notes') || '';
-        if (id) openFollowUpModal(id, notes);
-        return;
-      }
+      if (createBtn) { openFollowUpModal(createBtn.getAttribute('data-id'), createBtn.getAttribute('data-notes')||''); return; }
     });
 
-    // Delegated edit/delete for sales
+    // Sales delegation
     $('#salesList')?.addEventListener('click', (e) => {
       const editBtn = e.target.closest('button[data-action="edit-sale"]');
-      if (editBtn) { const id = editBtn.getAttribute('data-id'); if (id) openSaleModal(id); return; }
+      if (editBtn) { openSaleModal(editBtn.getAttribute('data-id')); return; }
       const delBtn = e.target.closest('button[data-action="delete-sale"]');
-      if (delBtn) { const id = delBtn.getAttribute('data-id'); if (id) deleteSale(id); return; }
+      if (delBtn) { deleteSale(delBtn.getAttribute('data-id')); return; }
     });
+
+    // To‑Do controls
+    $('#todoSort')?.addEventListener('change', renderTodos);
   });
+
+  function renderAll(){
+    renderClients(); renderInteractions(); renderSalesView(); renderTodos(); renderFollowUps(); updateDashboard();
+  }
 
   function closeAllModals(){ $$('.modal.active').forEach(m => m.classList.remove('active')); }
 
   // ---------- Tabs ----------
   function switchTab(tabName){
-    $$('.tab-content').forEach(c => {
-      const active = c.id === tabName;
-      c.style.display = active ? 'block' : 'none';
-      if (active) { c.setAttribute('role','region'); c.setAttribute('aria-label', tabName); }
-    });
-    $$('.tab').forEach(b => {
-      const active = b.dataset.tab === tabName;
-      b.classList.toggle('active', active);
-      b.setAttribute('aria-selected', active ? 'true' : 'false');
-      b.tabIndex = active ? 0 : -1;
-    });
+    $$('.tab-content').forEach(c => c.style.display = (c.id === tabName ? 'block' : 'none'));
+    $$('.tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tabName));
     if (tabName === 'dashboard') updateDashboard();
     if (tabName === 'sales') renderSalesView();
-    if (tabName === 'followups') renderFollowUps();
+    if (tabName === 'tasks') { renderTodos(); renderFollowUps(); }
   }
 
   // ---------- Helpers ----------
@@ -707,12 +754,10 @@
     if (f.completed && f.type === 'weekly') createAutoFollowUp(f.clientId, f.completedAt.slice(0,10), 'monthly');
     saveData(); renderFollowUps(); updateDashboard();
   }
-
   function deleteFollowUp(id) {
     const f = followUps.find(x => x.id === id);
     if (!f) return;
-    const isAuto = f.type !== 'manual';
-    const ok = confirm(isAuto ? 'Delete this auto-created follow-up?' : 'Delete this follow-up?');
+    const ok = confirm((f.type !== 'manual') ? 'Delete this auto-created follow-up?' : 'Delete this follow-up?');
     if (!ok) return;
     followUps = followUps.filter(x => x.id !== id);
     saveData(); renderFollowUps(); updateDashboard();
@@ -731,8 +776,7 @@
       $('#clientLastName').value  = c.lastName || '';
       $('#clientEmail').value     = c.email || '';
       $('#clientPhone').value     = c.phone || '';
-      const sel = $('#clientStyles');
-      const arr = normalizeStyles(c.styles ?? c.style);
+      const sel = $('#clientStyles'); const arr = normalizeStyles(c.styles ?? c.style);
       [...sel.options].forEach(o => o.selected = arr.includes(o.value));
       $('#clientStatus').value    = VALID_STATUSES.includes(c.status)? c.status : 'Introductory';
       $('#clientInitialSales').value = c.initialSales ?? '';
@@ -743,11 +787,9 @@
       $('#clientStatus').value = 'Introductory';
       [...$('#clientStyles').options].forEach(o => o.selected = false);
     }
-
     modal.classList.add('active');
     setTimeout(()=>{ modal.querySelector('input,select,textarea,button')?.focus(); },0);
   }
-  function closeClientModal(){ $('#clientModal').classList.remove('active'); $('#clientForm').reset(); editingClientId=null; }
 
   function saveClient(e){
     e.preventDefault();
@@ -773,16 +815,17 @@
       clientData.id = Date.now().toString();
       clients.push(clientData);
     }
-    saveData(); closeClientModal(); renderClients(); renderFollowUps(); updateDashboard();
+    saveData(); $('#clientModal').classList.remove('active'); renderClients(); renderFollowUps(); updateDashboard();
   }
 
   function deleteClient(clientId){
-    if (!confirm('Delete this client and all related interactions, sales, and follow ups?')) return;
+    if (!confirm('Delete this client and all related interactions, sales, follow ups & to‑dos?')) return;
     clients = clients.filter(c => c.id !== clientId);
     interactions = interactions.filter(i => i.clientId !== clientId);
     sales = sales.filter(s => s.clientId !== clientId);
     followUps = followUps.filter(f => f.clientId !== clientId);
-    saveData(); renderClients(); renderFollowUps(); updateDashboard();
+    todos = todos.map(t => ({ ...t, clientIds: t.clientIds.filter(id => id !== clientId) })).filter(t => t.clientIds.length > 0);
+    saveData(); renderAll();
   }
 
   function totalSpentFor(clientId){
@@ -794,15 +837,13 @@
   function renderClients(source = clients){
     const list = $('#clientList');
     if (source.length === 0){
-      list.innerHTML = `
-        <div class="empty-state">
-          <div style="font-size:42px;opacity:.6">👥</div>
-          <p>No clients yet. Add your first client!</p>
-        </div>`;
+      list.innerHTML = `<div class="empty-state"><div style="font-size:42px;opacity:.6">👥</div><p>No clients yet. Add your first client!</p></div>`;
+      lastClientFilterResult = [];
       return;
     }
 
     const sorted = sortClients([...source], $('#clientSort').value || 'createdAt_desc');
+    lastClientFilterResult = [...sorted]; // capture latest filtered+sorted list
 
     list.innerHTML = sorted.map(c => {
       const totalSpent = totalSpentFor(c.id);
@@ -837,8 +878,30 @@
     }).join('');
   }
 
-  function searchClients(){ applyFiltersAndSort(); }
-  function applyClientSort(){ applyFiltersAndSort(); }
+  function applyFiltersAndSort(){
+    const term = ($('#clientSearch').value || '').toLowerCase();
+    const selected = getActiveStyleFilters();
+    const matchMode = ($('#styleMatch')?.value) || 'any';
+
+    let list = clients.filter(c => {
+      const matchesSearch =
+        fullNameOf(c).toLowerCase().includes(term) ||
+        (c.email && c.email.toLowerCase().includes(term)) ||
+        (c.phone && c.phone.includes(term)) ||
+        (c.styles && c.styles.some(s => s.toLowerCase().includes(term)));
+      if (!matchesSearch) return false;
+
+      if (!selected.length) return true;
+      const styles = c.styles || [];
+      return (matchMode === 'all')
+        ? selected.every(s => styles.includes(s))
+        : selected.some(s => styles.includes(s));
+    });
+
+    const mode = $('#clientSort').value || 'createdAt_desc';
+    list = sortClients(list, mode);
+    renderClients(list);
+  }
 
   function sortClients(arr, mode){
     const bySpent = (a,b) => totalSpentFor(a.id) - totalSpentFor(b.id);
@@ -878,33 +941,6 @@
     }
   }
 
-  function applyFiltersAndSort(){
-    const term = ($('#clientSearch').value || '').toLowerCase();
-    const selected = getActiveStyleFilters();
-    const matchModeEl = $('#styleMatch');
-    const matchMode = matchModeEl ? matchModeEl.value : 'any';
-
-    let list = clients.filter(c => {
-      const matchesSearch =
-        fullNameOf(c).toLowerCase().includes(term) ||
-        (c.email && c.email.toLowerCase().includes(term)) ||
-        (c.phone && c.phone.includes(term)) ||
-        (c.styles && c.styles.some(s => s.toLowerCase().includes(term)));
-
-      if (!matchesSearch) return false;
-
-      if (!selected.length) return true;
-      const styles = c.styles || [];
-      return (matchMode === 'all')
-        ? selected.every(s => styles.includes(s))
-        : selected.some(s => styles.includes(s));
-    });
-
-    const mode = $('#clientSort').value || 'createdAt_desc';
-    list = sortClients(list, mode);
-    renderClients(list);
-  }
-
   // ---------- Client View ----------
   function openClientView(clientId){
     const c = clients.find(x => x.id === clientId);
@@ -914,7 +950,7 @@
     const lastIt = its[0];
     const clSales = sales.filter(s => s.clientId === clientId).sort((a,b) => new Date(b.date)-new Date(a.date));
 
-    $('#clientViewBody').innerHTML = `
+    const html = `
       <div class="card" style="box-shadow:none;padding:0">
         <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
           <div style="min-width:0">
@@ -954,23 +990,18 @@
                 </div>`).join('')}
             </div>`}
         </div>
-      </div>
-    `;
+      </div>`;
+    $('#clientViewBody').innerHTML = html;
     $('#clientViewModal').classList.add('active');
   }
 
   // ---------- Interactions ----------
   function openInteractionModal(interactionId=null){
     editingInteractionId = interactionId;
-    const select = $('#interactionClient');
-    const dateEl = $('#interactionDate');
-    const modal  = $('#interactionModal');
+    const select = $('#interactionClient'); const dateEl = $('#interactionDate');
+    const modal  = $('#interactionModal'); if (!select || !dateEl || !modal) { alert('Interaction form is missing.'); return; }
 
-    if (!select || !dateEl || !modal) { alert('Interaction form is missing.'); return; }
-
-    // Populate clients
-    select.innerHTML = '<option value="">Select client...</option>' +
-      (clients||[]).map(c => `<option value="${c.id}">${escapeHTML(fullNameOf(c))}</option>`).join('');
+    select.innerHTML = '<option value="">Select client...</option>' + (clients||[]).map(c => `<option value="${c.id}">${escapeHTML(fullNameOf(c))}</option>`).join('');
 
     if (interactionId){
       const it = interactions.find(i => i.id === interactionId);
@@ -985,11 +1016,8 @@
       $('#interactionForm').reset();
       dateEl.value = new Date().toISOString().slice(0,10);
     }
-
     modal.classList.add('active');
-    setTimeout(() => { modal.querySelector('input,select,textarea,button')?.focus(); }, 0);
   }
-  function closeInteractionModal(){ $('#interactionModal').classList.remove('active'); $('#interactionForm').reset(); editingInteractionId=null; }
 
   function saveInteraction(e){
     e.preventDefault();
@@ -1000,38 +1028,20 @@
     if (editingInteractionId){
       const idx = interactions.findIndex(i => i.id === editingInteractionId);
       if (idx !== -1){
-        interactions[idx] = {
-          ...interactions[idx],
-          clientId,
-          type: $('#interactionType').value,
-          date: interactionDate,
-          notes: $('#interactionNotes').value.trim()
-        };
+        interactions[idx] = { ...interactions[idx], clientId, type: $('#interactionType').value, date: interactionDate, notes: $('#interactionNotes').value.trim() };
       }
     } else {
       const newId = Date.now().toString();
-      interactions.push({
-        id: newId, clientId,
-        type: $('#interactionType').value,
-        date: interactionDate,
-        notes: $('#interactionNotes').value.trim(),
-        createdAt: new Date().toISOString()
-      });
-      // Auto follow-up
+      interactions.push({ id:newId, clientId, type: $('#interactionType').value, date: interactionDate, notes: $('#interactionNotes').value.trim(), createdAt: new Date().toISOString() });
       createAutoFollowUp(clientId, interactionDate, 'weekly');
     }
-
-    saveData(); closeInteractionModal(); renderInteractions(); renderFollowUps(); updateDashboard();
+    saveData(); $('#interactionModal').classList.remove('active'); renderInteractions(); renderFollowUps(); updateDashboard();
   }
 
   function renderInteractions(source = interactions){
     const el = $('#interactionList');
     if (source.length === 0){
-      el.innerHTML = `
-        <div class="empty-state">
-          <div style="font-size:42px;opacity:.6">💬</div>
-          <p>No interactions logged yet</p>
-        </div>`;
+      el.innerHTML = `<div class="empty-state"><div style="font-size:42px;opacity:.6">💬</div><p>No interactions logged yet</p></div>`;
       return;
     }
     const sorted = [...source].sort((a,b) => new Date(b.date) - new Date(a.date));
@@ -1047,7 +1057,7 @@
               <div class="muted" style="margin-top:4px">${escapeHTML(i.type)} • ${when}</div>
             </div>
             <div class="buttons">
-              ${isSale ? '' : `<button class="btn ghost"  data-action="edit-interaction" data-id="${i.id}">Edit</button>`}
+              ${isSale ? '' : `<button class="btn ghost" data-action="edit-interaction" data-id="${i.id}">Edit</button>`}
               <button class="btn danger" data-action="delete-interaction" data-id="${i.id}">Delete</button>
             </div>
           </div>
@@ -1058,9 +1068,8 @@
 
   function deleteInteraction(id){
     if (!confirm('Delete this interaction?')) return;
-    // If this interaction is linked to a sale, clear the link
     const saleIdx = sales.findIndex(s => s.interactionId === id);
-    if (saleIdx !== -1) sales[saleIdx].interactionId = undefined;
+    if (saleIdx !== -1) sales[saleIdx].interactionId = undefined; // unlink if linked
     interactions = interactions.filter(i => i.id !== id);
     saveData(); renderInteractions(); updateDashboard(); renderFollowUps();
   }
@@ -1076,34 +1085,23 @@
     renderInteractions(filtered);
   }
 
-  // ---------- Sales ----------
+  // ---------- Sales (also log as interactions) ----------
   function openSaleModal(saleId=null){
     editingSaleId = saleId;
-    const select = $('#saleClient');
-    const modal = $('#saleModal');
+    const select = $('#saleClient'); const modal = $('#saleModal');
 
-    // populate clients
-    select.innerHTML = '<option value="">Select client...</option>' +
-      clients.map(c => `<option value="${c.id}">${escapeHTML(fullNameOf(c))}</option>`).join('');
+    select.innerHTML = '<option value="">Select client...</option>' + clients.map(c => `<option value="${c.id}">${escapeHTML(fullNameOf(c))}</option>`).join('');
 
     if (saleId){
-      const s = sales.find(x => x.id === saleId);
-      if (!s) return;
+      const s = sales.find(x => x.id === saleId); if (!s) return;
       $('#saleModalTitle').textContent = 'Edit Sale';
-      select.value = s.clientId;
-      $('#saleAmount').value = s.amount;
-      $('#saleDate').value = s.date;
-      $('#saleDescription').value = s.description || '';
+      select.value = s.clientId; $('#saleAmount').value = s.amount; $('#saleDate').value = s.date; $('#saleDescription').value = s.description || '';
     } else {
       $('#saleModalTitle').textContent = 'Record Sale';
-      $('#saleForm').reset();
-      $('#saleDate').value = new Date().toISOString().slice(0,10);
+      $('#saleForm').reset(); $('#saleDate').value = new Date().toISOString().slice(0,10);
     }
-
     modal.classList.add('active');
-    setTimeout(() => { modal.querySelector('input,select,textarea,button')?.focus(); }, 0);
   }
-  function closeSaleModal(){ $('#saleModal').classList.remove('active'); $('#saleForm').reset(); editingSaleId=null; }
 
   function saveSale(e){
     e.preventDefault();
@@ -1117,55 +1115,42 @@
     if (editingSaleId){
       const idx = sales.findIndex(s => s.id === editingSaleId);
       if (idx !== -1){
-        // Update sale
         sales[idx] = { ...sales[idx], clientId, amount, date, description };
-
-        // Update paired interaction if present
+        // Update paired interaction
         const iId = sales[idx].interactionId;
         if (iId){
           const iIdx = interactions.findIndex(i => i.id === iId);
           if (iIdx !== -1){
             interactions[iIdx] = {
               ...interactions[iIdx],
-              clientId,
-              date,
-              type: 'Sale',
+              clientId, date, type: 'Sale',
               notes: `Sale recorded: ${fmtUSD.format(amount)}${description ? ` — ${description}` : ''}`
             };
           }
         }
       }
     } else {
-      // Create sale
       const id = Date.now().toString();
       const sale = { id, clientId, amount, date, description, createdAt: new Date().toISOString() };
       sales.push(sale);
-
       // Create paired interaction
       const interactionId = 'sale-' + id;
       interactions.push({
-        id: interactionId,
-        clientId,
-        type: 'Sale',
-        date,
+        id: interactionId, clientId, type: 'Sale', date,
         notes: `Sale recorded: ${fmtUSD.format(amount)}${description ? ` — ${description}` : ''}`,
         createdAt: new Date().toISOString()
       });
-      // store link
       const sIdx = sales.findIndex(s => s.id === id);
       if (sIdx !== -1) sales[sIdx].interactionId = interactionId;
     }
 
-    saveData(); closeSaleModal(); renderSalesView(); renderInteractions(); renderFollowUps(); updateDashboard(); renderClients();
+    saveData(); $('#saleModal').classList.remove('active'); renderSalesView(); renderInteractions(); renderFollowUps(); updateDashboard(); renderClients();
   }
 
   function deleteSale(id){
     if (!confirm('Delete this sale?')) return;
     const s = sales.find(x => x.id === id);
-    if (s && s.interactionId){
-      // also delete paired interaction
-      interactions = interactions.filter(i => i.id !== s.interactionId);
-    }
+    if (s && s.interactionId){ interactions = interactions.filter(i => i.id !== s.interactionId); }
     sales = sales.filter(s => s.id !== id);
     saveData(); renderSalesView(); renderInteractions(); updateDashboard(); renderClients(); renderFollowUps();
   }
@@ -1181,11 +1166,7 @@
     });
 
     if (map.size === 0){
-      salesList.innerHTML = `
-        <div class="empty-state">
-          <div style="font-size:42px;opacity:.6">💰</div>
-          <p>No sales data available</p>
-        </div>`;
+      salesList.innerHTML = `<div class="empty-state"><div style="font-size:42px;opacity:.6">💰</div><p>No sales data available</p></div>`;
       return;
     }
 
@@ -1198,7 +1179,7 @@
             <div class="muted" style="margin-top:4px">Total Sales: <strong style="color:#2f855a">${fmtUSD.format(total)}</strong></div>
           </div>
         </div>
-          ${Number(c.initialSales)>0 ? `
+        ${Number(c.initialSales)>0 ? `
           <div style="padding:10px 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between">
             <div style="font-weight:600">Initial Sales</div>
             <div style="font-weight:800;color:#2f855a">${fmtUSD.format(Number(c.initialSales) || 0)}</div>
@@ -1215,11 +1196,125 @@
               <button class="btn danger" data-action="delete-sale" data-id="${s.id}">Delete</button>
             </div>
           </div>`).join('')}
-      </div>
-    `).join('');
+      </div>`).join('');
   }
 
-  // ---------- Follow Ups ----------
+  // ---------- To‑Dos ----------
+  function openTodoModal(preselectClientIds = null, todoId=null){
+    editingTodoId = todoId;
+    const sel = $('#todoClients');
+    sel.innerHTML = clients.map(c => `<option value="${c.id}">${escapeHTML(fullNameOf(c))}</option>`).join('');
+    $('#todoDate').value = new Date().toISOString().slice(0,10);
+
+    if (todoId){
+      const t = todos.find(x => x.id === todoId); if (!t) return;
+      $('#todoModalTitle').textContent = 'Edit To‑Do';
+      $('#todoTitle').value = t.title || '';
+      $('#todoDate').value = t.date || new Date().toISOString().slice(0,10);
+      $('#todoNotes').value = t.notes || '';
+      $('#todoStatus').value = t.status || 'open';
+      [...sel.options].forEach(o => o.selected = t.clientIds.includes(o.value));
+    } else {
+      $('#todoModalTitle').textContent = 'New To‑Do';
+      $('#todoForm').reset();
+      $('#todoStatus').value = 'open';
+      if (preselectClientIds && preselectClientIds.length){
+        const set = new Set(preselectClientIds);
+        [...sel.options].forEach(o => o.selected = set.has(o.value));
+      }
+    }
+    $('#todoModal').classList.add('active');
+  }
+
+  function saveTodo(e){
+    e.preventDefault();
+    const title = $('#todoTitle').value.trim();
+    const date = $('#todoDate').value;
+    const clientIds = getSelectedValues($('#todoClients'));
+    if (!title || !date){ alert('Title and due date are required'); return; }
+
+    if (editingTodoId){
+      const idx = todos.findIndex(t => t.id === editingTodoId);
+      if (idx !== -1){
+        todos[idx] = {
+          ...todos[idx],
+          title, date, clientIds,
+          notes: $('#todoNotes').value.trim(),
+          status: $('#todoStatus').value || 'open',
+          completedAt: ($('#todoStatus').value === 'done') ? (todos[idx].completedAt || new Date().toISOString()) : null
+        };
+      }
+    } else {
+      todos.push({
+        id: Date.now().toString(),
+        title, date, clientIds,
+        notes: $('#todoNotes').value.trim(),
+        status: ($('#todoStatus').value || 'open'),
+        createdAt: new Date().toISOString(),
+        completedAt: null
+      });
+    }
+    saveData(); $('#todoModal').classList.remove('active'); renderTodos();
+  }
+
+  function toggleTodo(id){
+    const t = todos.find(x => x.id === id); if (!t) return;
+    if (t.status === 'done'){ t.status = 'open'; t.completedAt = null; }
+    else { t.status = 'done'; t.completedAt = new Date().toISOString(); }
+    saveData(); renderTodos();
+  }
+  function deleteTodo(id){
+    if (!confirm('Delete this to‑do?')) return;
+    todos = todos.filter(t => t.id !== id);
+    saveData(); renderTodos();
+  }
+
+  function renderTodos(){
+    const wrap = $('#todoList'); const sortMode = $('#todoSort')?.value || 'date_asc';
+    if (todos.length === 0){
+      wrap.innerHTML = `<div class="empty-state"><div style="font-size:42px;opacity:.6">📝</div><p>No to‑dos yet</p></div>`;
+      $('#todoCount').textContent = '0 items';
+      return;
+    }
+    const arr = [...todos];
+    const compare = {
+      'date_asc': (a,b)=> (a.date||'') < (b.date||'') ? -1 : (a.date||'') > (b.date||'') ? 1 : 0,
+      'date_desc': (a,b)=> (a.date||'') > (b.date||'') ? -1 : (a.date||'') < (b.date||'') ? 1 : 0,
+      'created_desc': (a,b)=> new Date(b.createdAt) - new Date(a.createdAt),
+      'created_asc': (a,b)=> new Date(a.createdAt) - new Date(b.createdAt),
+      'title_asc': (a,b)=> a.title.localeCompare(b.title),
+      'status': (a,b)=> (a.status === b.status) ? 0 : (a.status === 'open' ? -1 : 1)
+    }[sortMode] || ((a,b)=>0);
+    arr.sort(compare);
+
+    $('#todoCount').textContent = `${arr.length} item${arr.length!==1?'s':''}`;
+
+    wrap.innerHTML = arr.map(t => {
+      const clientChips = t.clientIds.map(id => {
+        const c = clients.find(cc => cc.id === id);
+        return `<span class="todo-client">${escapeHTML(c ? fullNameOf(c) : 'Unknown')}</span>`;
+      }).join('');
+      const dateStr = t.date ? new Date(t.date).toLocaleDateString() : '—';
+      return `
+        <div class="todo-item" data-todo-id="${t.id}" style="${t.status==='done'?'opacity:.7;':''}">
+          <div class="todo-head">
+            <div>
+              <div class="todo-title">${escapeHTML(t.title)}</div>
+              <div class="todo-meta">${t.status==='done'?'✅ Done':'⏰ Due'}: ${dateStr}</div>
+              ${t.notes ? `<div class="muted" style="margin-top:6px">${escapeHTML(t.notes)}</div>`:''}
+              <div class="todo-clients">${clientChips}</div>
+            </div>
+          </div>
+          <div class="todo-actions">
+            <button class="btn ${t.status==='done'?'ghost':'primary'} small" onclick="toggleTodo('${t.id}')">${t.status==='done'?'Reopen':'Mark Done'}</button>
+            <button class="btn ghost small" onclick="openTodoModal(null,'${t.id}')">Edit</button>
+            <button class="btn danger small" onclick="deleteTodo('${t.id}')">Delete</button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  // ---------- Follow Ups (unchanged logic, shown under Tasks) ----------
   function openFollowUpModal(prefillClientId=null, defaultNotes=''){
     const select = $('#followupClient');
     select.innerHTML = '<option value="">Select client...</option>' +
@@ -1228,12 +1323,8 @@
     $('#followupDate').value = today;
     $('#followupNotes').value = defaultNotes || '';
     if (prefillClientId) select.value = prefillClientId;
-
-    const modal = $('#followupModal');
-    modal.classList.add('active');
-    setTimeout(() => { modal.querySelector('input,select,textarea,button')?.focus(); }, 0);
+    $('#followupModal').classList.add('active');
   }
-  function closeFollowUpModal(){ $('#followupModal').classList.remove('active'); $('#followupForm').reset(); }
 
   function saveFollowUp(e){
     e.preventDefault();
@@ -1242,12 +1333,10 @@
     if (!clientId || !date){ alert('Client and due date are required'); return; }
     followUps.push({
       id: Date.now().toString(),
-      clientId, date,
-      notes: $('#followupNotes').value.trim(),
-      createdAt: new Date().toISOString(),
-      completed: false, completedAt: null, type: 'manual'
+      clientId, date, notes: $('#followupNotes').value.trim(),
+      createdAt: new Date().toISOString(), completed: false, completedAt: null, type: 'manual'
     });
-    saveData(); closeFollowUpModal(); renderFollowUps(); updateDashboard();
+    saveData(); $('#followupModal').classList.remove('active'); renderFollowUps(); updateDashboard();
   }
 
   function renderFollowUps(){
@@ -1255,7 +1344,6 @@
     const today = new Date(todayStr);
     const pastDue = [], upcoming = [], future = [], emergency = [];
 
-    // Split existing (pending) follow ups
     followUps.forEach(f => {
       if (f.completed) return;
       if (f.date < todayStr) pastDue.push(f);
@@ -1263,15 +1351,12 @@
       else future.push(f);
     });
 
-    // Build 911 list (no interactions for 2+ months)
-    const threshold = new Date(today);
-    threshold.setMonth(threshold.getMonth() - 2);
+    // 911: no interactions 2+ months
+    const threshold = new Date(today); threshold.setMonth(threshold.getMonth() - 2);
     clients.forEach(c => {
       const lastIt = lastInteractionDate(c.id) || (c.createdAt ? new Date(c.createdAt) : null);
       if (!lastIt) return;
-      if (lastIt < threshold) {
-        emergency.push({ clientId: c.id, lastDate: lastIt });
-      }
+      if (lastIt < threshold) emergency.push({ clientId: c.id, lastDate: lastIt });
     });
 
     const byDateAsc = (a,b) => new Date(a.date) - new Date(b.date);
@@ -1306,10 +1391,8 @@
   function render911List(items){
     if (!items.length) return '';
     const seen = new Set();
-    return items.filter(x => {
-      if (seen.has(x.clientId)) return false;
-      seen.add(x.clientId); return true;
-    }).sort((a,b)=>a.lastDate - b.lastDate).map(x => {
+    return items.filter(x => { if (seen.has(x.clientId)) return false; seen.add(x.clientId); return true; })
+      .sort((a,b)=>a.lastDate - b.lastDate).map(x => {
       const c = clients.find(cc => cc.id === x.clientId);
       const name = c ? fullNameOf(c) : 'Unknown Client';
       const lastStr = x.lastDate ? new Date(x.lastDate).toLocaleDateString() : '—';
@@ -1348,11 +1431,7 @@
     const salesWrap = $('#salesActivityList');
 
     if (interactions.length === 0){
-      interWrap.innerHTML = `
-        <div class="empty-state">
-          <div style="font-size:42px;opacity:.6">💬</div>
-          <p>No interactions yet</p>
-        </div>`;
+      interWrap.innerHTML = `<div class="empty-state"><div style="font-size:42px;opacity:.6">💬</div><p>No interactions yet</p></div>`;
     } else {
       const items = [...interactions].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,6).map(i=>{
         const c = clients.find(x=>x.id===i.clientId);
@@ -1371,11 +1450,7 @@
     }
 
     if (sales.length === 0){
-      salesWrap.innerHTML = `
-        <div class="empty-state">
-          <div style="font-size:42px;opacity:.6">💰</div>
-          <p>No sales yet</p>
-        </div>`;
+      salesWrap.innerHTML = `<div class="empty-state"><div style="font-size:42px;opacity:.6">💰</div><p>No sales yet</p></div>`;
     } else {
       const items = [...sales].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,6).map(s=>{
         const c = clients.find(x=>x.id===s.clientId);
@@ -1397,4 +1472,3 @@
 </script>
 </body>
 </html>
-
