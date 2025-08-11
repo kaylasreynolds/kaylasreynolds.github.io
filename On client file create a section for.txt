@@ -1,0 +1,20 @@
+On client file create a section for birthday.
+Create a new headline section for "Birthdays"
+Generate a monthly calendar with birthdays plugged in and a tiny checkbox for reminder to contact.
+Under the calendar show a list sorted by months for easy reference, include the tiny checkmarks here too. Ensure all connections are seamless.
+
+
+Create a section for "Seasonal Updates"
+Each season (Spring, Summer, Fall, Winter) has an interaction task for each client with a small checkmark. utilize this as an additional form of communication that expands on clientele connection to increase total sales. Make due date the first day of each season.
+
+Modify Dashboard:
+Show only:
+Block showing number of Interactions this week/month (label)
+
+List of open To-Dos with interactive buttons. Screen wide with scroll bar to go down, sorted by closest due.
+list of Past Due and 911 Follow-Ups with interactive buttons.
+list of Follow-Ups for the current week.
+
+Create a section for "Appointments"
+Use this to schedule/document appointments with clients. Include their client profile and additional information relevant to their appointment. Have this sync with interactions including follow-up path. 
+
