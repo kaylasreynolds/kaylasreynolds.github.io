@@ -103,11 +103,7 @@
   .filters-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
   .filters-controls select{padding:6px 8px;border-radius:8px;border:2px solid var(--ring);font-size:.9rem}
 
-  @media (max-width: 900px){
-    .container{padding:12px}
-    .followup-main .client-name{font-size:.9rem}
-    .followup-main .muted{font-size:.8rem}
-    /* 2) Category color coding */
+     /* 2) Category color coding */
     .follow-up[data-type="seasonal"] { border-left: 5px solid #60a5fa; background: #f0f9ff; }
     .follow-up[data-type="promotion"] { border-left: 5px solid #facc15; background: #fefce8; }
     .follow-up[data-type="post-appointment"] { border-left: 5px solid #34d399; background: #ecfdf5; }
@@ -127,6 +123,12 @@
   color: #194785;
   background: #dbeafe;
   margin-left: 6px;
+  
+  @media (max-width: 900px){
+    .container{padding:12px}
+    .followup-main .client-name{font-size:.9rem}
+    .followup-main .muted{font-size:.8rem}
+ 
 }
 
 /* Controls */
@@ -1561,8 +1563,6 @@ function getTargetClientIds(targetMode = 'all') {
 </script>
 
   <script>
-// Assuming followUps[] already exists in your CRM JS
-window.followUps = window.followUps || [];
 
 function categorizeFollowUp(fu) {
   // Try to assign type if missing
@@ -1607,8 +1607,212 @@ document.getElementById('categoryFilter').addEventListener('change', e => {
 document.addEventListener('DOMContentLoaded', decorateFollowUps);
 </script>
 
+  <script>
+/* ==========================================================
+   FOLLOW-UPS MASTER SCRIPT (Seasonal + Categories + Focus)
+   Tailored to your file: uses .followup-card, renderFollowUps(),
+   followUps[] with { id, clientId, date, notes, type, ... }
+   ========================================================== */
+
+/* --------------- Helpers & Globals --------------- */
+const $  = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const byId = (id) => document.getElementById(id);
+const uid  = () => 'fu_' + Math.random().toString(36).slice(2, 10);
+
+// Ensure arrays exist (your app already defines these earlier)
+window.clients   = Array.isArray(window.clients)   ? window.clients   : [];
+window.followUps = Array.isArray(window.followUps) ? window.followUps : [];
+
+/* --------------- Categorization --------------- */
+function categorizeFollowUp(fu) {
+  // Only set type if missing, so we respect your weekly/monthly/manual/etc.
+  if (!fu.type) {
+    const t = String(fu.title || fu.notes || '').toLowerCase();
+    if (t.includes('birthday')) fu.type = 'birthday';
+    else if (t.includes('outreach') || t.includes('holiday')) fu.type = 'seasonal';
+    else if (t.includes('sale') || t.includes('promo')) fu.type = 'promotion';
+    else if ((t.includes('follow up') || t.includes('follow-up')) && fu.relatedTo === 'appointment') fu.type = 'post-appointment';
+    else fu.type = 'relationship';
+  }
+}
+
+/* --------------- Decorator (colors + badges) --------------- */
+function decorateFollowUps() {
+  const cards = $$('.followup-card'); // your card class
+  cards.forEach(card => {
+    const id = card.dataset.id;
+    const fu = window.followUps.find(f => String(f.id) === String(id));
+    if (!fu) return;
+
+    // expose type to CSS
+    card.dataset.type = fu.type || '';
+
+    // add seasonal badge
+    if (fu.type === 'seasonal' && !card.querySelector('.badge-season')) {
+      card.classList.add('seasonal'); // lets your seasonal background kick in
+      const badge = document.createElement('span');
+      badge.className = 'badge-season';
+      badge.textContent = fu.season || 'Seasonal';
+      // Attach near the title/top; fall back to main area
+      const host = card.querySelector('.title, .followup-top, .followup-main') || card;
+      host.appendChild(badge);
+    }
+  });
+}
+
+/* Monkey-patch your render to always re-decorate after drawing */
+(function patchRender(){
+  const orig = window.renderFollowUps;
+  if (typeof orig === 'function') {
+    window.renderFollowUps = function patchedRenderFollowUps(...args){
+      const out = orig.apply(this, args);
+      // Wait until DOM updated
+      requestAnimationFrame(decorateFollowUps);
+      return out;
+    };
+  }
+})();
+
+/* --------------- Focus Mode (dropdown) --------------- */
+function bindFocusFilter(){
+  const sel = byId('categoryFilter');
+  if (!sel) return;
+  sel.addEventListener('change', e => {
+    const val = e.target.value;
+    $$('.followup-card').forEach(card => {
+      card.style.display = (val === 'all' || card.dataset.type === val) ? '' : 'none';
+    });
+  });
+}
+
+/* --------------- Seasonal-only chip --------------- */
+function bindSeasonalOnlyChip(){
+  const chk = byId('filterSeasonalOnly');
+  if (!chk) return;
+  chk.addEventListener('change', () => {
+    const onlySeasonal = chk.checked;
+    $$('.followup-card').forEach(card => {
+      const isSeasonal = card.classList.contains('seasonal') || card.dataset.type === 'seasonal';
+      card.style.display = (!onlySeasonal || isSeasonal) ? '' : 'none';
+    });
+  });
+}
+
+/* --------------- Seasonal Generator --------------- */
+function seasonDatesForYear(year) {
+  // Your chosen dates (Mar 1, Jun 1, Sep 1, Dec 1)
+  return [
+    { season: 'Spring',  month: 3,  day: 1 },
+    { season: 'Summer',  month: 6,  day: 1 },
+    { season: 'Fall',    month: 9,  day: 1 },
+    { season: 'Winter',  month: 12, day: 1 }
+  ].map(s => ({ ...s, date: new Date(Date.UTC(year, s.month - 1, s.day, 12, 0, 0)) }));
+}
+
+function hasSeasonalFU(clientId, season, year) {
+  return window.followUps.some(fu =>
+    fu.clientId === clientId &&
+    fu.type === 'seasonal' &&
+    String(fu.season) === String(season) &&
+    Number(fu.year) === Number(year)
+  );
+}
+
+function makeSeasonalFU({ clientId, season, date, year }) {
+  return {
+    id: uid(),
+    clientId,
+    title: `${season} Outreach`,
+    type: 'seasonal',
+    season,
+    year,
+    // IMPORTANT: your app uses "date" (YYYY-MM-DD), not "dueDate"
+    date: date.toISOString().slice(0, 10),
+    notes: '',
+    createdAt: new Date().toISOString(),
+    completed: false
+  };
+}
+
+function getTargetClientIds(mode = 'all') {
+  const allIds = window.clients.map(c => c.id);
+  if (mode === 'filtered') {
+    // your list of filtered clients is kept in lastClientFilterResult
+    const list = Array.isArray(window.lastClientFilterResult) ? window.lastClientFilterResult.map(c => c.id) : [];
+    return list.length ? list : allIds;
+  }
+  return allIds;
+}
+
+function createSeasonalForClients(clientIds, year) {
+  const dates = seasonDatesForYear(year);
+  const created = [];
+
+  clientIds.forEach(clientId => {
+    dates.forEach(({ season, date }) => {
+      if (!hasSeasonalFU(clientId, season, year)) {
+        const fu = makeSeasonalFU({ clientId, season, date, year });
+        window.followUps.push(fu);
+        created.push(fu);
+      }
+    });
+  });
+
+  // Persist & re-render using your app’s functions if present
+  if (typeof window.saveData === 'function') window.saveData();
+  if (typeof window.renderFollowUps === 'function') window.renderFollowUps();
+
+  return created;
+}
+
+/* --------------- Wire up UI --------------- */
+document.addEventListener('DOMContentLoaded', () => {
+  // Tag existing items if needed (safe: only sets missing type)
+  window.followUps.forEach(categorizeFollowUp);
+
+  // Initial decoration (in case board is already rendered)
+  requestAnimationFrame(decorateFollowUps);
+
+  // Focus dropdown + seasonal-only chip
+  bindFocusFilter();
+  bindSeasonalOnlyChip();
+
+  // Seasonal modal & buttons (you already have these elements)
+  const modal   = byId('seasonalModal');
+  const btnOpen = byId('btnSeasonalOpen');
+  const btnMake = byId('btnSeasonalCreate');
+  const yearInp = byId('seasonalYear');
+
+  if (yearInp) yearInp.value = new Date().getFullYear();
+
+  btnOpen?.addEventListener('click', () => {
+    if (typeof modal?.showModal === 'function') modal.showModal();
+    else modal?.setAttribute('open','');
+  });
+
+  btnMake?.addEventListener('click', (e) => {
+    e.preventDefault();
+    const year   = Number(yearInp?.value) || new Date().getFullYear();
+    const target = (new FormData(byId('seasonalForm')).get('target')) || 'all';
+    const ids    = getTargetClientIds(target);
+    const created = createSeasonalForClients(ids, year);
+
+    if (typeof modal?.close === 'function') modal.close();
+    else modal?.removeAttribute('open');
+
+    alert(
+      created.length
+        ? `✅ Created ${created.length} seasonal follow-ups for ${new Set(created.map(c=>c.clientId)).size} client(s) for ${year}.`
+        : `ℹ️ Everything up to date — no new seasonal follow-ups needed for ${year}.`
+    );
+  });
+});
+</script>
+
 </body>
 </html>
+
 
 
 
