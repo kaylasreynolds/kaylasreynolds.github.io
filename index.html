@@ -14,7 +14,7 @@
     --shadow:0 10px 30px rgba(0,0,0,.12);
   }
   *{box-sizing:border-box}html,body{height:100%}
-  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Ubuntu,system-ui,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);color:var(--text)}
+  body{margin:0;font-family:system-ui, -apple-system, "Segoe UI", Inter, Roboto, Ubuntu, sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);color:var(--text)}
   .container{max-width:1200px;margin:auto;padding:20px}
   header{background:var(--card);backdrop-filter:blur(10px);border-radius:20px;padding:24px;margin-bottom:20px;box-shadow:var(--shadow)}
   h1{margin:0 0 6px;background:linear-gradient(135deg,var(--grad1),var(--grad2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
@@ -47,7 +47,6 @@
   .btn.small{padding:6px 10px;font-size:.85rem}
   .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
   .tag{background:#eef;color:#333;padding:4px 10px;border-radius:999px;font-size:.75rem;font-weight:700}
-
   .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.45);z-index:10}
   .modal.active{display:flex}
   .panel{background:#fff;border-radius:16px;width:min(720px,92vw);max-height:90vh;overflow:auto;padding:20px}
@@ -58,50 +57,18 @@
   textarea{min-height:90px;resize:vertical}
   .row-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
   .empty-state{text-align:center;color:var(--muted2);padding:28px}
-
   .tasks-block{display:grid;gap:16px}
   .todo-controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
-  .todo-controls .left{display:flex;gap:8px;align-items:center}
-  .todo-controls .right{display:flex;gap:8px;align-items:center}
   .todo-list{display:grid;gap:10px}
   .todo-item{background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.06);padding:12px;border-left:4px solid #4c51bf;display:flex;flex-direction:column}
-  .todo-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
   .todo-title{font-weight:800}
   .todo-meta{font-size:.85rem;color:var(--muted)}
   .todo-clients{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
   .todo-client{background:#eef;border-radius:999px;padding:2px 8px;font-size:.8rem}
-  .todo-actions{margin-top:10px;display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}
-
-  .followup-sections{display:grid;grid-template-columns:repeat(4, minmax(0,1fr));gap:12px}
-  .followup-sections > div{min-width:0}
-  .followup-sections h3{margin-top:0;font-size:.95rem;color:var(--muted);font-weight:700}
-  .followup-card{background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.06);border-left:4px solid transparent;padding:12px;display:flex;flex-direction:column;min-height:140px}
-  .followup-card:hover{transform:translateY(-1px);transition:.2s;box-shadow:0 6px 16px rgba(0,0,0,.1);border-left-color:var(--grad1)}
-  .followup-top{display:flex;justify-content:space-between;gap:10px}
-  .followup-main{display:grid;gap:4px}
-  .followup-main .client-name{font-size:.95rem}
-  .followup-main .muted{font-size:.85rem}
-  .card-actions{margin-top:auto;display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}
-  .pill-911{background:#ffe2e2;color:#7a0613;border-left-color:#c53030}
-
-  /* Category color coding */
-  .followup-card[data-type="seasonal"]      { border-left: 5px solid #60a5fa; background:#f0f9ff; }
-  .followup-card[data-type="promotion"]     { border-left: 5px solid #facc15; background:#fefce8; }
-  .followup-card[data-type="post-appointment"] { border-left: 5px solid #34d399; background:#ecfdf5; }
-  .followup-card[data-type="relationship"]  { border-left: 5px solid #f472b6; background:#fdf2f8; }
-  .followup-card[data-type="past-due"]      { border-left: 5px solid #ef4444; background:#fef2f2; }
-  .followup-card[data-type="birthday"]      { border-left: 5px solid #a78bfa; background:#f5f3ff; }
-
-  /* Seasonal pastel */
-  .followup-card.seasonal { background: linear-gradient(180deg,#f7f6ff 0%,#f1f9ff 100%); border:1px solid #d9e7ff; }
-  .followup-card .badge-season { display:inline-block; font-size:12px; padding:2px 8px; border-radius:999px; color:#194785; background:#dbeafe; margin-left:6px; }
-
-  @media (max-width: 900px){
-    .container{padding:12px}
-    .followup-main .client-name{font-size:.9rem}
-    .followup-main .muted{font-size:.8rem}
-    .followup-sections{grid-template-columns:1fr}
-  }
+  .followup-sections{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+  .followup-card{background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.06);border-left:4px solid transparent;padding:12px}
+  .pill-911{background:#ffe2e2;color:#7a0613}
+  @media (max-width:900px){.container{padding:12px}}
 </style>
 </head>
 <body>
@@ -109,20 +76,21 @@
     <header>
       <h1>Client Management</h1>
       <div class="toolbar">
-        <button id="exportBtn" class="btn ghost">⬇️ Export Data</button>
-        <button id="importBtn" class="btn ghost">⬆️ Import Data</button>
+        <button id="exportBtn" class="btn ghost">⬇️ Export JSON</button>
+        <button id="importBtn" class="btn ghost">⬆️ Import JSON</button>
         <input id="importFile" type="file" accept="application/json" style="display:none">
+        <button id="importCsvBtn" class="btn ghost">⬆️ Import CSV</button>
+        <input id="importCsvFile" type="file" accept=".csv,text/csv" style="display:none">
         <button id="clearBtn" class="btn danger">🗑️ Clear Data</button>
       </div>
     </header>
 
-    <!-- Tabs -->
-    <div class="tabs" role="tablist" aria-label="Main sections">
-      <button class="tab active" role="tab" aria-selected="true" data-tab="dashboard">📊 Dashboard</button>
-      <button class="tab" role="tab" aria-selected="false" data-tab="clients">👥 Clients</button>
-      <button class="tab" role="tab" aria-selected="false" data-tab="interactions">💬 Interactions</button>
-      <button class="tab" role="tab" aria-selected="false" data-tab="sales">💰 Sales</button>
-      <button class="tab" role="tab" aria-selected="false" data-tab="tasks">📅 Tasks</button>
+    <div class="tabs" role="tablist">
+      <button class="tab active" data-tab="dashboard">📊 Dashboard</button>
+      <button class="tab" data-tab="clients">👥 Clients</button>
+      <button class="tab" data-tab="interactions">💬 Interactions</button>
+      <button class="tab" data-tab="sales">💰 Sales</button>
+      <button class="tab" data-tab="tasks">📅 Tasks</button>
     </div>
 
     <!-- Dashboard -->
@@ -132,30 +100,6 @@
         <div class="card"><div class="stat-number" id="totalInteractions">0</div><div class="muted">Total Interactions</div></div>
         <div class="card"><div class="stat-number" id="activeThisMonth">0</div><div class="muted">Active This Month</div></div>
         <div class="card"><div class="stat-number" id="totalSales">$0.00</div><div class="muted">Total Sales</div></div>
-      </div>
-
-      <div class="card" style="margin-top:20px">
-        <h2 style="margin:0 0 12px">Recent Activity</h2>
-        <div class="activity-columns" style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-          <div class="activity-col">
-            <h3 class="col-title" style="margin:0 0 8px;font-size:1rem;color:var(--muted);font-weight:700">Interactions</h3>
-            <div class="activity-list" id="interactionActivityList">
-              <div class="empty-state">
-                <div style="font-size:42px;opacity:.6">💬</div>
-                <p>No interactions yet</p>
-              </div>
-            </div>
-          </div>
-          <div class="activity-col">
-            <h3 class="col-title" style="margin:0 0 8px;font-size:1rem;color:var(--muted);font-weight:700">Sales</h3>
-            <div class="activity-list" id="salesActivityList">
-              <div class="empty-state">
-                <div style="font-size:42px;opacity:.6">💰</div>
-                <p>No sales yet</p>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -179,28 +123,30 @@
               <option value="lastInteraction_asc">Sort: Last Interaction (Oldest→Newest)</option>
               <option value="lastName_asc">Sort: Last Name (A→Z)</option>
               <option value="lastName_desc">Sort: Last Name (Z→A)</option>
-              <option value="style_asc">Sort: Style (A→Z)</option>
-              <option value="style_desc">Sort: Style (Z→A)</option>
-              <option value="spent_desc">Sort: Amount Spent (High→Low)</option>
-              <option value="spent_asc">Sort: Amount Spent (Low→High)</option>
             </select>
           </div>
         </div>
 
         <!-- Filters -->
         <div class="filters">
-          <div class="filters-row">
-            <div class="filters-title">Filter by Style:</div>
+          <div class="row" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <strong class="muted">Style:</strong>
             <label class="chk"><input type="checkbox" class="style-filter" value="Bohemian"> Bohemian</label>
             <label class="chk"><input type="checkbox" class="style-filter" value="Classic"> Classic</label>
             <label class="chk"><input type="checkbox" class="style-filter" value="Edgy"> Edgy</label>
             <label class="chk"><input type="checkbox" class="style-filter" value="Casual"> Casual</label>
             <label class="chk"><input type="checkbox" class="style-filter" value="Vintage"> Vintage</label>
             <label class="chk"><input type="checkbox" class="style-filter" value="Trendy"> Trendy</label>
+            <select id="styleMatch" title="Match mode">
+              <option value="any">Match any selected</option>
+              <option value="all">Match all selected</option>
+            </select>
+            <button class="btn ghost" id="clearFiltersBtn" type="button">Clear</button>
           </div>
 
-          <div class="filters-row">
-            <div class="filters-title">Last Interaction:</div>
+          <!-- Last Interaction -->
+          <div class="row" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:6px">
+            <strong class="muted">Last Interaction:</strong>
             <select id="lastInteractionFilter" title="Last Interaction Filter">
               <option value="any">Any time</option>
               <option value="never">Never</option>
@@ -218,14 +164,6 @@
             <input type="date" id="lastInteractionStart" style="display:none" aria-label="Start date">
             <input type="date" id="lastInteractionEnd"   style="display:none" aria-label="End date">
             <button id="resetLastInteraction" class="btn small ghost" type="button">Reset</button>
-          </div>
-
-          <div class="filters-controls">
-            <select id="styleMatch">
-              <option value="any">Match any selected</option>
-              <option value="all">Match all selected</option>
-            </select>
-            <button class="btn ghost" id="clearFiltersBtn" type="button">Clear Filters</button>
           </div>
         </div>
 
@@ -270,20 +208,16 @@
       <div class="card tasks-block">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
           <h2 style="margin:0">Tasks</h2>
-          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-            <button id="openTodoBtn" class="btn primary">📝 New To‑Do</button>
-            <button id="btnSeasonalOpen" class="btn ghost" title="Bulk create seasonal follow-ups">🌤️ Seasonal Follow‑Ups</button>
-          </div>
+          <button id="openTodoBtn" class="btn primary">📝 New To‑Do</button>
         </div>
 
-        <!-- To‑Do block -->
         <div>
           <div class="todo-controls">
             <div class="left">
               <strong>To‑Do</strong>
               <span class="muted" id="todoCount">0 items</span>
             </div>
-            <div class="right">
+            <div class="right" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
               <label class="muted" style="font-weight:700">Filter</label>
               <select id="todoFilterStatus" title="Status Filter">
                 <option value="all">All</option><option value="open">Open</option><option value="done">Done</option>
@@ -307,17 +241,6 @@
             <div class="empty-state"><div style="font-size:42px;opacity:.6">📝</div><p>No to‑dos yet</p></div>
           </div>
         </div>
-
-        <!-- Follow‑Up columns -->
-        <div>
-          <h3 style="margin:8px 0 8px">Follow‑Ups</h3>
-          <div class="followup-sections">
-            <div><h3>Past Due</h3><div id="followupPastDue" class="list"></div></div>
-            <div><h3>Upcoming</h3><div id="followupUpcoming" class="list"></div></div>
-            <div><h3>Future</h3><div id="followupFuture" class="list"></div></div>
-            <div><h3>🚨 911</h3><div id="followup911" class="list"></div></div>
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -337,19 +260,6 @@
         </div>
         <div class="row-cols">
           <div>
-            <label>Birthday</label>
-            <div class="row-cols" style="grid-template-columns:1fr 1fr">
-              <select id="clientBdayMonth"><option value="">Month</option><option value="1">January</option><option value="2">February</option><option value="3">March</option><option value="4">April</option><option value="5">May</option><option value="6">June</option><option value="7">July</option><option value="8">August</option><option value="9">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option></select>
-              <select id="clientBdayDay"><option value="">Day</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option><option>13</option><option>14</option><option>15</option><option>16</option><option>17</option><option>18</option><option>19</option><option>20</option><option>21</option><option>22</option><option>23</option><option>24</option><option>25</option><option>26</option><option>27</option><option>28</option><option>29</option><option>30</option><option>31</option></select>
-            </div>
-          </div>
-          <div>
-            <label>Favorite Brands (comma‑separated)</label>
-            <input type="text" id="clientBrands" placeholder="e.g., Zara, Nike, Aritzia">
-          </div>
-        </div>
-        <div class="row-cols">
-          <div>
             <label>Style Vibe (choose one or more)</label>
             <select id="clientStyles" multiple size="6">
               <option>Bohemian</option><option>Classic</option><option>Edgy</option>
@@ -357,42 +267,16 @@
             </select>
           </div>
           <div>
-            <label>Liked Colors (comma‑separated)</label>
-            <input type="text" id="clientColorsLiked" placeholder="e.g., Olive, Tan, Navy">
-            <label style="margin-top:10px">Disliked Colors (comma‑separated)</label>
-            <input type="text" id="clientColorsDisliked" placeholder="e.g., Neon, Yellow">
+            <label>Initial Sales Amount</label>
+            <input type="number" id="clientInitialSales" min="0" step="0.01" placeholder="0.00">
           </div>
         </div>
-        <div>
-          <label>Current Sizing</label>
-          <div class="row-cols">
-            <div><input type="text" id="clientSizeTop" placeholder="Top (e.g., S / 4 / 34)"></div>
-            <div><input type="text" id="clientSizeBottom" placeholder="Bottom (e.g., 27 / 6)"></div>
-            <div><input type="text" id="clientSizeDress" placeholder="Dress (e.g., 6 / M)"></div>
-            <div><input type="text" id="clientSizeShoe" placeholder="Shoe (e.g., 8.5)"></div>
-          </div>
-        </div>
-        <div class="row-cols">
-          <div><label>Status</label><select id="clientStatus"><option>Introductory</option><option>First Appointment</option><option>Established</option></select></div>
-          <div><label>Initial Sales Amount</label><input type="number" id="clientInitialSales" min="0" step="0.01" placeholder="0.00"></div>
-        </div>
-        <div><label>Notes</label><textarea id="clientNotes" placeholder="Add any notes about this client..."></textarea></div>
+        <div><label>Notes</label><textarea id="clientNotes" placeholder="Add any notes..."></textarea></div>
         <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
           <button type="button" class="btn ghost" data-close-modal>Cancel</button>
           <button type="submit" class="btn primary">Save Client</button>
         </div>
       </form>
-    </div>
-  </div>
-
-  <!-- Client Recap Modal -->
-  <div id="clientViewModal" class="modal">
-    <div class="panel" id="clientViewPanel">
-      <header><h3 style="margin:0">Client Recap</h3><button class="x" data-close-modal>×</button></header>
-      <div id="clientViewBody"></div>
-      <div style="display:flex;justify-content:flex-end;margin-top:12px">
-        <button class="btn primary" data-close-modal>Close</button>
-      </div>
     </div>
   </div>
 
@@ -415,7 +299,7 @@
           <div><label>Date *</label><input type="date" id="interactionDate" required></div>
         </div>
         <div><label>Notes</label><textarea id="interactionNotes" placeholder="Describe the interaction..."></textarea></div>
-        <div class="card-actions" style="justify-content:flex-end">
+        <div style="display:flex;gap:8px;justify-content:flex-end">
           <button type="button" class="btn ghost" data-close-modal>Cancel</button>
           <button type="submit" class="btn primary">Save Interaction</button>
         </div>
@@ -437,7 +321,7 @@
           <div><label>Date *</label><input type="date" id="saleDate" required></div>
         </div>
         <div><label>Description</label><input type="text" id="saleDescription" placeholder="What was sold?"></div>
-        <div class="card-actions" style="justify-content:flex-end">
+        <div style="display:flex;gap:8px;justify-content:flex-end">
           <button type="button" class="btn ghost" data-close-modal>Cancel</button>
           <button type="submit" class="btn primary">Save Sale</button>
         </div>
@@ -450,18 +334,21 @@
     <div class="panel">
       <header><h3 id="todoModalTitle" style="margin:0">New To‑Do</h3><button class="x" data-close-modal>×</button></header>
       <form id="todoForm">
-        <input type="hidden" id="todoEditingId" />
-        <div><label>Title *</label><input id="todoTitle" required placeholder="e.g., Send lookbook / Order samples"></div>
+        <input type="hidden" id="todoEditingId">
+        <div><label>Title *</label><input id="todoTitle" required placeholder="e.g., Send lookbook"></div>
         <div class="row-cols">
           <div><label>Due Date *</label><input type="date" id="todoDate" required></div>
-          <div><label>Status</label><select id="todoStatus"><option value="open">Open</option><option value="done">Done</option></select></div>
+          <div>
+            <label>Status</label>
+            <select id="todoStatus"><option value="open">Open</option><option value="done">Done</option></select>
+          </div>
         </div>
 
-        <!-- Quick Select by Last Interaction -->
+        <!-- Quick select by last interaction -->
         <div class="row-cols">
           <div>
             <label>Quick Select by Last Interaction</label>
-            <div class="filters-row">
+            <div class="filters-row" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
               <select id="todoLastIntFilter" title="Quick Select">
                 <option value="none">Choose…</option>
                 <option value="never">Never</option>
@@ -480,19 +367,17 @@
               <input type="date" id="todoLastIntEnd"   style="display:none" aria-label="End date">
               <button id="todoSelectByLastInt" type="button" class="btn ghost">Select Clients</button>
             </div>
-            <div class="muted" style="font-size:.85rem;margin-top:6px">Tip: pick clients by “last contacted” without leaving Tasks.</div>
+            <div class="muted" style="font-size:.85rem;margin-top:6px">Tip: pick clients by “last contacted” right here.</div>
           </div>
         </div>
 
         <div>
-          <label>Clients (multi-select)</label>
+          <label>Clients (multi‑select)</label>
           <select id="todoClients" multiple size="8"></select>
-          <div class="muted" style="font-size:.85rem;margin-top:6px">
-  Selecting multiple clients will create separate tasks for each client.
-</div>
-
+          <div class="muted" style="font-size:.85rem;margin-top:6px">Selecting multiple clients will create separate tasks for each client.</div>
+        </div>
         <div><label>Notes</label><textarea id="todoNotes" placeholder="Details for this task..."></textarea></div>
-        <div class="card-actions" style="justify-content:flex-end">
+        <div style="display:flex;gap:8px;justify-content:flex-end">
           <button type="button" class="btn ghost" data-close-modal>Cancel</button>
           <button type="submit" class="btn primary">Save To‑Do</button>
         </div>
@@ -500,76 +385,46 @@
     </div>
   </div>
 
-  <!-- Follow‑Up Modal -->
-  <div id="followupModal" class="modal">
-    <div class="panel">
-      <header><h3 style="margin:0">Add Follow‑Up</h3><button class="x" data-close-modal>×</button></header>
-      <form id="followupForm">
-        <div><label>Client *</label><select id="followupClient" required><option value="">Select client...</option></select></div>
-        <div class="row-cols"><div><label>Due Date *</label><input type="date" id="followupDate" required></div></div>
-        <div><label>Notes</label><textarea id="followupNotes" placeholder="Follow up details..."></textarea></div>
-        <div class="card-actions" style="justify-content:flex-end">
-          <button type="button" class="btn ghost" data-close-modal>Cancel</button>
-          <button type="submit" class="btn primary">Save Follow‑Up</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Seasonal Follow‑Ups Modal -->
-  <dialog id="seasonalModal">
-    <form method="dialog" id="seasonalForm" class="seasonal-form">
-      <h3>Bulk-create Seasonal Follow-Ups</h3>
-      <div class="row"><label>Year <input type="number" id="seasonalYear" min="2000" max="2100" required /></label></div>
-      <fieldset class="row">
-        <legend>Target</legend>
-        <label><input type="radio" name="target" value="all" checked /> All clients</label>
-        <label><input type="radio" name="target" value="filtered" /> Filtered clients</label>
-      </fieldset>
-      <menu class="actions">
-        <button value="cancel" class="btn btn-ghost">Cancel</button>
-        <button id="btnSeasonalCreate" value="default" class="btn btn-primary">Create</button>
-      </menu>
-    </form>
-  </dialog>
-
 <script>
-/* ===========================
-   UTILITIES & CONSTANTS
-   =========================== */
+/* =========================
+   Utilities & Globals
+========================= */
+const fmtUSD = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
 const $  = (s, r=document) => r.querySelector(s);
 const $$ = (s, r=document) => [...r.querySelectorAll(s)];
-const fmtUSD = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
-const escapeHTML = (str) => String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+const escapeHTML = (str) => String(str ?? '')
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
 
 const VALID_STATUSES = ["Introductory","First Appointment","Established"];
 const statusSlug = s => String(s||"").toLowerCase().replace(/\s+/g,'-');
-const mapOldStatus = s => ({ "Prospect":"Introductory","Active":"Established","Inactive":"Introductory" }[s] || (VALID_STATUSES.includes(s)? s : "Introductory"));
+
 const ALLOWED_STYLES = ["Bohemian","Classic","Edgy","Casual","Vintage","Trendy"];
 const getSelectedValues = (sel) => [...sel.options].filter(o=>o.selected).map(o=>o.value);
 const normalizeStyles = (v) => Array.isArray(v) ? v.filter(x=>ALLOWED_STYLES.includes(x))
-  : (typeof v==='string' && v.trim()? v.split(',').map(s=>s.trim()).filter(x=>ALLOWED_STYLES.includes(x)) : []);
-const parseCSV = (str) => String(str || '').split(',').map(s => s.trim()).filter(Boolean);
-const joinCSV  = (arr) => (Array.isArray(arr) ? arr.join(', ') : '');
+  : (typeof v==='string' && v.trim()
+     ? v.split(/[;,]/).map(s=>s.trim()).filter(x=>ALLOWED_STYLES.includes(x))
+     : []);
+const parseCSV = (str) => String(str || '')
+  .split(/[;,]/).map(s => s.trim()).filter(Boolean);
 
-const fullNameOf = (c)=>`${c?.firstName??''} ${c?.lastName??''}`.trim();
-const lastNameKey = (c)=>(c.lastName||'').toLowerCase();
-
-/* ===========================
-   STATE
-   =========================== */
+/* =========================
+   Data
+========================= */
 let clients = [];
-let interactions = [];   // {id, clientId, type, date, notes, createdAt}
-let sales = [];          // {id, clientId, amount, date, description, createdAt, interactionId?}
-let followUps = [];      // {id, clientId, date, notes, createdAt, completed, completedAt, type}
-let todos = [];          // {id,title,date,clientIds[],notes,status,createdAt,completedAt?}
+let interactions = [];
+let sales = [];
+let followUps = [];
+let todos = [];
 
-let editingClientId = null, editingInteractionId = null, editingSaleId = null;
+let editingClientId = null;
+let editingInteractionId = null;
+let editingSaleId = null;
 let lastClientFilterResult = [];
 
-/* ===========================
-   STORAGE
-   =========================== */
+/* =========================
+   Storage
+========================= */
 function saveData(){
   localStorage.setItem('crm_clients', JSON.stringify(clients));
   localStorage.setItem('crm_interactions', JSON.stringify(interactions));
@@ -586,21 +441,24 @@ function loadData(){
     todos = JSON.parse(localStorage.getItem('crm_todos') || '[]');
 
     let migrated = false;
-        // ... existing client/interactions/sales/followUps/todos normalization ...
 
-    // 🔧 MIGRATION: split any existing To‑Dos that have multiple clients
+    // normalize dates
+    interactions.forEach(i=>{ if(i.date && i.date.length>10){ i.date=i.date.slice(0,10); migrated=true; }});
+    followUps.forEach(f=>{ if(f.completed===undefined){ f.completed=false; migrated=true; }});
+    todos.forEach(t=>{ if(!t.status){ t.status='open'; migrated=true; }});
+
+    // 🔧 MIGRATION: Split any existing To‑Dos that have multiple clients into one per client
     if (Array.isArray(todos) && todos.length){
       const split = [];
       let changed = false;
       for (const t of todos){
         const ids = Array.isArray(t.clientIds) ? t.clientIds.filter(Boolean) : [];
         if (ids.length > 1){
-          ids.forEach((cid, idx) => {
+          ids.forEach((cid) => {
             split.push({
               ...t,
-              id: (t.id || Date.now().toString()) + '-' + cid, // ensure unique
-              clientIds: [cid],
-              // keep createdAt; keep completedAt/status etc
+              id: (t.id || Date.now().toString()) + '-' + cid,
+              clientIds: [cid]
             });
           });
           changed = true;
@@ -608,30 +466,26 @@ function loadData(){
           split.push(t);
         }
       }
-      if (changed){
-        todos = split;
-        migrated = true;
-      }
+      if (changed){ todos = split; migrated = true; }
     }
 
     if (migrated) saveData();
   }catch(e){
-    console.warn('load error',e);
-    clients=[]; interactions=[]; sales=[]; followUps=[]; todos=[];
+    console.warn('load error',e); clients=[]; interactions=[]; sales=[]; followUps=[]; todos=[];
   }
 }
 
-/* ===========================
-   STARTUP
-   =========================== */
+/* =========================
+   Startup
+========================= */
 document.addEventListener('DOMContentLoaded', ()=>{
   loadData();
   renderAll();
 
   const today = new Date().toISOString().slice(0,10);
-  ['interactionDate','saleDate','followupDate','todoDate'].forEach(id=>{ const el=$( '#'+id ); if(el) el.value=today; });
+  ['interactionDate','saleDate','todoDate'].forEach(id=>{ const el=$('#'+id); if(el) el.value=today; });
 
-  // global modal close
+  // close modals
   document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeAllModals(); });
   document.addEventListener('click', e=>{
     const m = e.target.closest('.modal');
@@ -640,7 +494,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
   document.addEventListener('click', (e)=>{
     const btn = e.target.closest('[data-close-modal]'); if(!btn) return;
     const m = btn.closest('.modal'); if (m){ m.classList.remove('active'); m.querySelector('form')?.reset(); }
-    editingInteractionId=editingSaleId=null;
   });
 
   // header
@@ -650,6 +503,13 @@ document.addEventListener('DOMContentLoaded', ()=>{
     importBtn.addEventListener('click',()=>importFile.click());
     importFile.addEventListener('change',e=>{ const f=e.target.files[0]; if(f) importData(f); importFile.value=''; });
   }
+  // CSV import
+  const importCsvBtn=$('#importCsvBtn'), importCsvFile=$('#importCsvFile');
+  if(importCsvBtn && importCsvFile){
+    importCsvBtn.addEventListener('click',()=>importCsvFile.click());
+    importCsvFile.addEventListener('change',e=>{ const f=e.target.files[0]; if(f) importClientsFromCsvFile(f); importCsvFile.value=''; });
+  }
+
   $('#clearBtn')?.addEventListener('click', ()=>{
     if(confirm('Clear ALL data? This cannot be undone.')){
       clients=[]; interactions=[]; sales=[]; followUps=[]; todos=[];
@@ -663,24 +523,30 @@ document.addEventListener('DOMContentLoaded', ()=>{
   // clients page
   $$('.style-filter').forEach(cb=>cb.addEventListener('change', applyFiltersAndSort));
   $('#styleMatch')?.addEventListener('change', applyFiltersAndSort);
-  $('#clearFiltersBtn')?.addEventListener('click', ()=>{ $$('.style-filter').forEach(cb=>cb.checked=false); $('#styleMatch').value='any'; $('#clientSearch').value=''; resetLastInteractionUI(); applyFiltersAndSort(); });
+  $('#clearFiltersBtn')?.addEventListener('click', ()=>{ $$('.style-filter').forEach(cb=>cb.checked=false); $('#styleMatch').value='any'; applyFiltersAndSort(); });
   $('#clientSearch')?.addEventListener('input', applyFiltersAndSort);
   $('#clientSort')?.addEventListener('change', applyFiltersAndSort);
-  $('#openClientBtn')?.addEventListener('click', ()=>openClientModal());
-  $('#createTodoFromClientsBtn')?.addEventListener('click', ()=>openTodoModal(lastClientFilterResult.map(c=>c.id)));
 
-  // last interaction UI wiring
+  // last interaction filter
   $('#lastInteractionFilter')?.addEventListener('change', ()=>{
     const v = $('#lastInteractionFilter').value;
-    $('#lastInteractionStart').style.display = (v==='before' || v==='after' || v==='between') ? '' : 'none';
+    $('#lastInteractionStart').style.display = (v==='before'||v==='after'||v==='between') ? '' : 'none';
     $('#lastInteractionEnd').style.display   = (v==='between') ? '' : 'none';
     applyFiltersAndSort();
   });
   $('#lastInteractionStart')?.addEventListener('change', applyFiltersAndSort);
   $('#lastInteractionEnd')?.addEventListener('change', applyFiltersAndSort);
-  $('#resetLastInteraction')?.addEventListener('click', ()=>{ resetLastInteractionUI(); applyFiltersAndSort(); });
+  $('#resetLastInteraction')?.addEventListener('click', ()=>{
+    $('#lastInteractionFilter').value='any';
+    $('#lastInteractionStart').value='';
+    $('#lastInteractionEnd').value='';
+    $('#lastInteractionStart').style.display='none';
+    $('#lastInteractionEnd').style.display='none';
+    applyFiltersAndSort();
+  });
 
-  // clients list delegation
+  $('#openClientBtn')?.addEventListener('click', ()=>openClientModal());
+  $('#createTodoFromClientsBtn')?.addEventListener('click', ()=>openTodoModal(lastClientFilterResult.map(c=>c.id)));
   $('#clientList')?.addEventListener('click', e=>{
     const btn = e.target.closest('button[data-action]'); if(!btn) return;
     const id = btn.getAttribute('data-id'); const action=btn.getAttribute('data-action');
@@ -689,7 +555,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     if (action==='delete') deleteClient(id);
   });
 
-  // interactions page
+  // interactions
   $('#openInteractionBtn')?.addEventListener('click', ()=>openInteractionModal());
   $('#interactionSearch')?.addEventListener('input', searchInteractions);
   $('#interactionList')?.addEventListener('click', e=>{
@@ -699,7 +565,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     if (edit) return openInteractionModal(edit.dataset.id);
   });
 
-  // sales page
+  // sales
   $('#openSaleBtn')?.addEventListener('click', ()=>openSaleModal());
   $('#salesList')?.addEventListener('click', e=>{
     const edit=e.target.closest('[data-action="edit-sale"]');
@@ -708,20 +574,19 @@ document.addEventListener('DOMContentLoaded', ()=>{
     if (del) return deleteSale(del.dataset.id);
   });
 
-  // tasks page
+  // tasks
   $('#openTodoBtn')?.addEventListener('click', ()=>openTodoModal());
   $('#todoSort')?.addEventListener('change', renderTodos);
   $('#todoFilterStatus')?.addEventListener('change', renderTodos);
   $('#todoFilterDue')?.addEventListener('change', renderTodos);
   $('#todoFilterClient')?.addEventListener('change', renderTodos);
 
-  // To‑Do modal: quick select by last interaction
+  // quick select by last interaction in To‑Do modal
   $('#todoLastIntFilter')?.addEventListener('change', ()=>{
     const v = $('#todoLastIntFilter').value;
-    $('#todoLastIntStart').style.display = (v==='before' || v==='after' || v==='between') ? '' : 'none';
-    $('#todoLastIntEnd').style.display   = (v==='between') ? '' : 'none';
+    $('#todoLastIntStart').style.display = (v==='before'||v==='after'||v==='between')?'':'none';
+    $('#todoLastIntEnd').style.display   = (v==='between')?'':'none';
   });
-
   $('#todoSelectByLastInt')?.addEventListener('click', ()=>{
     const v  = $('#todoLastIntFilter').value;
     if (v==='none') return;
@@ -731,64 +596,34 @@ document.addEventListener('DOMContentLoaded', ()=>{
     const sel = $('#todoClients'); if (!sel) return;
     [...sel.options].forEach(o => { o.selected = matchIds.includes(o.value); });
   });
-
-  // seasonal modal wiring
-  const seasonalModal   = $('#seasonalModal');
-  const btnSeasonalOpen = $('#btnSeasonalOpen');
-  const btnSeasonalMake = $('#btnSeasonalCreate');
-  const yearInp         = $('#seasonalYear');
-  if (yearInp) yearInp.value = new Date().getFullYear();
-  btnSeasonalOpen?.addEventListener('click', ()=> seasonalModal.showModal());
-  btnSeasonalMake?.addEventListener('click', (e)=>{
-    e.preventDefault();
-    const year = Number(yearInp?.value) || new Date().getFullYear();
-    const target = (new FormData($('#seasonalForm'))).get('target') || 'all';
-    const ids = getTargetClientIds(target);
-    const created = createSeasonalForClients(ids, year);
-    seasonalModal.close();
-    alert(created.length
-      ? `✅ Created ${created.length} seasonal follow-ups for ${new Set(created.map(c=>c.clientId)).size} client(s) for ${year}.`
-      : `ℹ️ Everything up to date — no new seasonal follow-ups needed for ${year}.`);
-  });
-
 });
 
-/* ===========================
-   RENDER HUB
-   =========================== */
-function renderAll(){ renderClients(); renderInteractions(); renderSalesView(); renderTodos(); renderFollowUps(); updateDashboard(); }
+function renderAll(){ renderClients(); renderInteractions(); renderSalesView(); renderTodos(); updateDashboard(); }
 function closeAllModals(){ $$('.modal.active').forEach(m=>m.classList.remove('active')); }
-
-/* ===========================
-   TABS
-   =========================== */
 function switchTab(tab){
-  $$('.tab-content').forEach(c=>c.style.display = (c.id===tab?'block':'none'));
+  $$('.tab-content').forEach(c=>c.style.display=(c.id===tab?'block':'none'));
   $$('.tab').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
   if(tab==='dashboard') updateDashboard();
   if(tab==='sales') renderSalesView();
-  if(tab==='tasks'){ renderTodos(); renderFollowUps(); }
+  if(tab==='tasks'){ renderTodos(); }
 }
 
-/* ===========================
-   LAST INTERACTION HELPERS
-   =========================== */
-function resetLastInteractionUI(){
-  const f = $('#lastInteractionFilter'); if (!f) return;
-  f.value='any';
-  $('#lastInteractionStart').value=''; $('#lastInteractionEnd').value='';
-  $('#lastInteractionStart').style.display='none'; $('#lastInteractionEnd').style.display='none';
-}
+/* =========================
+   Helpers
+========================= */
+const fullNameOf = (c)=>`${c.firstName??''} ${c.lastName??''}`.trim();
+function getActiveStyleFilters(){ return [...document.querySelectorAll('.style-filter:checked')].map(c=>c.value); }
 function lastInteractionDate(clientId){
   const ds = interactions.filter(i=>i.clientId===clientId).map(i=>new Date(i.date));
   return ds.length? new Date(Math.max(...ds)) : null;
 }
 function daysBetween(a, b) {
   const MS = 24*60*60*1000;
-  return Math.floor((Date.UTC(b.getFullYear(),b.getMonth(),b.getDate()) - Date.UTC(a.getFullYear(),a.getMonth(),a.getDate())) / MS);
+  return Math.floor((Date.UTC(b.getFullYear(),b.getMonth(),b.getDate()) -
+                     Date.UTC(a.getFullYear(),a.getMonth(),a.getDate())) / MS);
 }
 function matchesLastInteractionRule(clientId, mode, startStr, endStr){
-  const li = lastInteractionDate(clientId); // Date|null
+  const li = lastInteractionDate(clientId);
   const today = new Date();
   const olderThan = (n) => (li ? daysBetween(li, today) > n : false);
   switch(mode){
@@ -801,62 +636,90 @@ function matchesLastInteractionRule(clientId, mode, startStr, endStr){
     case 'gt90':    return olderThan(90);
     case 'gt180':   return olderThan(180);
     case 'gt365':   return olderThan(365);
-    case 'before':  { if(!startStr) return true; const d = new Date(startStr); return li ? li < d : false; }
-    case 'after':   { if(!startStr) return true; const d = new Date(startStr); return li ? li > d : false; }
-    case 'between': { if(!startStr || !endStr) return true; const s = new Date(startStr), e = new Date(endStr); return li ? (li >= s && li <= e) : false; }
+    case 'before':  return (startStr && li) ? (li < new Date(startStr)) : true;
+    case 'after':   return (startStr && li) ? (li > new Date(startStr)) : true;
+    case 'between': return (startStr && endStr && li) ? (li >= new Date(startStr) && li <= new Date(endStr)) : true;
     default: return true;
   }
 }
 
-/* ===========================
-   CLIENTS
-   =========================== */
-function getActiveStyleFilters(){ return [...document.querySelectorAll('.style-filter:checked')].map(c=>c.value); }
-
+/* =========================
+   Clients
+========================= */
+function openClientModal(id=null){
+  editingClientId = id;
+  const m=$('#clientModal'); const form=$('#clientForm');
+  if (id){
+    const c=clients.find(x=>x.id===id);
+    $('#clientModalTitle').textContent='Edit Client';
+    $('#clientFirstName').value=c.firstName||''; $('#clientLastName').value=c.lastName||'';
+    $('#clientEmail').value=c.email||''; $('#clientPhone').value=c.phone||'';
+    [...$('#clientStyles').options].forEach(o=>o.selected=(c.styles||[]).includes(o.value));
+    $('#clientInitialSales').value=c.initialSales??'';
+    $('#clientNotes').value=c.notes||'';
+  } else {
+    $('#clientModalTitle').textContent='Add New Client'; form.reset();
+    [...$('#clientStyles').options].forEach(o=>o.selected=false);
+  }
+  m.classList.add('active');
+}
+$('#clientForm')?.addEventListener('submit', e=>{
+  e.preventDefault();
+  const firstName=$('#clientFirstName').value.trim(), lastName=$('#clientLastName').value.trim();
+  if(!firstName||!lastName) return alert('First and last names are required.');
+  const data={
+    firstName,lastName,
+    email:$('#clientEmail').value.trim(), phone:$('#clientPhone').value.trim(),
+    styles: normalizeStyles(getSelectedValues($('#clientStyles'))),
+    initialSales: parseFloat($('#clientInitialSales').value)||0,
+    notes: $('#clientNotes').value.trim(),
+    createdAt: new Date().toISOString()
+  };
+  if (editingClientId){
+    const i=clients.findIndex(c=>c.id===editingClientId);
+    clients[i] = { ...clients[i], ...data, createdAt: clients[i].createdAt||data.createdAt };
+  } else { data.id=Date.now().toString(); clients.push(data); }
+  saveData(); $('#clientModal').classList.remove('active'); renderClients(); updateDashboard(); populateTodoClientFilter();
+});
+function deleteClient(id){
+  if(!confirm('Delete this client and related items?')) return;
+  clients=clients.filter(c=>c.id!==id);
+  interactions=interactions.filter(i=>i.clientId!==id);
+  sales=sales.filter(s=>s.clientId!==id);
+  followUps=followUps.filter(f=>f.clientId!==id);
+  todos=todos.filter(t=>!t.clientIds.includes(id));
+  saveData(); renderAll(); populateTodoClientFilter();
+}
 function totalSpentFor(clientId){
   const c=clients.find(x=>x.id===clientId);
   const extra=sales.filter(s=>s.clientId===clientId).reduce((sum,s)=>sum+(Number(s.amount)||0),0);
   return (Number(c?.initialSales)||0)+extra;
 }
-
 function sortClients(arr, mode){
-  const bySpent=(a,b)=>totalSpentFor(a.id)-totalSpentFor(b.id);
-  const byLast=(a,b)=> lastNameKey(a).localeCompare(lastNameKey(b));
-  const byStyle=(a,b)=>{ const sa=(a.styles?.length?[...a.styles].sort()[0]:''); const sb=(b.styles?.length?[...b.styles].sort()[0]:''); return sa.toLowerCase().localeCompare(sb.toLowerCase()); };
+  const byLast=(a,b)=>(a.lastName||'').localeCompare(b.lastName||'');
   const byCreatedDesc=(a,b)=>new Date(b.createdAt)-new Date(a.createdAt);
   switch(mode){
     case 'lastInteraction_desc': return arr.sort((a,b)=>{const da=lastInteractionDate(a.id),db=lastInteractionDate(b.id); if(da&&db) return db-da; if(da&&!db) return -1; if(!da&&db) return 1; return byLast(a,b);});
     case 'lastInteraction_asc':  return arr.sort((a,b)=>{const da=lastInteractionDate(a.id),db=lastInteractionDate(b.id); if(da&&db) return da-db; if(da&&!db) return -1; if(!da&&db) return 1; return byLast(a,b);});
-    case 'lastName_asc': return arr.sort((a,b)=>byLast(a,b));
+    case 'lastName_asc': return arr.sort(byLast);
     case 'lastName_desc':return arr.sort((a,b)=>byLast(b,a));
-    case 'style_asc':    return arr.sort((a,b)=>byStyle(a,b)||byLast(a,b));
-    case 'style_desc':   return arr.sort((a,b)=>byStyle(b,a)||byLast(a,b));
-    case 'spent_asc':    return arr.sort((a,b)=>bySpent(a,b)||byLast(a,b));
-    case 'spent_desc':   return arr.sort((a,b)=>bySpent(b,a)||byLast(a,b));
     case 'createdAt_desc':
     default:             return arr.sort(byCreatedDesc);
   }
 }
-
 function applyFiltersAndSort(){
   const term = ($('#clientSearch').value||'').toLowerCase();
   const selected = getActiveStyleFilters();
   const mode = $('#styleMatch')?.value||'any';
-
-  // Last interaction controls
   const liMode  = $('#lastInteractionFilter')?.value || 'any';
   const liStart = $('#lastInteractionStart')?.value || '';
   const liEnd   = $('#lastInteractionEnd')?.value || '';
 
   let list = clients.filter(c=>{
-    const matchesTerm =
-      fullNameOf(c).toLowerCase().includes(term) ||
-      (c.email && c.email.toLowerCase().includes(term)) ||
-      (c.phone && c.phone.includes(term)) ||
-      (Array.isArray(c.styles) && c.styles.some(s => s.toLowerCase().includes(term))) ||
-      (Array.isArray(c.favoriteBrands) && c.favoriteBrands.some(b => b.toLowerCase().includes(term))) ||
-      (Array.isArray(c.colorsLiked) && c.colorsLiked.some(col => col.toLowerCase().includes(term))) ||
-      (Array.isArray(c.colorsDisliked) && c.colorsDisliked.some(col => col.toLowerCase().includes(term)));
+    const matchesTerm = fullNameOf(c).toLowerCase().includes(term) ||
+      (c.email&&c.email.toLowerCase().includes(term)) ||
+      (c.phone&&c.phone.includes(term)) ||
+      (c.styles&&c.styles.some(s=>s.toLowerCase().includes(term)));
     if(!matchesTerm) return false;
 
     if(selected.length){
@@ -864,36 +727,28 @@ function applyFiltersAndSort(){
       const styleOk = (mode==='all') ? selected.every(s=>styles.includes(s)) : selected.some(s=>styles.includes(s));
       if(!styleOk) return false;
     }
-
     if(!matchesLastInteractionRule(c.id, liMode, liStart, liEnd)) return false;
-
     return true;
   });
 
   list = sortClients(list, $('#clientSort').value||'createdAt_desc');
   renderClients(list);
 }
-
 function renderClients(src=clients){
   const list=$('#clientList');
   if(src.length===0){ list.innerHTML=`<div class="empty-state"><div style="font-size:42px;opacity:.6">👥</div><p>No clients yet. Add your first client!</p></div>`; lastClientFilterResult=[]; return;}
   const sorted = sortClients([...src], $('#clientSort').value||'createdAt_desc'); lastClientFilterResult=[...sorted];
   list.innerHTML = sorted.map(c=>{
     const total=totalSpentFor(c.id); const li=lastInteractionDate(c.id);
-    const bdayThisMonth = c.birthdayMonth && Number(c.birthdayMonth)===(new Date().getMonth()+1);
     return `<div class="client-item">
       <div class="client-header">
         <div>
-          <div class="client-name">
-            ${escapeHTML(fullNameOf(c))}
-            ${bdayThisMonth? `<span class="tag">🎂 ${escapeHTML(c.birthdayDay||'')}</span>`:''}
-            ${total>0? `<span class="badge-sale">${fmtUSD.format(total)}</span>`:''}
-          </div>
+          <div class="client-name">${escapeHTML(fullNameOf(c))} ${total>0? `<span class="badge-sale">${fmtUSD.format(total)}</span>`:''}</div>
           <div class="muted" style="margin-top:4px">${c.email?`📧 ${escapeHTML(c.email)} · `:''}${c.phone?`📱 ${escapeHTML(c.phone)}`:''}</div>
           ${(c.styles&&c.styles.length)? `<div class="tags" aria-label="Style Vibes">${c.styles.map(s=>`<span class="tag">${escapeHTML(s)}</span>`).join('')}</div>`:''}
           ${li? `<div class="muted" style="margin-top:6px;font-size:.85rem">Last Interaction: ${li.toLocaleDateString()}</div>`:''}
         </div>
-        <span class="chip status-${statusSlug(c.status||'Introductory')}">${escapeHTML(c.status||'Introductory')}</span>
+        <span class="chip status-${statusSlug('Established')}">Established</span>
       </div>
       <div class="buttons">
         <button class="btn primary" data-action="view" data-id="${c.id}">View</button>
@@ -904,158 +759,29 @@ function renderClients(src=clients){
   }).join('');
   populateTodoClientFilter();
 }
-
-/* CRUD: Client */
-function openClientModal(id=null){
-  editingClientId = id;
-  const m=$('#clientModal'); const form=$('#clientForm');
-  if (id){
-    const c=clients.find(x=>x.id===id);
-    $('#clientModalTitle').textContent='Edit Client';
-    $('#clientFirstName').value=c.firstName||''; $('#clientLastName').value=c.lastName||'';
-    $('#clientEmail').value=c.email||''; $('#clientPhone').value=c.phone||'';
-    [...$('#clientStyles').options].forEach(o=>o.selected=(c.styles||[]).includes(o.value));
-    $('#clientStatus').value = VALID_STATUSES.includes(c.status)?c.status:'Introductory';
-    $('#clientInitialSales').value=c.initialSales??'';
-    $('#clientNotes').value=c.notes||'';
-    $('#clientBdayMonth').value=c.birthdayMonth||''; $('#clientBdayDay').value=c.birthdayDay||'';
-    $('#clientColorsLiked').value=joinCSV(c.colorsLiked||[]); $('#clientColorsDisliked').value=joinCSV(c.colorsDisliked||[]);
-    $('#clientSizeTop').value=c.sizing?.top||''; $('#clientSizeBottom').value=c.sizing?.bottom||''; $('#clientSizeDress').value=c.sizing?.dress||''; $('#clientSizeShoe').value=c.sizing?.shoe||'';
-    $('#clientBrands').value=joinCSV(c.favoriteBrands||[]);
-  } else {
-    $('#clientModalTitle').textContent='Add New Client';
-    form.reset(); $('#clientStatus').value='Introductory';
-    [...$('#clientStyles').options].forEach(o=>o.selected=false);
-  }
-  m.classList.add('active');
-
-  form.onsubmit = (e)=>{ e.preventDefault(); saveClient(); };
-}
-function saveClient(){
-  const firstName=$('#clientFirstName').value.trim(), lastName=$('#clientLastName').value.trim();
-  if(!firstName||!lastName) return alert('First and last names are required.');
-  const data={
-    firstName,lastName,
-    email:$('#clientEmail').value.trim(), phone:$('#clientPhone').value.trim(),
-    styles: normalizeStyles(getSelectedValues($('#clientStyles'))),
-    status: $('#clientStatus').value||'Introductory',
-    initialSales: parseFloat($('#clientInitialSales').value)||0,
-    notes: $('#clientNotes').value.trim(),
-    birthdayMonth: $('#clientBdayMonth').value||'',
-    birthdayDay:   $('#clientBdayDay').value||'',
-    colorsLiked:   parseCSV($('#clientColorsLiked').value),
-    colorsDisliked:parseCSV($('#clientColorsDisliked').value),
-    sizing:{ top:$('#clientSizeTop').value.trim(), bottom:$('#clientSizeBottom').value.trim(), dress:$('#clientSizeDress').value.trim(), shoe:$('#clientSizeShoe').value.trim() },
-    favoriteBrands: parseCSV($('#clientBrands').value),
-    createdAt: new Date().toISOString()
-  };
-  if (editingClientId){
-    const i=clients.findIndex(c=>c.id===editingClientId); clients[i] = { ...clients[i], ...data, createdAt: clients[i].createdAt||data.createdAt };
-  } else { data.id=Date.now().toString(); clients.push(data); }
-  saveData(); $('#clientModal').classList.remove('active'); renderClients(); renderFollowUps(); updateDashboard(); populateTodoClientFilter();
-}
-function deleteClient(id){
-  if(!confirm('Delete this client and all related interactions, sales, follow ups & to‑dos?')) return;
-  clients=clients.filter(c=>c.id!==id);
-  interactions=interactions.filter(i=>i.clientId!==id);
-  sales=sales.filter(s=>s.clientId!==id);
-  followUps=followUps.filter(f=>f.clientId!==id);
-  todos=todos.map(t=>({...t, clientIds:t.clientIds.filter(cid=>cid!==id)})).filter(t=>t.clientIds.length>0);
-  saveData(); renderAll(); populateTodoClientFilter();
-}
-
-/* Client Recap */
 function openClientView(id){
-  const c=clients.find(x=>x.id===id); if(!c) return;
-  const total=totalSpentFor(id);
-  const its=interactions.filter(i=>i.clientId===id).sort((a,b)=>new Date(b.date)-new Date(a.date));
-  const lastIt=its[0];
-  const clSales=sales.filter(s=>s.clientId===id).sort((a,b)=>new Date(b.date)-new Date(a.date));
-  const bday = (c.birthdayMonth&&c.birthdayDay) ? new Date(2000, Number(c.birthdayMonth)-1, Number(c.birthdayDay)) : null;
-
-  const html=`
-    <div class="card" style="box-shadow:none;padding:0">
-      <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
-        <div style="min-width:0">
-          <h3 style="margin:0 0 6px">${escapeHTML(fullNameOf(c))}</h3>
-          <div class="muted">${c.email?`📧 ${escapeHTML(c.email)} · `:''}${c.phone?`📱 ${escapeHTML(c.phone)}`:''}</div>
-          ${(c.styles&&c.styles.length)? `<div class="tags" style="margin-top:6px">${c.styles.map(s=>`<span class="tag">${escapeHTML(s)}</span>`).join(' ')}</div>`:''}
-          <span class="chip status-${statusSlug(c.status||'Introductory')}" style="margin-top:8px;display:inline-block">${escapeHTML(c.status||'Introductory')}</span>
-        </div>
-        <div class="badge-sale">${fmtUSD.format(total)}</div>
-      </div>
-      ${c.notes? `<div style="margin-top:12px"><strong>Notes:</strong><br>${escapeHTML(c.notes)}</div>`:''}
-      <div style="margin-top:16px;display:grid;gap:10px">
-        <div><strong>Interactions:</strong> ${its.length}${lastIt?` — Last: ${new Date(lastIt.date).toLocaleDateString()}`:''}</div>
-        <div><strong>Initial Sales:</strong> ${fmtUSD.format(Number(c.initialSales)||0)}</div>
-      </div>
-      <div style="margin-top:16px">
-        <strong>Recent Sales</strong>
-        ${clSales.length===0? `<div class="muted">No sales recorded</div>`:`<div style="margin-top:8px;display:grid;gap:8px">
-          ${clSales.slice(0,5).map(s=>`
-            <div style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding-bottom:6px">
-              <div><div style="font-weight:600">${escapeHTML(s.description||'Sale')}</div><div class="muted" style="font-size:.85rem">${new Date(s.date).toLocaleDateString()}</div></div>
-              <div style="font-weight:800;color:#2f855a">${fmtUSD.format(Number(s.amount)||0)}</div>
-            </div>`).join('')}
-        </div>`}
-      </div>
-    </div>
-
-    <div style="margin-top:16px;display:grid;gap:14px">
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px">
-        <div class="card" style="box-shadow:none;border:1px solid #eee">
-          <div style="font-weight:700;margin-bottom:6px">🎂 Birthday</div>
-          <div>${bday? bday.toLocaleDateString(undefined,{month:'long',day:'numeric'}) : '<span class="muted">Not set</span>'}</div>
-        </div>
-        <div class="card" style="box-shadow:none;border:1px solid #eee">
-          <div style="font-weight:700;margin-bottom:6px">🎯 Favorite Brands</div>
-          <div>${(c.favoriteBrands&&c.favoriteBrands.length)? c.favoriteBrands.map(b=>`<span class="tag">${escapeHTML(b)}</span>`).join(' ') : '<span class="muted">None listed</span>'}</div>
-        </div>
-      </div>
-      <div class="card" style="box-shadow:none;border:1px solid #eee">
-        <div style="font-weight:700;margin-bottom:6px">🎨 Colors</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <div><div class="muted" style="font-weight:700;margin-bottom:4px">Liked</div>
-            ${(c.colorsLiked&&c.colorsLiked.length)? c.colorsLiked.map(x=>`<span class="tag">${escapeHTML(x)}</span>`).join(' ') : '<span class="muted">None</span>'}
-          </div>
-          <div><div class="muted" style="font-weight:700;margin-bottom:4px">Disliked</div>
-            ${(c.colorsDisliked&&c.colorsDisliked.length)? c.colorsDisliked.map(x=>`<span class="tag">${escapeHTML(x)}</span>`).join(' ') : '<span class="muted">None</span>'}
-          </div>
-        </div>
-      </div>
-      <div class="card" style="box-shadow:none;border:1px solid #eee">
-        <div style="font-weight:700;margin-bottom:6px">📏 Current Sizing</div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px">
-          <div><span class="muted">Top:</span> ${escapeHTML(c.sizing?.top||'—')}</div>
-          <div><span class="muted">Bottom:</span> ${escapeHTML(c.sizing?.bottom||'—')}</div>
-          <div><span class="muted">Dress:</span> ${escapeHTML(c.sizing?.dress||'—')}</div>
-          <div><span class="muted">Shoe:</span> ${escapeHTML(c.sizing?.shoe||'—')}</div>
-        </div>
-      </div>
-    </div>`;
-  $('#clientViewBody').innerHTML=html;
-  $('#clientViewModal').classList.add('active');
+  const c=clients.find(x=>x.id===id); if(!c) return alert('Client not found');
+  alert(`${fullNameOf(c)}\nEmail: ${c.email||'—'}\nPhone: ${c.phone||'—'}\nStyles: ${(c.styles||[]).join(', ')||'—'}`);
 }
 
-/* ===========================
-   INTERACTIONS
-   =========================== */
+/* =========================
+   Interactions
+========================= */
 function openInteractionModal(id=null){
   editingInteractionId=id;
-  const sel=$('#interactionClient'); sel.innerHTML='<option value="">Select client...</option>'+clients.map(c=>`<option value="${c.id}">${escapeHTML(fullNameOf(c))}</option>`).join('');
+  const sel=$('#interactionClient');
+  sel.innerHTML='<option value="">Select client...</option>'+clients.map(c=>`<option value="${c.id}">${escapeHTML(fullNameOf(c))}</option>`).join('');
   if (id){
     const it=interactions.find(i=>i.id===id); if(!it) return;
     $('#interactionModalTitle').textContent='Edit Interaction';
-    sel.value=it.clientId; $('#interactionType').value=['Call','Email','Text','In-person','Sale'].includes(it.type)?it.type:'Call';
-    $('#interactionDate').value=it.date; $('#interactionNotes').value=it.notes||'';
+    sel.value=it.clientId; $('#interactionType').value=it.type; $('#interactionDate').value=it.date; $('#interactionNotes').value=it.notes||'';
   } else {
     $('#interactionModalTitle').textContent='Log Interaction'; $('#interactionForm').reset(); $('#interactionDate').value=new Date().toISOString().slice(0,10);
   }
   $('#interactionModal').classList.add('active');
-
-  $('#interactionForm').onsubmit = (e)=>{ e.preventDefault(); saveInteraction(); };
 }
-function saveInteraction(){
+$('#interactionForm')?.addEventListener('submit', e=>{
+  e.preventDefault();
   const clientId=$('#interactionClient').value; if(!clientId) return alert('Please select a client.');
   const date=$('#interactionDate').value||new Date().toISOString().slice(0,10);
   const type=$('#interactionType').value; const notes=$('#interactionNotes').value.trim();
@@ -1064,23 +790,19 @@ function saveInteraction(){
     if(i!==-1) interactions[i]={...interactions[i], clientId, type, date, notes};
   } else {
     interactions.push({ id:Date.now().toString(), clientId, type, date, notes, createdAt:new Date().toISOString() });
-    // Auto-follow-up: create monthly after a weekly completion
-    createAutoFollowUp(clientId, date, 'weekly');
   }
-  saveData(); $('#interactionModal').classList.remove('active'); renderInteractions(); renderFollowUps(); updateDashboard();
-}
+  saveData(); $('#interactionModal').classList.remove('active'); renderInteractions(); updateDashboard(); renderClients();
+});
 function renderInteractions(src=interactions){
   const el=$('#interactionList');
   if(src.length===0){ el.innerHTML=`<div class="empty-state"><div style="font-size:42px;opacity:.6">💬</div><p>No interactions logged yet</p></div>`; return; }
   const sorted=[...src].sort((a,b)=>new Date(b.date)-new Date(a.date));
   el.innerHTML = sorted.map(i=>{
     const c=clients.find(x=>x.id===i.clientId); const when=new Date(i.date).toLocaleDateString([], { year:'numeric', month:'short', day:'numeric' });
-    const isSale = i.type==='Sale';
     return `<div class="interaction-item">
       <div class="client-header">
         <div><div class="client-name">${escapeHTML(c?fullNameOf(c):'Unknown Client')}</div><div class="muted" style="margin-top:4px">${escapeHTML(i.type)} • ${when}</div></div>
         <div class="buttons">
-          ${isSale? '' : `<button class="btn ghost" data-action="edit-interaction" data-id="${i.id}">Edit</button>`}
           <button class="btn danger" data-action="delete-interaction" data-id="${i.id}">Delete</button>
         </div>
       </div>
@@ -1090,10 +812,8 @@ function renderInteractions(src=interactions){
 }
 function deleteInteraction(id){
   if(!confirm('Delete this interaction?')) return;
-  const sIdx=sales.findIndex(s=>s.interactionId===id);
-  if (sIdx!==-1) sales[sIdx].interactionId=undefined; // unlink
   interactions=interactions.filter(i=>i.id!==id);
-  saveData(); renderInteractions(); renderFollowUps(); updateDashboard();
+  saveData(); renderInteractions(); updateDashboard(); renderClients();
 }
 function searchInteractions(){
   const term=($('#interactionSearch').value||'').toLowerCase();
@@ -1104,9 +824,9 @@ function searchInteractions(){
   renderInteractions(filtered);
 }
 
-/* ===========================
-   SALES
-   =========================== */
+/* =========================
+   Sales
+========================= */
 function openSaleModal(id=null){
   editingSaleId=id; const sel=$('#saleClient'); sel.innerHTML='<option value="">Select client...</option>'+clients.map(c=>`<option value="${c.id}">${escapeHTML(fullNameOf(c))}</option>`).join('');
   if (id){
@@ -1117,41 +837,25 @@ function openSaleModal(id=null){
     $('#saleModalTitle').textContent='Record Sale'; $('#saleForm').reset(); $('#saleDate').value=new Date().toISOString().slice(0,10);
   }
   $('#saleModal').classList.add('active');
-
-  $('#saleForm').onsubmit = (e)=>{ e.preventDefault(); saveSale(); };
 }
-function saveSale(){
+$('#saleForm')?.addEventListener('submit', e=>{
+  e.preventDefault();
   const clientId=$('#saleClient').value; const amount=parseFloat($('#saleAmount').value);
   const date=$('#saleDate').value||new Date().toISOString().slice(0,10);
   const description=$('#saleDescription').value.trim();
   if(!clientId || isNaN(amount)) return alert('Client and amount are required.');
-
   if (editingSaleId){
     const idx=sales.findIndex(s=>s.id===editingSaleId);
-    if (idx!==-1){
-      sales[idx]={...sales[idx], clientId, amount, date, description};
-      const iId=sales[idx].interactionId;
-      if (iId){
-        const iIdx=interactions.findIndex(i=>i.id===iId);
-        if (iIdx!==-1){
-          interactions[iIdx]={...interactions[iIdx], clientId, date, type:'Sale', notes:`Sale recorded: ${fmtUSD.format(amount)}${description?` — ${description}`:''}`};
-        }
-      }
-    }
+    if (idx!==-1){ sales[idx]={...sales[idx], clientId, amount, date, description}; }
   } else {
-    const id=Date.now().toString(); const sale={id, clientId, amount, date, description, createdAt:new Date().toISOString()}; sales.push(sale);
-    const interactionId='sale-'+id;
-    interactions.push({ id:interactionId, clientId, type:'Sale', date, notes:`Sale recorded: ${fmtUSD.format(amount)}${description?` — ${description}`:''}`, createdAt:new Date().toISOString() });
-    const sIdx=sales.findIndex(s=>s.id===id); if (sIdx!==-1) sales[sIdx].interactionId=interactionId;
+    const id=Date.now().toString(); sales.push({id, clientId, amount, date, description, createdAt:new Date().toISOString()});
   }
-  saveData(); $('#saleModal').classList.remove('active'); renderSalesView(); renderInteractions(); renderFollowUps(); updateDashboard(); renderClients();
-}
+  saveData(); $('#saleModal').classList.remove('active'); renderSalesView(); renderInteractions(); updateDashboard(); renderClients();
+});
 function deleteSale(id){
   if(!confirm('Delete this sale?')) return;
-  const s=sales.find(x=>x.id===id);
-  if (s?.interactionId){ interactions=interactions.filter(i=>i.id!==s.interactionId); }
   sales=sales.filter(s=>s.id!==id);
-  saveData(); renderSalesView(); renderInteractions(); renderClients(); renderFollowUps(); updateDashboard();
+  saveData(); renderSalesView(); renderInteractions(); renderClients(); updateDashboard();
 }
 function renderSalesView(){
   const el=$('#salesList'); const map=new Map();
@@ -1171,25 +875,22 @@ function renderSalesView(){
           <div><div style="font-weight:600">${escapeHTML(s.description||'Sale')}</div><div class="muted" style="font-size:.85rem">${new Date(s.date).toLocaleDateString()}</div></div>
           <div style="display:flex;align-items:center;gap:10px">
             <div style="font-weight:800;color:#2f855a">${fmtUSD.format(Number(s.amount)||0)}</div>
-            <button class="btn ghost" data-action="edit-sale" data-id="${s.id}">Edit</button>
             <button class="btn danger" data-action="delete-sale" data-id="${s.id}">Delete</button>
           </div>
         </div>`).join('')}
     </div>`).join('');
 }
 
-/* ===========================
-   TO‑DOS
-   =========================== */
-function populateTodoClientFilter(){
-  const sel=$('#todoFilterClient'); if(!sel) return;
-  const current=sel.value||'all';
-  sel.innerHTML = `<option value="all">All Clients</option>` + clients.map(c=>`<option value="${c.id}">${escapeHTML(fullNameOf(c))}</option>`).join('');
-  sel.value = [...sel.options].some(o=>o.value===current)? current : 'all';
-}
+/* =========================
+   To‑Dos (one per client)
+========================= */
 function openTodoModal(preselectIds = [], editId = null){
   const modal = $('#todoModal');
   const sel = $('#todoClients');
+  $('#todoForm').reset();
+  $('#todoEditingId').value = editId || '';
+  const today = new Date().toISOString().slice(0,10);
+  $('#todoDate').value = today;
 
   // Populate list
   sel.innerHTML = clients
@@ -1197,36 +898,28 @@ function openTodoModal(preselectIds = [], editId = null){
     .map(c=>`<option value="${c.id}">${escapeHTML(fullNameOf(c))}</option>`)
     .join('');
 
-  // Default dates / reset
-  $('#todoForm').reset();
-  const today = new Date().toISOString().slice(0,10);
-  $('#todoDate').value = today;
-  $('#todoStatus').value = 'open';
-  $('#todoLastIntFilter').value = 'none';
-  $('#todoLastIntStart').value = ''; $('#todoLastIntEnd').value = '';
-  $('#todoLastIntStart').style.display = 'none'; $('#todoLastIntEnd').style.display = 'none';
+  // Use provided ids or current filtered
+  const ids = (preselectIds && preselectIds.length)
+    ? preselectIds
+    : (lastClientFilterResult && lastClientFilterResult.length ? lastClientFilterResult.map(c=>c.id) : []);
 
-  if (editId){
-    const t = todos.find(x=>x.id===editId); if(!t) return;
-    $('#todoModalTitle').textContent='Edit To‑Do';
-    $('#todoEditingId').value = t.id;
-    $('#todoTitle').value = t.title;
-    $('#todoDate').value  = t.date;
-    $('#todoNotes').value = t.notes||'';
-    $('#todoStatus').value= t.status||'open';
-    [...sel.options].forEach(o => { o.selected = t.clientIds.includes(o.value); });
-  } else {
-    $('#todoModalTitle').textContent='New To‑Do';
-    $('#todoEditingId').value = '';
-    const ids = (preselectIds && preselectIds.length)
-      ? preselectIds
-      : (lastClientFilterResult && lastClientFilterResult.length ? lastClientFilterResult.map(c=>c.id) : []);
-    [...sel.options].forEach(o => { o.selected = ids.includes(o.value); });
-  }
+  [...sel.options].forEach(o => { o.selected = ids.includes(o.value); });
+
+  // Reset quick-select UI
+  $('#todoLastIntFilter').value = 'none';
+  $('#todoLastIntStart').value = '';
+  $('#todoLastIntEnd').value = '';
+  $('#todoLastIntStart').style.display = 'none';
+  $('#todoLastIntEnd').style.display   = 'none';
 
   modal.classList.add('active');
-  $('#todoForm').onsubmit = (e)=>{ e.preventDefault(); saveTodo(); };
 }
+$('#todoForm')?.addEventListener('submit', e=>{
+  e.preventDefault();
+  saveTodo();
+});
+
+// 🔑 The new logic: create one task per client; edit updates one & spawns extras
 function saveTodo(){
   const editId = $('#todoEditingId').value || null;
   const title  = $('#todoTitle').value.trim();
@@ -1241,7 +934,7 @@ function saveTodo(){
   const nowIso = new Date().toISOString();
 
   if (editId){
-    // Update existing; if multiple selected, keep first on the edited one and create others
+    // Update existing; keep 1st client on edited one, create new tasks for the rest
     const idx = todos.findIndex(t => t.id === editId);
     if (idx === -1){ alert('This to‑do no longer exists.'); return; }
 
@@ -1253,7 +946,7 @@ function saveTodo(){
       completedAt: (status === 'done') ? (todos[idx].completedAt || nowIso) : null
     };
 
-    // For any additional selected clients, create new tasks
+    // Extra tasks
     const extraIds = selectedClientIds.slice(1);
     extraIds.forEach(cid => {
       todos.push({
@@ -1266,7 +959,7 @@ function saveTodo(){
     });
 
   } else {
-    // New task(s): always one per client
+    // New: always one per client
     selectedClientIds.forEach(cid => {
       todos.push({
         id: Date.now().toString() + Math.random().toString(36).slice(2,6),
@@ -1283,13 +976,19 @@ function saveTodo(){
   renderTodos();
 }
 
-function editTodo(id){ openTodoModal([], id); }
 function toggleTodo(id){
   const t=todos.find(x=>x.id===id); if(!t) return;
   if (t.status==='done'){ t.status='open'; t.completedAt=null; } else { t.status='done'; t.completedAt=new Date().toISOString(); }
   saveData(); renderTodos();
 }
 function deleteTodo(id){ if(!confirm('Delete this to‑do?')) return; todos=todos.filter(t=>t.id!==id); saveData(); renderTodos(); }
+
+function populateTodoClientFilter(){
+  const sel=$('#todoFilterClient'); if(!sel) return;
+  const current=sel.value||'all';
+  sel.innerHTML = `<option value="all">All Clients</option>` + clients.map(c=>`<option value="${c.id}">${escapeHTML(fullNameOf(c))}</option>`).join('');
+  sel.value = [...sel.options].some(o=>o.value===current)? current : 'all';
+}
 
 function renderTodos(){
   populateTodoClientFilter();
@@ -1315,8 +1014,8 @@ function renderTodos(){
   if (fClient!=='all') src = src.filter(t=>t.clientIds.includes(fClient));
 
   const cmp = {
-    date_asc:(a,b)=>(a.date||'')<(b.date||'')?-1:(a.date||'')>(b.date||'')?1:0,
-    date_desc:(a,b)=>(a.date||'')>(b.date||'')?-1:(a.date||'')<(b.date||'')?1:0,
+    date_asc:(a,b)=>(a.date||'').localeCompare(b.date||''),
+    date_desc:(a,b)=>(b.date||'').localeCompare(a.date||''),
     created_desc:(a,b)=>new Date(b.createdAt)-new Date(a.createdAt),
     created_asc:(a,b)=>new Date(a.createdAt)-new Date(b.createdAt),
     title_asc:(a,b)=>a.title.localeCompare(b.title),
@@ -1332,16 +1031,13 @@ function renderTodos(){
       const clientBadges = t.clientIds.map(id=>{ const c=clients.find(x=>x.id===id); return c? `<span class="todo-client">${escapeHTML(fullNameOf(c))}</span>` : ''; }).join(' ');
       const due=new Date(t.date).toLocaleDateString();
       return `<div class="todo-item">
-        <div class="todo-head">
-          <div>
-            <div class="todo-title">${escapeHTML(t.title)}</div>
-            <div class="todo-meta">${due} • ${t.status==='done'?'Done ✅':'Open'}</div>
-            <div class="todo-clients">${clientBadges}</div>
-            ${t.notes? `<div class="muted" style="margin-top:6px">${escapeHTML(t.notes)}</div>`:''}
-          </div>
+        <div>
+          <div class="todo-title">${escapeHTML(t.title)}</div>
+          <div class="todo-meta">${due} • ${t.status==='done'?'Done ✅':'Open'}</div>
+          <div class="todo-clients">${clientBadges}</div>
+          ${t.notes? `<div class="muted" style="margin-top:6px">${escapeHTML(t.notes)}</div>`:''}
         </div>
-        <div class="todo-actions">
-          <button class="btn ghost" onclick="editTodo('${t.id}')">Edit</button>
+        <div style="margin-top:10px;display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap">
           <button class="btn ${t.status==='done'?'ghost':'primary'}" onclick="toggleTodo('${t.id}')">${t.status==='done'?'Reopen':'Mark Done'}</button>
           <button class="btn danger" onclick="deleteTodo('${t.id}')">Delete</button>
         </div>
@@ -1353,117 +1049,9 @@ function renderTodos(){
   $('#todoCount').textContent=`${src.length} items • ${openCount} open / ${doneCount} done`;
 }
 
-/* ===========================
-   FOLLOW‑UPS (+ 911 after 60d)
-   =========================== */
-function createAutoFollowUp(clientId, baseDate, type){
-  const d=new Date(baseDate); let notes='';
-  if(type==='weekly'){ d.setDate(d.getDate()+7); notes='Weekly follow-up (auto-created)'; }
-  else if(type==='monthly'){ d.setMonth(d.getMonth()+1); notes='Monthly follow-up (auto-created)'; }
-  followUps.push({ id:Date.now().toString()+Math.random().toString(36).slice(2,6), clientId, date:d.toISOString().slice(0,10), notes, createdAt:new Date().toISOString(), completed:false, type });
-}
-function toggleFollowUp(id){
-  const f=followUps.find(x=>x.id===id); if(!f) return;
-  f.completed=!f.completed; f.completedAt=f.completed?new Date().toISOString():null;
-  if (f.completed && f.type==='weekly') createAutoFollowUp(f.clientId, f.completedAt.slice(0,10), 'monthly');
-  saveData(); renderFollowUps(); updateDashboard();
-}
-function deleteFollowUp(id){
-  const f=followUps.find(x=>x.id===id); if(!f) return;
-  if (!confirm((f.type!=='manual')?'Delete this auto-created follow-up?':'Delete this follow-up?')) return;
-  followUps = followUps.filter(x=>x.id!==id);
-  saveData(); renderFollowUps(); updateDashboard();
-}
-function openFollowUpModal(clientId=null, notes=''){
-  const sel=$('#followupClient'); sel.innerHTML='<option value="">Select client...</option>'+clients.map(c=>`<option value="${c.id}">${escapeHTML(fullNameOf(c))}</option>`).join('');
-  $('#followupDate').value=new Date().toISOString().slice(0,10);
-  $('#followupNotes').value=notes||'';
-  if (clientId) sel.value=clientId;
-  $('#followupModal').classList.add('active');
-
-  $('#followupForm').onsubmit = (e)=>{ e.preventDefault(); saveFollowUp(); };
-}
-function saveFollowUp(){
-  const clientId=$('#followupClient').value; const date=$('#followupDate').value; const notes=$('#followupNotes').value.trim();
-  if(!clientId||!date) return alert('Client and due date required.');
-  followUps.push({ id:Date.now().toString(), clientId, date, notes, createdAt:new Date().toISOString(), completed:false, type:'manual' });
-  saveData(); $('#followupModal').classList.remove('active'); renderFollowUps(); updateDashboard();
-}
-function renderFollowUps(){
-  const now=new Date();
-  const addDays=(d,n)=>{const x=new Date(d); x.setDate(x.getDate()+n); return x;};
-  const pastDue=$('#followupPastDue'), upcoming=$('#followupUpcoming'), future=$('#followupFuture'), f911=$('#followup911');
-
-  const real = [...followUps];
-
-  // Synthetic 911 (no saved)
-  const synthetic911 = clients.map(c=>{
-    const last = lastInteractionDate(c.id);
-    if (!last) return null;
-    const diffDays = Math.floor((now - last)/(1000*60*60*24));
-    if (diffDays > 60) {
-      return { id:'911-'+c.id, clientId:c.id, date: new Date().toISOString().slice(0,10), notes:`🚨 No contact for ${diffDays} days — immediate follow-up`, createdAt:new Date().toISOString(), completed:false, type:'911' };
-    }
-    return null;
-  }).filter(Boolean);
-
-  const all = [...real, ...synthetic911].sort((a,b)=>new Date(a.date)-new Date(b.date));
-
-  const today=new Date(); today.setHours(0,0,0,0);
-  const in7 = addDays(today,7);
-
-  const buckets={ past:[], upcoming:[], future:[], p911:[] };
-  all.forEach(f=>{
-    const d=new Date(f.date); d.setHours(0,0,0,0);
-    const is911 = f.type==='911';
-    const isPast = d<today && !f.completed;
-    if (is911) buckets.p911.push(f);
-    else if (isPast) buckets.past.push(f);
-    else if (d<=in7) buckets.upcoming.push(f);
-    else buckets.future.push(f);
-  });
-
-  const renderList=(arr, is911=false)=> {
-    if (arr.length===0) return `<div class="empty-state" style="padding:14px"><div class="muted">Nothing here</div></div>`;
-    return arr.map(f=>{
-      const c=clients.find(x=>x.id===f.clientId);
-      const when=new Date(f.date).toLocaleDateString();
-      const chip = is911? 'pill-911' : '';
-      // categorize basic types for styling
-      const typeGuess = is911 ? 'past-due' : (f.type||'relationship');
-      return `<div class="followup-card ${chip}" data-id="${f.id}" data-type="${typeGuess}">
-        <div class="followup-top">
-          <div class="followup-main">
-            <div class="client-name">${escapeHTML(c?fullNameOf(c):'Unknown Client')}</div>
-            <div class="muted">${when}${f.type && f.type!=='manual' && f.type!=='911'? ` • ${escapeHTML(f.type)}`:''}</div>
-            ${f.notes? `<div>${escapeHTML(f.notes)}</div>`:''}
-          </div>
-        </div>
-        <div class="card-actions">
-          ${is911? `<button class="btn primary" data-action="create-followup-for-client" data-id="${f.clientId}" data-notes="Created from 911 alert">Create Follow‑Up</button>`:''}
-          ${f.type!=='911'? `<button class="btn ${f.completed?'ghost':'primary'}" data-action="toggle-followup" data-id="${f.id}">${f.completed?'Reopen':'Mark Done'}</button>`:''}
-          ${f.type!=='911'? `<button class="btn danger" data-action="delete-followup" data-id="${f.id}">Delete</button>`:''}
-        </div>
-      </div>`;
-    }).join('');
-  };
-
-  pastDue.innerHTML   = renderList(buckets.past);
-  upcoming.innerHTML  = renderList(buckets.upcoming);
-  future.innerHTML    = renderList(buckets.future);
-  f911.innerHTML      = renderList(buckets.p911, true);
-
-  // delegation for card buttons
-  document.addEventListener('click', e=>{
-    const t=e.target.closest('[data-action="toggle-followup"]'); if (t){ toggleFollowUp(t.dataset.id); return; }
-    const d=e.target.closest('[data-action="delete-followup"]'); if (d){ deleteFollowUp(d.dataset.id); return; }
-    const c=e.target.closest('[data-action="create-followup-for-client"]'); if (c){ openFollowUpModal(c.dataset.id, c.dataset.notes||''); return; }
-  }, { once:true });
-}
-
-/* ===========================
-   DASHBOARD
-   =========================== */
+/* =========================
+   Dashboard
+========================= */
 function updateDashboard(){
   $('#totalClients').textContent = clients.length;
   $('#totalInteractions').textContent = interactions.length;
@@ -1472,34 +1060,13 @@ function updateDashboard(){
   $('#activeThisMonth').textContent = activeThisMonth;
   const totalSales = clients.reduce((sum,c)=>sum+(Number(c.initialSales)||0),0) + sales.reduce((s,x)=>s+(Number(x.amount)||0),0);
   $('#totalSales').textContent = fmtUSD.format(totalSales);
-
-  // Recent activity lists
-  const interWrap=$('#interactionActivityList'), salesWrap=$('#salesActivityList');
-  if (interactions.length===0){
-    interWrap.innerHTML=`<div class="empty-state"><div style="font-size:42px;opacity:.6">💬</div><p>No interactions yet</p></div>`;
-  } else {
-    const items=[...interactions].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,5).map(i=>{
-      const c=clients.find(x=>x.id===i.clientId);
-      return `<div class="interaction-item" style="padding:10px"><div class="client-name">${escapeHTML(c?fullNameOf(c):'Unknown')}</div><div class="muted" style="font-size:.85rem">${escapeHTML(i.type)} • ${new Date(i.date).toLocaleDateString()}</div></div>`;
-    }).join('');
-    interWrap.innerHTML=items;
-  }
-  if (sales.length===0){
-    salesWrap.innerHTML=`<div class="empty-state"><div style="font-size:42px;opacity:.6">💰</div><p>No sales yet</p></div>`;
-  } else {
-    const items=[...sales].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,5).map(s=>{
-      const c=clients.find(x=>x.id===s.clientId);
-      return `<div class="interaction-item" style="padding:10px"><div class="client-name">${escapeHTML(c?fullNameOf(c):'Unknown')}</div><div class="muted" style="font-size:.85rem">${new Date(s.date).toLocaleDateString()} • ${fmtUSD.format(Number(s.amount)||0)}</div></div>`;
-    }).join('');
-    salesWrap.innerHTML=items;
-  }
 }
 
-/* ===========================
-   IMPORT / EXPORT
-   =========================== */
+/* =========================
+   Import/Export JSON
+========================= */
 function exportData(){
-  const payload={ exportedAt:new Date().toISOString(), version:4, clients, interactions, sales, followUps, todos };
+  const payload={ exportedAt:new Date().toISOString(), version:5, clients, interactions, sales, followUps, todos };
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob);
   const a=document.createElement('a'); a.href=url; a.download='crm-backup.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
 }
@@ -1509,68 +1076,112 @@ function importData(file){
     try{
       const data=JSON.parse(reader.result);
       if(!data||!Array.isArray(data.clients)||!Array.isArray(data.interactions)||!Array.isArray(data.sales)){ alert('Invalid file format.'); return; }
-      clients = data.clients.map(c=>({
-        ...c,
-        styles: normalizeStyles(c.styles??c.style),
-        status: mapOldStatus(c.status),
-        initialSales: Number(c.initialSales)||0,
-        birthdayMonth: c.birthdayMonth??'',
-        birthdayDay: c.birthdayDay??'',
-        colorsLiked: Array.isArray(c.colorsLiked)?c.colorsLiked:parseCSV(c.colorsLiked),
-        colorsDisliked: Array.isArray(c.colorsDisliked)?c.colorsDisliked:parseCSV(c.colorsDisliked),
-        sizing: (c.sizing&&typeof c.sizing==='object')? {top:c.sizing.top||'',bottom:c.sizing.bottom||'',dress:c.sizing.dress||'',shoe:c.sizing.shoe||''}:{top:'',bottom:'',dress:'',shoe:''},
-        favoriteBrands: Array.isArray(c.favoriteBrands)?c.favoriteBrands:parseCSV(c.favoriteBrands)
-      }));
+      clients = data.clients;
       interactions = data.interactions.map(i=>({ ...i, date:(i.date||'').slice(0,10) }));
       sales = data.sales.map(s=>({ ...s, amount:Number(s.amount)||0 }));
-      followUps = (data.followUps||[]).map(f=>({ ...f, date:(f.date||'').slice(0,10), completed: !!f.completed, type: f.type||'manual' }));
-      todos = (data.todos||[]).map(t=>({ ...t, date:(t.date||'').slice(0,10), status:t.status||'open' }));
-      saveData(); renderAll(); alert('Import complete ✔️');
+      followUps = Array.isArray(data.followUps)? data.followUps : [];
+      todos = Array.isArray(data.todos)? data.todos : [];
+      saveData(); loadData(); renderAll(); alert('Import complete ✔️');
     }catch(e){ console.error(e); alert('Could not parse the file.'); }
   };
   reader.readAsText(file);
 }
 
-/* ===========================
-   SEASONAL GENERATOR
-   =========================== */
-function seasonDatesForYear(year) {
-  return [
-    { season: 'Spring',  month: 3,  day: 1 },
-    { season: 'Summer',  month: 6,  day: 1 },
-    { season: 'Fall',    month: 9,  day: 1 },
-    { season: 'Winter',  month: 12, day: 1 }
-  ].map(s => ({ ...s, date: new Date(Date.UTC(year, s.month - 1, s.day, 12, 0, 0)) }));
-}
-function getTargetClientIds(mode = 'all') {
-  const allIds = clients.map(c => c.id);
-  if (mode === 'filtered') {
-    const list = Array.isArray(lastClientFilterResult) ? lastClientFilterResult.map(c => c.id) : [];
-    return list.length ? list : allIds;
-  }
-  return allIds;
-}
-function hasSeasonalFU(clientId, season, year) {
-  return followUps.some(fu => fu.clientId===clientId && fu.type==='seasonal' && String(fu.season)===String(season) && Number(fu.year)===Number(year));
-}
-function makeSeasonalFU({ clientId, season, date, year }) {
-  return { id: 'fu_'+Math.random().toString(36).slice(2,10), clientId, title: `${season} Outreach`, type:'seasonal', season, year, date: date.toISOString().slice(0,10), notes:'', createdAt:new Date().toISOString(), completed:false };
-}
-function createSeasonalForClients(clientIds, year) {
-  const dates = seasonDatesForYear(year);
-  const created = [];
-  clientIds.forEach(clientId => {
-    dates.forEach(({ season, date }) => {
-      if (!hasSeasonalFU(clientId, season, year)) {
-        const fu = makeSeasonalFU({ clientId, season, date, year });
-        followUps.push(fu); created.push(fu);
+/* =========================
+   CSV Import (Clients)
+========================= */
+function csvToRows(text){
+  const rows = []; let row = [], cell = '';
+  let i=0, inQuotes=false;
+  while (i < text.length){
+    const ch = text[i];
+    if (inQuotes){
+      if (ch === '"'){
+        if (text[i+1] === '"'){ cell += '"'; i+=2; continue; }
+        inQuotes = false; i++; continue;
       }
-    });
+      cell += ch; i++; continue;
+    } else {
+      if (ch === '"'){ inQuotes = true; i++; continue; }
+      if (ch === ','){ row.push(cell); cell=''; i++; continue; }
+      if (ch === '\r'){ if (text[i+1] === '\n') i++; rows.push(row.concat(cell)); row=[]; cell=''; i++; continue; }
+      if (ch === '\n'){ rows.push(row.concat(cell)); row=[]; cell=''; i++; continue; }
+      cell += ch; i++; continue;
+    }
+  }
+  if (cell.length || row.length) rows.push(row.concat(cell));
+  if (rows.length && rows[0].length){ rows[0][0] = rows[0][0].replace(/^\uFEFF/, ''); }
+  return rows;
+}
+function normalizeHeader(h){
+  return String(h||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,' ')
+    .replace(/\s+(.)/g, (_,c)=>c.toUpperCase()).replace(/\s+/g,'')
+    .replace(/^firstname$/,'firstName').replace(/^lastname$/,'lastName')
+    .replace(/^emailaddress$/,'email').replace(/^phonenumber$|^phone$/,'phone')
+    .replace(/^styles?$|^stylevibe$/,'styles')
+    .replace(/^initialsales$|^initialamount$|^initialsale$/,'initialSales');
+}
+function csvToObjects(text){
+  const rows = csvToRows(text).filter(r => r.length && r.some(c=>String(c).trim()!=='')); 
+  if (!rows.length) return [];
+  const headers = rows[0].map(normalizeHeader);
+  return rows.slice(1).map(r=>{
+    const o = {}; headers.forEach((h,idx)=>{ o[h] = (r[idx] ?? '').trim(); }); return o;
   });
-  saveData(); renderFollowUps();
-  return created;
+}
+function clientFromCsv(row){
+  let firstName = row.firstName || ''; let lastName  = row.lastName  || '';
+  if ((!firstName || !lastName) && row.name){
+    const parts = String(row.name).trim().split(/\s+/); firstName = firstName || parts.shift() || ''; lastName  = lastName  || parts.join(' ');
+  }
+  const styles = normalizeStyles(row.styles || '');
+  return {
+    id: Date.now().toString() + Math.random().toString(36).slice(2,6),
+    firstName: String(firstName).trim(),
+    lastName:  String(lastName).trim(),
+    email: String(row.email||'').trim(),
+    phone: String(row.phone||'').trim(),
+    styles,
+    initialSales: Number(row.initialSales||0) || 0,
+    notes: String(row.notes||'').trim(),
+    createdAt: new Date().toISOString()
+  };
+}
+function clientIdentityKey(c){
+  if (c.email) return `email:${c.email.toLowerCase()}`;
+  if (c.phone) return `phone:${c.phone.replace(/\D+/g,'')}`;
+  const name = `${c.firstName||''} ${c.lastName||''}`.trim().toLowerCase();
+  return name ? `name:${name}` : `id:${c.id}`;
+}
+function mergeClient(existing, incoming){
+  return { ...existing, ...incoming, id: existing.id, createdAt: existing.createdAt || incoming.createdAt };
+}
+function importClientsFromCsvFile(file){
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const rows = csvToObjects(reader.result);
+      if (!rows.length){ alert('No rows found in CSV.'); return; }
+      let added=0, updated=0, skipped=0;
+      const index = new Map(); clients.forEach(c => index.set(clientIdentityKey(c), c.id));
+      rows.forEach(r=>{
+        const draft = clientFromCsv(r);
+        const hasAny = draft.firstName || draft.lastName || draft.email || draft.phone;
+        if (!hasAny){ skipped++; return; }
+        const key = clientIdentityKey(draft);
+        if (index.has(key)){
+          const id = index.get(key);
+          const i = clients.findIndex(c=>c.id===id);
+          if (i !== -1){ clients[i] = mergeClient(clients[i], {...draft, id}); updated++; }
+          else { draft.id = id; clients.push(draft); updated++; }
+        } else { clients.push(draft); index.set(key, draft.id); added++; }
+      });
+      saveData(); renderClients(); updateDashboard(); populateTodoClientFilter();
+      alert(`CSV import complete ✔️\nAdded: ${added}\nUpdated: ${updated}\nSkipped: ${skipped}`);
+    }catch(err){ console.error(err); alert('Could not parse CSV file.'); }
+  };
+  reader.readAsText(file);
 }
 </script>
 </body>
 </html>
-
