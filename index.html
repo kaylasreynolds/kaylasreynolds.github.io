@@ -264,6 +264,30 @@
             <label class="chk"><input type="checkbox" class="style-filter" value="Vintage"> Vintage</label>
             <label class="chk"><input type="checkbox" class="style-filter" value="Trendy"> Trendy</label>
           </div>
+          <!-- Last Interaction Filter -->
+<div class="filters">
+  <div class="filters-row">
+    <div class="filters-title">Last Interaction:</div>
+    <select id="lastInteractionFilter" title="Last Interaction Filter">
+      <option value="any">Any time</option>
+      <option value="never">Never</option>
+      <option value="gt7">More than 7 days</option>
+      <option value="gt14">More than 14 days</option>
+      <option value="gt30">More than 30 days</option>
+      <option value="gt60">More than 60 days</option>
+      <option value="gt90">More than 90 days</option>
+      <option value="gt180">More than 180 days</option>
+      <option value="gt365">More than 365 days</option>
+      <option value="before">Before date…</option>
+      <option value="after">After date…</option>
+      <option value="between">Between dates…</option>
+    </select>
+    <input type="date" id="lastInteractionStart" style="display:none" aria-label="Start date">
+    <input type="date" id="lastInteractionEnd"   style="display:none" aria-label="End date">
+    <button id="resetLastInteraction" class="btn small ghost" type="button">Reset</button>
+  </div>
+</div>
+
           <div class="filters-controls">
             <select id="styleMatch">
               <option value="any">Match any selected</option>
@@ -543,6 +567,35 @@
             <select id="todoStatus"><option value="open">Open</option><option value="done">Done</option></select>
           </div>
         </div>
+        <!-- Quick Select by Last Interaction -->
+<div class="row-cols">
+  <div>
+    <label>Quick Select by Last Interaction</label>
+    <div class="filters-row">
+      <select id="todoLastIntFilter" title="Quick Select">
+        <option value="none">Choose…</option>
+        <option value="never">Never</option>
+        <option value="gt7">More than 7 days</option>
+        <option value="gt14">More than 14 days</option>
+        <option value="gt30">More than 30 days</option>
+        <option value="gt60">More than 60 days</option>
+        <option value="gt90">More than 90 days</option>
+        <option value="gt180">More than 180 days</option>
+        <option value="gt365">More than 365 days</option>
+        <option value="before">Before date…</option>
+        <option value="after">After date…</option>
+        <option value="between">Between dates…</option>
+      </select>
+      <input type="date" id="todoLastIntStart" style="display:none" aria-label="Start date">
+      <input type="date" id="todoLastIntEnd"   style="display:none" aria-label="End date">
+      <button id="todoSelectByLastInt" type="button" class="btn ghost">Select Clients</button>
+    </div>
+    <div class="muted" style="font-size:.85rem;margin-top:6px">
+      Tip: use this to pick clients by “last contacted” without leaving Tasks.
+    </div>
+  </div>
+</div>
+
         <div>
           <label>Clients (multi-select)</label>
           <select id="todoClients" multiple size="8"></select>
@@ -694,6 +747,25 @@
     $('#clientSort')?.addEventListener('change', applyFiltersAndSort);
     $('#openClientBtn')?.addEventListener('click', ()=>openClientModal());
     $('#createTodoFromClientsBtn')?.addEventListener('click', ()=>openTodoModal(lastClientFilterResult.map(c=>c.id)));
+// Clients page: last interaction filter wiring
+$('#lastInteractionFilter')?.addEventListener('change', ()=>{
+  const v = $('#lastInteractionFilter').value;
+  const showStart = (v==='before' || v==='after' || v==='between');
+  const showEnd   = (v==='between');
+  $('#lastInteractionStart').style.display = showStart ? '' : 'none';
+  $('#lastInteractionEnd').style.display   = showEnd   ? '' : 'none';
+  applyFiltersAndSort();
+});
+$('#lastInteractionStart')?.addEventListener('change', applyFiltersAndSort);
+$('#lastInteractionEnd')?.addEventListener('change', applyFiltersAndSort);
+$('#resetLastInteraction')?.addEventListener('click', ()=>{
+  $('#lastInteractionFilter').value='any';
+  $('#lastInteractionStart').value='';
+  $('#lastInteractionEnd').value='';
+  $('#lastInteractionStart').style.display='none';
+  $('#lastInteractionEnd').style.display='none';
+  applyFiltersAndSort();
+});
 
     // clients list delegation
     $('#clientList')?.addEventListener('click', e=>{
@@ -729,6 +801,26 @@
     $('#todoFilterStatus')?.addEventListener('change', renderTodos);
     $('#todoFilterDue')?.addEventListener('change', renderTodos);
     $('#todoFilterClient')?.addEventListener('change', renderTodos);
+// To‑Do modal: quick select by last interaction
+$('#todoLastIntFilter')?.addEventListener('change', ()=>{
+  const v = $('#todoLastIntFilter').value;
+  const showStart = (v==='before' || v==='after' || v==='between');
+  const showEnd   = (v==='between');
+  $('#todoLastIntStart').style.display = showStart ? '' : 'none';
+  $('#todoLastIntEnd').style.display   = showEnd   ? '' : 'none';
+});
+
+$('#todoSelectByLastInt')?.addEventListener('click', ()=>{
+  const v  = $('#todoLastIntFilter').value;
+  if (v==='none') return;
+
+  const s  = $('#todoLastIntStart').value || '';
+  const e  = $('#todoLastIntEnd').value   || '';
+  const matchIds = clients.filter(c => matchesLastInteractionRule(c.id, v, s, e)).map(c=>c.id);
+
+  const sel = $('#todoClients');
+  [...sel.options].forEach(o => { o.selected = matchIds.includes(o.value); });
+});
 
     // follow-ups button delegation (toggle/delete/create)
     document.addEventListener('click', e=>{
@@ -867,24 +959,44 @@
     }).join('');
     populateTodoClientFilter();
   }
-  function applyFiltersAndSort(){
-    const term=($('#clientSearch').value||'').toLowerCase();
-    const selected=getActiveStyleFilters(); const mode=$('#styleMatch')?.value||'any';
-    let list=clients.filter(c=>{
-      const matches = fullNameOf(c).toLowerCase().includes(term) ||
-        (c.email&&c.email.toLowerCase().includes(term)) ||
-        (c.phone&&c.phone.includes(term)) ||
-        (c.styles&&c.styles.some(s=>s.toLowerCase().includes(term))) ||
-        (c.favoriteBrands&&c.favoriteBrands.some(b=>b.toLowerCase().includes(term))) ||
-        (c.colorsLiked&&c.colorsLiked.some(col=>col.toLowerCase().includes(term))) ||
-        (c.colorsDisliked&&c.colorsDisliked.some(col=>col.toLowerCase().includes(term)));
-      if(!matches) return false;
-      if(!selected.length) return true;
-      const styles=c.styles||[];
-      return (mode==='all') ? selected.every(s=>styles.includes(s)) : selected.some(s=>styles.includes(s));
-    });
-    list = sortClients(list, $('#clientSort').value||'createdAt_desc');
-    renderClients(list);
+ function applyFiltersAndSort(){
+  const term = ($('#clientSearch').value||'').toLowerCase();
+  const selected = getActiveStyleFilters();
+  const mode = $('#styleMatch')?.value||'any';
+
+  // NEW: last interaction controls
+  const liMode  = $('#lastInteractionFilter')?.value || 'any';
+  const liStart = $('#lastInteractionStart')?.value || '';
+  const liEnd   = $('#lastInteractionEnd')?.value || '';
+
+  let list = clients.filter(c=>{
+    // existing “term” matching
+    const matchesTerm = fullNameOf(c).toLowerCase().includes(term) ||
+      (c.email&&c.email.toLowerCase().includes(term)) ||
+      (c.phone&&c.phone.includes(term)) ||
+      (c.styles&&c.styles.some(s=>s.toLowerCase().includes(term))) ||
+      (c.favoriteBrands&&c.favoriteBrands.some(b=>b.toLowerCase().includes(term))) ||
+      (c.colorsLiked&&c.colorsLiked.some(col=>col.toLowerCase().includes(term))) ||
+      (c.colorsDisliked&&c.colorsDisliked.some(col=>col.toLowerCase().includes(term)));
+    if(!matchesTerm) return false;
+
+    // existing style filter logic
+    if(selected.length){
+      const styles = c.styles||[];
+      const styleOk = (mode==='all') ? selected.every(s=>styles.includes(s)) : selected.some(s=>styles.includes(s));
+      if(!styleOk) return false;
+    }
+
+    // NEW: last interaction rule
+    if(!matchesLastInteractionRule(c.id, liMode, liStart, liEnd)) return false;
+
+    return true;
+  });
+
+  list = sortClients(list, $('#clientSort').value||'createdAt_desc');
+  renderClients(list);
+}
+
   }
   function sortClients(arr, mode){
     const bySpent=(a,b)=>totalSpentFor(a.id)-totalSpentFor(b.id);
@@ -903,6 +1015,45 @@
       case 'createdAt_desc':
       default:             return arr.sort(byCreatedDesc);
     }
+    // --- Last Interaction Helpers ---
+function daysBetween(a, b) {
+  const MS = 24*60*60*1000;
+  return Math.floor((Date.UTC(b.getFullYear(),b.getMonth(),b.getDate()) -
+                     Date.UTC(a.getFullYear(),a.getMonth(),a.getDate())) / MS);
+}
+function matchesLastInteractionRule(clientId, mode, startStr, endStr){
+  const li = lastInteractionDate(clientId); // existing helper returns Date|null
+  const today = new Date();
+  // Quick buckets based on "older than X days"
+  const olderThan = (n) => (li ? daysBetween(li, today) > n : false);
+
+  switch(mode){
+    case 'any':     return true;
+    case 'never':   return !li;
+    case 'gt7':     return olderThan(7);
+    case 'gt14':    return olderThan(14);
+    case 'gt30':    return olderThan(30);
+    case 'gt60':    return olderThan(60);
+    case 'gt90':    return olderThan(90);
+    case 'gt180':   return olderThan(180);
+    case 'gt365':   return olderThan(365);
+    case 'before':  {
+      if(!startStr) return true;
+      const d = new Date(startStr);
+      return li ? li < d : false;
+    }
+    case 'after':   {
+      if(!startStr) return true;
+      const d = new Date(startStr);
+      return li ? li > d : false;
+    }
+    case 'between': {
+      if(!startStr || !endStr) return true;
+      const s = new Date(startStr), e = new Date(endStr);
+      return li ? (li >= s && li <= e) : false;
+    }
+    default: return true;
+  }
   }
 
   // ---------- Client Recap ----------
@@ -1115,21 +1266,38 @@
   }
 
   // ---------- To‑Dos ----------
-  function openTodoModal(preselectIds=null, id=null){
-    editingTodoId=id;
-    const sel=$('#todoClients'); sel.innerHTML=clients.map(c=>`<option value="${c.id}">${escapeHTML(fullNameOf(c))}</option>`).join('');
-    $('#todoDate').value=new Date().toISOString().slice(0,10);
-    if (id){
-      const t=todos.find(x=>x.id===id); if(!t) return;
-      $('#todoModalTitle').textContent='Edit To‑Do';
-      $('#todoTitle').value=t.title||''; $('#todoDate').value=t.date||new Date().toISOString().slice(0,10);
-      $('#todoNotes').value=t.notes||''; $('#todoStatus').value=t.status||'open';
-      [...sel.options].forEach(o=>o.selected=t.clientIds.includes(o.value));
-    } else {
-      $('#todoModalTitle').textContent='New To‑Do'; $('#todoForm').reset(); $('#todoStatus').value='open';
-      if (preselectIds?.length){ const set=new Set(preselectIds); [...sel.options].forEach(o=>o.selected=set.has(o.value)); }
-    }
-    $('#todoModal').classList.add('active');
+function openTodoModal(preselectIds = []){
+  editingTodoId = null;
+  const modal = $('#todoModal');
+  const sel = $('#todoClients');
+
+  // Populate list
+  sel.innerHTML = clients
+    .sort((a,b)=>fullNameOf(a).localeCompare(fullNameOf(b)))
+    .map(c=>`<option value="${c.id}">${escapeHTML(fullNameOf(c))}</option>`)
+    .join('');
+
+  // If caller passed ids, select those; otherwise select current filtered clients
+  const ids = (preselectIds && preselectIds.length)
+    ? preselectIds
+    : (lastClientFilterResult && lastClientFilterResult.length ? lastClientFilterResult.map(c=>c.id) : []);
+
+  [...sel.options].forEach(o => { o.selected = ids.includes(o.value); });
+
+  // Reset quick-select UI
+  $('#todoLastIntFilter').value = 'none';
+  $('#todoLastIntStart').value = '';
+  $('#todoLastIntEnd').value = '';
+  $('#todoLastIntStart').style.display = 'none';
+  $('#todoLastIntEnd').style.display   = 'none';
+
+  // Default dates
+  const today = new Date().toISOString().slice(0,10);
+  $('#todoForm').reset();
+  $('#todoDate').value = today;
+
+  modal.classList.add('active');
+
   }
   function saveTodo(e){
     e.preventDefault();
@@ -1607,6 +1775,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
 
 
 
