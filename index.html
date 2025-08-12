@@ -817,9 +817,12 @@ $('#todoSelectByLastInt')?.addEventListener('click', ()=>{
 
   const s  = $('#todoLastIntStart').value || '';
   const e  = $('#todoLastIntEnd').value   || '';
-  const matchIds = clients.filter(c => matchesLastInteractionRule(c.id, v, s, e)).map(c=>c.id);
+  const matchIds = clients
+    .filter(c => matchesLastInteractionRule(c.id, v, s, e))
+    .map(c => c.id);
 
   const sel = $('#todoClients');
+  if (!sel) return;
   [...sel.options].forEach(o => { o.selected = matchIds.includes(o.value); });
 });
 
@@ -2022,6 +2025,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
 
 
 
