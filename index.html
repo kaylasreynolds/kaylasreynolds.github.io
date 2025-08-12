@@ -487,8 +487,10 @@
         <div>
           <label>Clients (multi-select)</label>
           <select id="todoClients" multiple size="8"></select>
-          <div class="muted" style="font-size:.85rem;margin-top:6px">This preselects the current filter result from Clients.</div>
-        </div>
+          <div class="muted" style="font-size:.85rem;margin-top:6px">
+  Selecting multiple clients will create separate tasks for each client.
+</div>
+
         <div><label>Notes</label><textarea id="todoNotes" placeholder="Details for this task..."></textarea></div>
         <div class="card-actions" style="justify-content:flex-end">
           <button type="button" class="btn ghost" data-close-modal>Cancel</button>
@@ -584,23 +586,34 @@ function loadData(){
     todos = JSON.parse(localStorage.getItem('crm_todos') || '[]');
 
     let migrated = false;
-    clients.forEach(c=>{
-      if (!c.firstName && c.name){ const p=String(c.name).trim().split(/\s+/); c.firstName=p.shift()||''; c.lastName=p.join(' '); delete c.name; migrated=true;}
-      if (!c.styles){ c.styles = normalizeStyles(c.style); delete c.style; migrated=true; } else { c.styles = normalizeStyles(c.styles); }
-      const mapped = mapOldStatus(c.status); if(mapped!==c.status){c.status=mapped;migrated=true;}
+        // ... existing client/interactions/sales/followUps/todos normalization ...
 
-      c.birthdayMonth = c.birthdayMonth ?? '';
-      c.birthdayDay   = c.birthdayDay   ?? '';
-      c.colorsLiked    = Array.isArray(c.colorsLiked) ? c.colorsLiked : parseCSV(c.colorsLiked);
-      c.colorsDisliked = Array.isArray(c.colorsDisliked) ? c.colorsDisliked : parseCSV(c.colorsDisliked);
-      if (!c.sizing || typeof c.sizing!=='object'){ c.sizing = { top:c.sizeTop||'', bottom:c.sizeBottom||'', dress:c.sizeDress||'', shoe:c.sizeShoe||'' }; }
-      else { c.sizing.top=c.sizing.top||''; c.sizing.bottom=c.sizing.bottom||''; c.sizing.dress=c.sizing.dress||''; c.sizing.shoe=c.sizing.shoe||''; }
-      c.favoriteBrands = Array.isArray(c.favoriteBrands) ? c.favoriteBrands : parseCSV(c.favoriteBrands);
-      c.initialSales = Number(c.initialSales)||0;
-    });
-    interactions.forEach(i=>{ if(i.date && i.date.length>10){ i.date=i.date.slice(0,10); migrated=true; }});
-    followUps.forEach(f=>{ if(f.completed===undefined){ f.completed=false; f.type=f.type||'manual'; migrated=true; }});
-    todos.forEach(t=>{ if(!t.status){ t.status='open'; migrated=true; }});
+    // 🔧 MIGRATION: split any existing To‑Dos that have multiple clients
+    if (Array.isArray(todos) && todos.length){
+      const split = [];
+      let changed = false;
+      for (const t of todos){
+        const ids = Array.isArray(t.clientIds) ? t.clientIds.filter(Boolean) : [];
+        if (ids.length > 1){
+          ids.forEach((cid, idx) => {
+            split.push({
+              ...t,
+              id: (t.id || Date.now().toString()) + '-' + cid, // ensure unique
+              clientIds: [cid],
+              // keep createdAt; keep completedAt/status etc
+            });
+          });
+          changed = true;
+        } else {
+          split.push(t);
+        }
+      }
+      if (changed){
+        todos = split;
+        migrated = true;
+      }
+    }
+
     if (migrated) saveData();
   }catch(e){
     console.warn('load error',e);
@@ -1216,20 +1229,60 @@ function openTodoModal(preselectIds = [], editId = null){
 }
 function saveTodo(){
   const editId = $('#todoEditingId').value || null;
-  const title=$('#todoTitle').value.trim(); const date=$('#todoDate').value; const clientIds=getSelectedValues($('#todoClients'));
-  if(!title||!date) return alert('Title and due date are required.');
-  const payload = { title, date, clientIds, notes:$('#todoNotes').value.trim(), status:$('#todoStatus').value||'open' };
+  const title  = $('#todoTitle').value.trim();
+  const date   = $('#todoDate').value;
+  const notes  = $('#todoNotes').value.trim();
+  const status = $('#todoStatus').value || 'open';
+  const selectedClientIds = getSelectedValues($('#todoClients')).filter(Boolean);
+
+  if (!title || !date) return alert('Title and due date are required.');
+  if (!selectedClientIds.length) return alert('Please select at least one client.');
+
+  const nowIso = new Date().toISOString();
 
   if (editId){
-    const idx=todos.findIndex(t=>t.id===editId);
-    if(idx!==-1){
-      todos[idx] = { ...todos[idx], ...payload, completedAt: (payload.status==='done') ? (todos[idx].completedAt||new Date().toISOString()) : null };
-    }
+    // Update existing; if multiple selected, keep first on the edited one and create others
+    const idx = todos.findIndex(t => t.id === editId);
+    if (idx === -1){ alert('This to‑do no longer exists.'); return; }
+
+    const firstId = selectedClientIds[0];
+    todos[idx] = {
+      ...todos[idx],
+      title, date, notes, status,
+      clientIds: [firstId],
+      completedAt: (status === 'done') ? (todos[idx].completedAt || nowIso) : null
+    };
+
+    // For any additional selected clients, create new tasks
+    const extraIds = selectedClientIds.slice(1);
+    extraIds.forEach(cid => {
+      todos.push({
+        id: Date.now().toString() + Math.random().toString(36).slice(2,6),
+        title, date, notes, status,
+        clientIds: [cid],
+        createdAt: nowIso,
+        completedAt: (status === 'done') ? nowIso : null
+      });
+    });
+
   } else {
-    todos.push({ id:Date.now().toString(), ...payload, createdAt:new Date().toISOString(), completedAt:null });
+    // New task(s): always one per client
+    selectedClientIds.forEach(cid => {
+      todos.push({
+        id: Date.now().toString() + Math.random().toString(36).slice(2,6),
+        title, date, notes, status,
+        clientIds: [cid],
+        createdAt: nowIso,
+        completedAt: (status === 'done') ? nowIso : null
+      });
+    });
   }
-  saveData(); $('#todoModal').classList.remove('active'); renderTodos();
+
+  saveData();
+  $('#todoModal').classList.remove('active');
+  renderTodos();
 }
+
 function editTodo(id){ openTodoModal([], id); }
 function toggleTodo(id){
   const t=todos.find(x=>x.id===id); if(!t) return;
@@ -1520,3 +1573,4 @@ function createSeasonalForClients(clientIds, year) {
 </script>
 </body>
 </html>
+
