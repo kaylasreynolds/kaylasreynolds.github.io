@@ -48,7 +48,6 @@
   .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
   .tag{background:#eef;color:#333;padding:4px 10px;border-radius:999px;font-size:.75rem;font-weight:700}
 
-  /* modal */
   .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.45);z-index:10}
   .modal.active{display:flex}
   .panel{background:#fff;border-radius:16px;width:min(720px,92vw);max-height:90vh;overflow:auto;padding:20px}
@@ -60,7 +59,6 @@
   .row-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
   .empty-state{text-align:center;color:var(--muted2);padding:28px}
 
-  /* Tasks page: To‑Do block + Follow‑Up grid (4 cols) */
   .tasks-block{display:grid;gap:16px}
   .todo-controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
   .todo-controls .left{display:flex;gap:8px;align-items:center}
@@ -74,100 +72,36 @@
   .todo-client{background:#eef;border-radius:999px;padding:2px 8px;font-size:.8rem}
   .todo-actions{margin-top:10px;display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}
 
-  .followup-sections{
-    display:grid;grid-template-columns:repeat(4, minmax(0,1fr));gap:12px;
-  }
+  .followup-sections{display:grid;grid-template-columns:repeat(4, minmax(0,1fr));gap:12px}
   .followup-sections > div{min-width:0}
   .followup-sections h3{margin-top:0;font-size:.95rem;color:var(--muted);font-weight:700}
-
-  /* Follow-up cards */
-  .followup-card{
-    background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.06);
-    border-left:4px solid transparent;padding:12px;display:flex;flex-direction:column;min-height:140px
-  }
+  .followup-card{background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.06);border-left:4px solid transparent;padding:12px;display:flex;flex-direction:column;min-height:140px}
   .followup-card:hover{transform:translateY(-1px);transition:.2s;box-shadow:0 6px 16px rgba(0,0,0,.1);border-left-color:var(--grad1)}
   .followup-top{display:flex;justify-content:space-between;gap:10px}
   .followup-main{display:grid;gap:4px}
   .followup-main .client-name{font-size:.95rem}
   .followup-main .muted{font-size:.85rem}
-  .followup-main div{font-size:.9rem}
   .card-actions{margin-top:auto;display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}
   .pill-911{background:#ffe2e2;color:#7a0613;border-left-color:#c53030}
 
-  /* Filters: compact style pills under Clients */
-  .filters{display:flex;flex-direction:column;gap:6px;margin:8px 0 12px}
-  .filters-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-  .filters-title{font-weight:800;margin-right:6px;font-size:.9rem}
-  .chk{background:#fff;border:2px solid var(--ring);padding:4px 8px;border-radius:999px;display:flex;gap:6px;align-items:center;cursor:pointer;font-size:.85rem}
-  .chk input{accent-color:#4c51bf;transform:scale(.9)}
-  .filters-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-  .filters-controls select{padding:6px 8px;border-radius:8px;border:2px solid var(--ring);font-size:.9rem}
-/* Category color coding (match the card class you render) */
-.followup-card[data-type="seasonal"]      { border-left: 5px solid #60a5fa; background:#f0f9ff; }
-.followup-card[data-type="promotion"]     { border-left: 5px solid #facc15; background:#fefce8; }
-.followup-card[data-type="post-appointment"] { border-left: 5px solid #34d399; background:#ecfdf5; }
-.followup-card[data-type="relationship"]  { border-left: 5px solid #f472b6; background:#fdf2f8; }
-.followup-card[data-type="past-due"]      { border-left: 5px solid #ef4444; background:#fef2f2; }
-.followup-card[data-type="birthday"]      { border-left: 5px solid #a78bfa; background:#f5f3ff; }
+  /* Category color coding */
+  .followup-card[data-type="seasonal"]      { border-left: 5px solid #60a5fa; background:#f0f9ff; }
+  .followup-card[data-type="promotion"]     { border-left: 5px solid #facc15; background:#fefce8; }
+  .followup-card[data-type="post-appointment"] { border-left: 5px solid #34d399; background:#ecfdf5; }
+  .followup-card[data-type="relationship"]  { border-left: 5px solid #f472b6; background:#fdf2f8; }
+  .followup-card[data-type="past-due"]      { border-left: 5px solid #ef4444; background:#fef2f2; }
+  .followup-card[data-type="birthday"]      { border-left: 5px solid #a78bfa; background:#f5f3ff; }
 
-/* Seasonal pastel */
-.followup-card.seasonal { background: linear-gradient(180deg,#f7f6ff 0%,#f1f9ff 100%); border:1px solid #d9e7ff; }
-.followup-card .badge-season { display:inline-block; font-size:12px; padding:2px 8px; border-radius:999px; color:#194785; background:#dbeafe; margin-left:6px; }
+  /* Seasonal pastel */
+  .followup-card.seasonal { background: linear-gradient(180deg,#f7f6ff 0%,#f1f9ff 100%); border:1px solid #d9e7ff; }
+  .followup-card .badge-season { display:inline-block; font-size:12px; padding:2px 8px; border-radius:999px; color:#194785; background:#dbeafe; margin-left:6px; }
 
-     /* 2) Category color coding */
-    .follow-up[data-type="seasonal"] { border-left: 5px solid #60a5fa; background: #f0f9ff; }
-    .follow-up[data-type="promotion"] { border-left: 5px solid #facc15; background: #fefce8; }
-    .follow-up[data-type="post-appointment"] { border-left: 5px solid #34d399; background: #ecfdf5; }
-    .follow-up[data-type="relationship"] { border-left: 5px solid #f472b6; background: #fdf2f8; }
-    .follow-up[data-type="past-due"] { border-left: 5px solid #ef4444; background: #fef2f2; }
-    .follow-up[data-type="birthday"] { border-left: 5px solid #a78bfa; background: #f5f3ff; }
-/* Seasonal follow-up pastel styling */
-.follow-up.seasonal {
-  background: linear-gradient(180deg, #f7f6ff 0%, #f1f9ff 100%);
-  border: 1px solid #d9e7ff;
-}
-.follow-up.seasonal .badge-season {
-  display: inline-block;
-  font-size: 12px;
-  padding: 2px 8px;
-  border-radius: 999px;
-  color: #194785;
-  background: #dbeafe;
-  margin-left: 6px;
-  
-
- 
-}
-
-/* Controls */
-.seasonal-controls {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 8px 0 16px;
-}
-.chip.chip-filter {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 6px 10px; border-radius: 999px;
-  border: 1px solid #ddd; cursor: pointer; user-select: none;
-}
-.chip.chip-filter input { accent-color: #2563eb; }
-
-/* Dialog */
-#seasonalModal { border: none; border-radius: 12px; padding: 16px 18px; width: 360px; }
-#seasonalModal::backdrop { background: rgba(0,0,0,.35); }
-.seasonal-form .row { margin: 10px 0; }
-.seasonal-form .actions { display: flex; justify-content: flex-end; gap: 10px; }
-.btn { padding: 8px 12px; border-radius: 8px; border: 1px solid #d0d7de; background: #fff; cursor: pointer; }
-.btn-primary { background: #2563eb; color: #fff; border-color: #2563eb; }
-.btn-ghost { background: transparent; }
-
-    @media (max-width: 900px){
+  @media (max-width: 900px){
     .container{padding:12px}
     .followup-main .client-name{font-size:.9rem}
     .followup-main .muted{font-size:.8rem}
+    .followup-sections{grid-template-columns:1fr}
   }
-  
 </style>
 </head>
 <body>
@@ -253,7 +187,7 @@
           </div>
         </div>
 
-        <!-- Style Filters (compact) -->
+        <!-- Filters -->
         <div class="filters">
           <div class="filters-row">
             <div class="filters-title">Filter by Style:</div>
@@ -264,29 +198,27 @@
             <label class="chk"><input type="checkbox" class="style-filter" value="Vintage"> Vintage</label>
             <label class="chk"><input type="checkbox" class="style-filter" value="Trendy"> Trendy</label>
           </div>
-          <!-- Last Interaction Filter -->
-<div class="filters">
-  <div class="filters-row">
-    <div class="filters-title">Last Interaction:</div>
-    <select id="lastInteractionFilter" title="Last Interaction Filter">
-      <option value="any">Any time</option>
-      <option value="never">Never</option>
-      <option value="gt7">More than 7 days</option>
-      <option value="gt14">More than 14 days</option>
-      <option value="gt30">More than 30 days</option>
-      <option value="gt60">More than 60 days</option>
-      <option value="gt90">More than 90 days</option>
-      <option value="gt180">More than 180 days</option>
-      <option value="gt365">More than 365 days</option>
-      <option value="before">Before date…</option>
-      <option value="after">After date…</option>
-      <option value="between">Between dates…</option>
-    </select>
-    <input type="date" id="lastInteractionStart" style="display:none" aria-label="Start date">
-    <input type="date" id="lastInteractionEnd"   style="display:none" aria-label="End date">
-    <button id="resetLastInteraction" class="btn small ghost" type="button">Reset</button>
-  </div>
-</div>
+
+          <div class="filters-row">
+            <div class="filters-title">Last Interaction:</div>
+            <select id="lastInteractionFilter" title="Last Interaction Filter">
+              <option value="any">Any time</option>
+              <option value="never">Never</option>
+              <option value="gt7">More than 7 days</option>
+              <option value="gt14">More than 14 days</option>
+              <option value="gt30">More than 30 days</option>
+              <option value="gt60">More than 60 days</option>
+              <option value="gt90">More than 90 days</option>
+              <option value="gt180">More than 180 days</option>
+              <option value="gt365">More than 365 days</option>
+              <option value="before">Before date…</option>
+              <option value="after">After date…</option>
+              <option value="between">Between dates…</option>
+            </select>
+            <input type="date" id="lastInteractionStart" style="display:none" aria-label="Start date">
+            <input type="date" id="lastInteractionEnd"   style="display:none" aria-label="End date">
+            <button id="resetLastInteraction" class="btn small ghost" type="button">Reset</button>
+          </div>
 
           <div class="filters-controls">
             <select id="styleMatch">
@@ -332,37 +264,16 @@
         </div>
       </div>
     </div>
-    
 
-  
-
-<!-- Minimal modal -->
-<dialog id="seasonalModal">
-  <form method="dialog" id="seasonalForm" class="seasonal-form">
-    <h3>Bulk-create Seasonal Follow-Ups</h3>
-    <div class="row">
-      <label>Year
-        <input type="number" id="seasonalYear" min="2000" max="2100" required />
-      </label>
-    </div>
-    <fieldset class="row">
-      <legend>Target</legend>
-      <label><input type="radio" name="target" value="all" checked /> All clients</label>
-      <label><input type="radio" name="target" value="filtered" /> Filtered clients</label>
-    </fieldset>
-    <menu class="actions">
-      <button value="cancel" class="btn btn-ghost">Cancel</button>
-      <button id="btnSeasonalCreate" value="default" class="btn btn-primary">Create</button>
-    </menu>
-  </form>
-</dialog>
-
-    <!-- Tasks (To‑Do + Follow‑Ups) -->
+    <!-- Tasks -->
     <div id="tasks" class="tab-content" style="display:none">
       <div class="card tasks-block">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
           <h2 style="margin:0">Tasks</h2>
-          <button id="openTodoBtn" class="btn primary">📝 New To‑Do</button>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <button id="openTodoBtn" class="btn primary">📝 New To‑Do</button>
+            <button id="btnSeasonalOpen" class="btn ghost" title="Bulk create seasonal follow-ups">🌤️ Seasonal Follow‑Ups</button>
+          </div>
         </div>
 
         <!-- To‑Do block -->
@@ -411,11 +322,11 @@
     </div>
   </div>
 
-  <!-- Client Modal (Add/Edit) -->
+  <!-- Client Modal -->
   <div id="clientModal" class="modal">
     <div class="panel">
       <header><h3 id="clientModalTitle" style="margin:0">Add New Client</h3><button class="x" data-close-modal>×</button></header>
-      <form id="clientForm" onsubmit="saveClient(event)">
+      <form id="clientForm">
         <div class="row-cols">
           <div><label>First Name *</label><input type="text" id="clientFirstName" required></div>
           <div><label>Last Name *</label><input type="text" id="clientLastName" required></div>
@@ -428,22 +339,8 @@
           <div>
             <label>Birthday</label>
             <div class="row-cols" style="grid-template-columns:1fr 1fr">
-              <select id="clientBdayMonth" aria-label="Birthday month">
-                <option value="">Month</option><option value="1">January</option><option value="2">February</option><option value="3">March</option>
-                <option value="4">April</option><option value="5">May</option><option value="6">June</option>
-                <option value="7">July</option><option value="8">August</option><option value="9">September</option>
-                <option value="10">October</option><option value="11">November</option><option value="12">December</option>
-              </select>
-              <select id="clientBdayDay" aria-label="Birthday day">
-                <option value="">Day</option>
-                <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
-                <option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
-                <option>11</option><option>12</option><option>13</option><option>14</option><option>15</option>
-                <option>16</option><option>17</option><option>18</option><option>19</option><option>20</option>
-                <option>21</option><option>22</option><option>23</option><option>24</option><option>25</option>
-                <option>26</option><option>27</option><option>28</option><option>29</option><option>30</option>
-                <option>31</option>
-              </select>
+              <select id="clientBdayMonth"><option value="">Month</option><option value="1">January</option><option value="2">February</option><option value="3">March</option><option value="4">April</option><option value="5">May</option><option value="6">June</option><option value="7">July</option><option value="8">August</option><option value="9">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option></select>
+              <select id="clientBdayDay"><option value="">Day</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option><option>13</option><option>14</option><option>15</option><option>16</option><option>17</option><option>18</option><option>19</option><option>20</option><option>21</option><option>22</option><option>23</option><option>24</option><option>25</option><option>26</option><option>27</option><option>28</option><option>29</option><option>30</option><option>31</option></select>
             </div>
           </div>
           <div>
@@ -476,14 +373,8 @@
           </div>
         </div>
         <div class="row-cols">
-          <div>
-            <label>Status</label>
-            <select id="clientStatus"><option>Introductory</option><option>First Appointment</option><option>Established</option></select>
-          </div>
-          <div>
-            <label>Initial Sales Amount</label>
-            <input type="number" id="clientInitialSales" min="0" step="0.01" placeholder="0.00">
-          </div>
+          <div><label>Status</label><select id="clientStatus"><option>Introductory</option><option>First Appointment</option><option>Established</option></select></div>
+          <div><label>Initial Sales Amount</label><input type="number" id="clientInitialSales" min="0" step="0.01" placeholder="0.00"></div>
         </div>
         <div><label>Notes</label><textarea id="clientNotes" placeholder="Add any notes about this client..."></textarea></div>
         <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
@@ -509,7 +400,7 @@
   <div id="interactionModal" class="modal">
     <div class="panel">
       <header><h3 id="interactionModalTitle" style="margin:0">Log Interaction</h3><button class="x" data-close-modal>×</button></header>
-      <form id="interactionForm" onsubmit="saveInteraction(event)">
+      <form id="interactionForm">
         <div>
           <label>Client *</label>
           <select id="interactionClient" required><option value="">Select client...</option></select>
@@ -536,7 +427,7 @@
   <div id="saleModal" class="modal">
     <div class="panel">
       <header><h3 id="saleModalTitle" style="margin:0">Record Sale</h3><button class="x" data-close-modal>×</button></header>
-      <form id="saleForm" onsubmit="saveSale(event)">
+      <form id="saleForm">
         <div>
           <label>Client *</label>
           <select id="saleClient" required><option value="">Select client...</option></select>
@@ -558,48 +449,45 @@
   <div id="todoModal" class="modal">
     <div class="panel">
       <header><h3 id="todoModalTitle" style="margin:0">New To‑Do</h3><button class="x" data-close-modal>×</button></header>
-      <form id="todoForm" onsubmit="saveTodo(event)">
+      <form id="todoForm">
+        <input type="hidden" id="todoEditingId" />
         <div><label>Title *</label><input id="todoTitle" required placeholder="e.g., Send lookbook / Order samples"></div>
         <div class="row-cols">
           <div><label>Due Date *</label><input type="date" id="todoDate" required></div>
+          <div><label>Status</label><select id="todoStatus"><option value="open">Open</option><option value="done">Done</option></select></div>
+        </div>
+
+        <!-- Quick Select by Last Interaction -->
+        <div class="row-cols">
           <div>
-            <label>Status</label>
-            <select id="todoStatus"><option value="open">Open</option><option value="done">Done</option></select>
+            <label>Quick Select by Last Interaction</label>
+            <div class="filters-row">
+              <select id="todoLastIntFilter" title="Quick Select">
+                <option value="none">Choose…</option>
+                <option value="never">Never</option>
+                <option value="gt7">More than 7 days</option>
+                <option value="gt14">More than 14 days</option>
+                <option value="gt30">More than 30 days</option>
+                <option value="gt60">More than 60 days</option>
+                <option value="gt90">More than 90 days</option>
+                <option value="gt180">More than 180 days</option>
+                <option value="gt365">More than 365 days</option>
+                <option value="before">Before date…</option>
+                <option value="after">After date…</option>
+                <option value="between">Between dates…</option>
+              </select>
+              <input type="date" id="todoLastIntStart" style="display:none" aria-label="Start date">
+              <input type="date" id="todoLastIntEnd"   style="display:none" aria-label="End date">
+              <button id="todoSelectByLastInt" type="button" class="btn ghost">Select Clients</button>
+            </div>
+            <div class="muted" style="font-size:.85rem;margin-top:6px">Tip: pick clients by “last contacted” without leaving Tasks.</div>
           </div>
         </div>
-        <!-- Quick Select by Last Interaction -->
-<div class="row-cols">
-  <div>
-    <label>Quick Select by Last Interaction</label>
-    <div class="filters-row">
-      <select id="todoLastIntFilter" title="Quick Select">
-        <option value="none">Choose…</option>
-        <option value="never">Never</option>
-        <option value="gt7">More than 7 days</option>
-        <option value="gt14">More than 14 days</option>
-        <option value="gt30">More than 30 days</option>
-        <option value="gt60">More than 60 days</option>
-        <option value="gt90">More than 90 days</option>
-        <option value="gt180">More than 180 days</option>
-        <option value="gt365">More than 365 days</option>
-        <option value="before">Before date…</option>
-        <option value="after">After date…</option>
-        <option value="between">Between dates…</option>
-      </select>
-      <input type="date" id="todoLastIntStart" style="display:none" aria-label="Start date">
-      <input type="date" id="todoLastIntEnd"   style="display:none" aria-label="End date">
-      <button id="todoSelectByLastInt" type="button" class="btn ghost">Select Clients</button>
-    </div>
-    <div class="muted" style="font-size:.85rem;margin-top:6px">
-      Tip: use this to pick clients by “last contacted” without leaving Tasks.
-    </div>
-  </div>
-</div>
 
         <div>
           <label>Clients (multi-select)</label>
           <select id="todoClients" multiple size="8"></select>
-          <div class="muted" style="font-size:.85rem;margin-top:6px">Tip: this list preselects whatever clients match your current filters/search.</div>
+          <div class="muted" style="font-size:.85rem;margin-top:6px">This preselects the current filter result from Clients.</div>
         </div>
         <div><label>Notes</label><textarea id="todoNotes" placeholder="Details for this task..."></textarea></div>
         <div class="card-actions" style="justify-content:flex-end">
@@ -614,7 +502,7 @@
   <div id="followupModal" class="modal">
     <div class="panel">
       <header><h3 style="margin:0">Add Follow‑Up</h3><button class="x" data-close-modal>×</button></header>
-      <form id="followupForm" onsubmit="saveFollowUp(event)">
+      <form id="followupForm">
         <div><label>Client *</label><select id="followupClient" required><option value="">Select client...</option></select></div>
         <div class="row-cols"><div><label>Due Date *</label><input type="date" id="followupDate" required></div></div>
         <div><label>Notes</label><textarea id="followupNotes" placeholder="Follow up details..."></textarea></div>
@@ -626,411 +514,270 @@
     </div>
   </div>
 
+  <!-- Seasonal Follow‑Ups Modal -->
+  <dialog id="seasonalModal">
+    <form method="dialog" id="seasonalForm" class="seasonal-form">
+      <h3>Bulk-create Seasonal Follow-Ups</h3>
+      <div class="row"><label>Year <input type="number" id="seasonalYear" min="2000" max="2100" required /></label></div>
+      <fieldset class="row">
+        <legend>Target</legend>
+        <label><input type="radio" name="target" value="all" checked /> All clients</label>
+        <label><input type="radio" name="target" value="filtered" /> Filtered clients</label>
+      </fieldset>
+      <menu class="actions">
+        <button value="cancel" class="btn btn-ghost">Cancel</button>
+        <button id="btnSeasonalCreate" value="default" class="btn btn-primary">Create</button>
+      </menu>
+    </form>
+  </dialog>
+
 <script>
-  
-  // ---------- Utilities ----------
-  const fmtUSD = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
-  const $  = (s, r=document) => r.querySelector(s);
-  const $$ = (s, r=document) => [...r.querySelectorAll(s)];
-  const escapeHTML = (str) => String(str ?? '')
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+/* ===========================
+   UTILITIES & CONSTANTS
+   =========================== */
+const $  = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const fmtUSD = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
+const escapeHTML = (str) => String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
 
-  const VALID_STATUSES = ["Introductory","First Appointment","Established"];
-  const statusSlug = s => String(s||"").toLowerCase().replace(/\s+/g,'-');
-  const mapOldStatus = s => ({ "Prospect":"Introductory","Active":"Established","Inactive":"Introductory" }[s] || (VALID_STATUSES.includes(s)? s : "Introductory"));
+const VALID_STATUSES = ["Introductory","First Appointment","Established"];
+const statusSlug = s => String(s||"").toLowerCase().replace(/\s+/g,'-');
+const mapOldStatus = s => ({ "Prospect":"Introductory","Active":"Established","Inactive":"Introductory" }[s] || (VALID_STATUSES.includes(s)? s : "Introductory"));
+const ALLOWED_STYLES = ["Bohemian","Classic","Edgy","Casual","Vintage","Trendy"];
+const getSelectedValues = (sel) => [...sel.options].filter(o=>o.selected).map(o=>o.value);
+const normalizeStyles = (v) => Array.isArray(v) ? v.filter(x=>ALLOWED_STYLES.includes(x))
+  : (typeof v==='string' && v.trim()? v.split(',').map(s=>s.trim()).filter(x=>ALLOWED_STYLES.includes(x)) : []);
+const parseCSV = (str) => String(str || '').split(',').map(s => s.trim()).filter(Boolean);
+const joinCSV  = (arr) => (Array.isArray(arr) ? arr.join(', ') : '');
 
-  const ALLOWED_STYLES = ["Bohemian","Classic","Edgy","Casual","Vintage","Trendy"];
-  const getSelectedValues = (sel) => [...sel.options].filter(o=>o.selected).map(o=>o.value);
-  const normalizeStyles = (v) => Array.isArray(v) ? v.filter(x=>ALLOWED_STYLES.includes(x))
-    : (typeof v==='string' && v.trim()? v.split(',').map(s=>s.trim()).filter(x=>ALLOWED_STYLES.includes(x)) : []);
-  const parseCSV = (str) => String(str || '').split(',').map(s => s.trim()).filter(Boolean);
-  const joinCSV  = (arr) => (Array.isArray(arr) ? arr.join(', ') : '');
+const fullNameOf = (c)=>`${c?.firstName??''} ${c?.lastName??''}`.trim();
+const lastNameKey = (c)=>(c.lastName||'').toLowerCase();
 
-  // ---------- Data ----------
-  let clients = [];
-  let interactions = [];   // {id, clientId, type, date, notes, createdAt}
-  let sales = [];          // {id, clientId, amount, date, description, createdAt, interactionId?}
-  let followUps = [];      // {id, clientId, date, notes, createdAt, completed, completedAt, type}
-  let todos = [];          // {id,title,date,clientIds[],notes,status,createdAt,completedAt?}
+/* ===========================
+   STATE
+   =========================== */
+let clients = [];
+let interactions = [];   // {id, clientId, type, date, notes, createdAt}
+let sales = [];          // {id, clientId, amount, date, description, createdAt, interactionId?}
+let followUps = [];      // {id, clientId, date, notes, createdAt, completed, completedAt, type}
+let todos = [];          // {id,title,date,clientIds[],notes,status,createdAt,completedAt?}
 
-  let editingClientId = null, editingInteractionId = null, editingSaleId = null, editingTodoId = null;
-  let lastClientFilterResult = [];
+let editingClientId = null, editingInteractionId = null, editingSaleId = null;
+let lastClientFilterResult = [];
 
-  // ---------- Storage ----------
-  function saveData(){
-    localStorage.setItem('crm_clients', JSON.stringify(clients));
-    localStorage.setItem('crm_interactions', JSON.stringify(interactions));
-    localStorage.setItem('crm_sales', JSON.stringify(sales));
-    localStorage.setItem('crm_followups', JSON.stringify(followUps));
-    localStorage.setItem('crm_todos', JSON.stringify(todos));
-  }
-  function loadData(){
-    try{
-      clients = JSON.parse(localStorage.getItem('crm_clients') || '[]');
-      interactions = JSON.parse(localStorage.getItem('crm_interactions') || '[]');
-      sales = JSON.parse(localStorage.getItem('crm_sales') || '[]');
-      followUps = JSON.parse(localStorage.getItem('crm_followups') || '[]');
-      todos = JSON.parse(localStorage.getItem('crm_todos') || '[]');
+/* ===========================
+   STORAGE
+   =========================== */
+function saveData(){
+  localStorage.setItem('crm_clients', JSON.stringify(clients));
+  localStorage.setItem('crm_interactions', JSON.stringify(interactions));
+  localStorage.setItem('crm_sales', JSON.stringify(sales));
+  localStorage.setItem('crm_followups', JSON.stringify(followUps));
+  localStorage.setItem('crm_todos', JSON.stringify(todos));
+}
+function loadData(){
+  try{
+    clients = JSON.parse(localStorage.getItem('crm_clients') || '[]');
+    interactions = JSON.parse(localStorage.getItem('crm_interactions') || '[]');
+    sales = JSON.parse(localStorage.getItem('crm_sales') || '[]');
+    followUps = JSON.parse(localStorage.getItem('crm_followups') || '[]');
+    todos = JSON.parse(localStorage.getItem('crm_todos') || '[]');
 
-      let migrated = false;
-      clients.forEach(c=>{
-        if (!c.firstName && c.name){ const p=String(c.name).trim().split(/\s+/); c.firstName=p.shift()||''; c.lastName=p.join(' '); delete c.name; migrated=true;}
-        if (!c.styles){ c.styles = normalizeStyles(c.style); delete c.style; migrated=true; } else { c.styles = normalizeStyles(c.styles); }
-        const mapped = mapOldStatus(c.status); if(mapped!==c.status){c.status=mapped;migrated=true;}
+    let migrated = false;
+    clients.forEach(c=>{
+      if (!c.firstName && c.name){ const p=String(c.name).trim().split(/\s+/); c.firstName=p.shift()||''; c.lastName=p.join(' '); delete c.name; migrated=true;}
+      if (!c.styles){ c.styles = normalizeStyles(c.style); delete c.style; migrated=true; } else { c.styles = normalizeStyles(c.styles); }
+      const mapped = mapOldStatus(c.status); if(mapped!==c.status){c.status=mapped;migrated=true;}
 
-        // Profile defaults/migration
-        c.birthdayMonth = c.birthdayMonth ?? '';
-        c.birthdayDay   = c.birthdayDay   ?? '';
-        c.colorsLiked    = Array.isArray(c.colorsLiked) ? c.colorsLiked : parseCSV(c.colorsLiked);
-        c.colorsDisliked = Array.isArray(c.colorsDisliked) ? c.colorsDisliked : parseCSV(c.colorsDisliked);
-        if (!c.sizing || typeof c.sizing!=='object'){
-          c.sizing = { top:c.sizeTop||'', bottom:c.sizeBottom||'', dress:c.sizeDress||'', shoe:c.sizeShoe||'' };
-        } else {
-          c.sizing.top    = c.sizing.top||'';
-          c.sizing.bottom = c.sizing.bottom||'';
-          c.sizing.dress  = c.sizing.dress||'';
-          c.sizing.shoe   = c.sizing.shoe||'';
-        }
-        c.favoriteBrands = Array.isArray(c.favoriteBrands) ? c.favoriteBrands : parseCSV(c.favoriteBrands);
-      });
-      interactions.forEach(i=>{ if(i.date && i.date.length>10){ i.date=i.date.slice(0,10); migrated=true; }});
-      followUps.forEach(f=>{ if(f.completed===undefined){ f.completed=false; f.type=f.type||'manual'; migrated=true; }});
-      todos.forEach(t=>{ if(!t.status){ t.status='open'; migrated=true; }});
-      if (migrated) saveData();
-    }catch(e){
-      console.warn('load error',e); clients=[]; interactions=[]; sales=[]; followUps=[]; todos=[];
-    }
-  }
-
-  // ---------- Startup ----------
-  document.addEventListener('DOMContentLoaded', ()=>{
-    loadData();
-    renderAll();
-
-    const today = new Date().toISOString().slice(0,10);
-    ['interactionDate','saleDate','followupDate','todoDate'].forEach(id=>{ const el=$( '#'+id ); if(el) el.value=today; });
-
-    // global close
-    document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeAllModals(); });
-    document.addEventListener('click', e=>{
-      const m = e.target.closest('.modal');
-      if (m && !e.target.closest('.panel')) m.classList.remove('active');
+      c.birthdayMonth = c.birthdayMonth ?? '';
+      c.birthdayDay   = c.birthdayDay   ?? '';
+      c.colorsLiked    = Array.isArray(c.colorsLiked) ? c.colorsLiked : parseCSV(c.colorsLiked);
+      c.colorsDisliked = Array.isArray(c.colorsDisliked) ? c.colorsDisliked : parseCSV(c.colorsDisliked);
+      if (!c.sizing || typeof c.sizing!=='object'){ c.sizing = { top:c.sizeTop||'', bottom:c.sizeBottom||'', dress:c.sizeDress||'', shoe:c.sizeShoe||'' }; }
+      else { c.sizing.top=c.sizing.top||''; c.sizing.bottom=c.sizing.bottom||''; c.sizing.dress=c.sizing.dress||''; c.sizing.shoe=c.sizing.shoe||''; }
+      c.favoriteBrands = Array.isArray(c.favoriteBrands) ? c.favoriteBrands : parseCSV(c.favoriteBrands);
+      c.initialSales = Number(c.initialSales)||0;
     });
-    document.addEventListener('click', (e)=>{
-      const btn = e.target.closest('[data-close-modal]'); if(!btn) return;
-      const m = btn.closest('.modal'); if (m){ m.classList.remove('active'); m.querySelector('form')?.reset(); }
-      editingInteractionId=editingSaleId=editingTodoId=null;
-    });
-
-    // header
-    $('#exportBtn')?.addEventListener('click', exportData);
-    const importBtn=$('#importBtn'), importFile=$('#importFile');
-    if(importBtn && importFile){
-      importBtn.addEventListener('click',()=>importFile.click());
-      importFile.addEventListener('change',e=>{ const f=e.target.files[0]; if(f) importData(f); importFile.value=''; });
-    }
-    $('#clearBtn')?.addEventListener('click', ()=>{
-      if(confirm('Clear ALL data? This cannot be undone.')){
-        clients=[]; interactions=[]; sales=[]; followUps=[]; todos=[];
-        saveData(); renderAll();
-      }
-    });
-
-    // tabs
-    $$('.tab').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
-
-    // clients page
-    $$('.style-filter').forEach(cb=>cb.addEventListener('change', applyFiltersAndSort));
-    $('#styleMatch')?.addEventListener('change', applyFiltersAndSort);
-    $('#clearFiltersBtn')?.addEventListener('click', ()=>{ $$('.style-filter').forEach(cb=>cb.checked=false); $('#styleMatch').value='any'; applyFiltersAndSort(); });
-    $('#clientSearch')?.addEventListener('input', applyFiltersAndSort);
-    $('#clientSort')?.addEventListener('change', applyFiltersAndSort);
-    $('#openClientBtn')?.addEventListener('click', ()=>openClientModal());
-    $('#createTodoFromClientsBtn')?.addEventListener('click', ()=>openTodoModal(lastClientFilterResult.map(c=>c.id)));
-// Clients page: last interaction filter wiring
-$('#lastInteractionFilter')?.addEventListener('change', ()=>{
-  const v = $('#lastInteractionFilter').value;
-  const showStart = (v==='before' || v==='after' || v==='between');
-  const showEnd   = (v==='between');
-  $('#lastInteractionStart').style.display = showStart ? '' : 'none';
-  $('#lastInteractionEnd').style.display   = showEnd   ? '' : 'none';
-  applyFiltersAndSort();
-});
-$('#lastInteractionStart')?.addEventListener('change', applyFiltersAndSort);
-$('#lastInteractionEnd')?.addEventListener('change', applyFiltersAndSort);
-$('#resetLastInteraction')?.addEventListener('click', ()=>{
-  $('#lastInteractionFilter').value='any';
-  $('#lastInteractionStart').value='';
-  $('#lastInteractionEnd').value='';
-  $('#lastInteractionStart').style.display='none';
-  $('#lastInteractionEnd').style.display='none';
-  applyFiltersAndSort();
-});
-
-    // clients list delegation
-    $('#clientList')?.addEventListener('click', e=>{
-      const btn = e.target.closest('button[data-action]'); if(!btn) return;
-      const id = btn.getAttribute('data-id'); const action=btn.getAttribute('data-action');
-      if (action==='view') openClientView(id);
-      if (action==='edit') openClientModal(id);
-      if (action==='delete') deleteClient(id);
-    });
-
-    // interactions page
-    $('#openInteractionBtn')?.addEventListener('click', ()=>openInteractionModal());
-    $('#interactionSearch')?.addEventListener('input', searchInteractions);
-    $('#interactionList')?.addEventListener('click', e=>{
-      const del = e.target.closest('[data-action="delete-interaction"]');
-      const edit = e.target.closest('[data-action="edit-interaction"]');
-      if (del) return deleteInteraction(del.dataset.id);
-      if (edit) return openInteractionModal(edit.dataset.id);
-    });
-
-    // sales page
-    $('#openSaleBtn')?.addEventListener('click', ()=>openSaleModal());
-    $('#salesList')?.addEventListener('click', e=>{
-      const edit=e.target.closest('[data-action="edit-sale"]');
-      const del=e.target.closest('[data-action="delete-sale"]');
-      if (edit) return openSaleModal(edit.dataset.id);
-      if (del) return deleteSale(del.dataset.id);
-    });
-
-    // tasks page
-    $('#openTodoBtn')?.addEventListener('click', ()=>openTodoModal());
-    $('#todoSort')?.addEventListener('change', renderTodos);
-    $('#todoFilterStatus')?.addEventListener('change', renderTodos);
-    $('#todoFilterDue')?.addEventListener('change', renderTodos);
-    $('#todoFilterClient')?.addEventListener('change', renderTodos);
-// To‑Do modal: quick select by last interaction
-$('#todoLastIntFilter')?.addEventListener('change', ()=>{
-  const v = $('#todoLastIntFilter').value;
-  const showStart = (v==='before' || v==='after' || v==='between');
-  const showEnd   = (v==='between');
-  $('#todoLastIntStart').style.display = showStart ? '' : 'none';
-  $('#todoLastIntEnd').style.display   = showEnd   ? '' : 'none';
-});
-
-$('#todoSelectByLastInt')?.addEventListener('click', ()=>{
-  const v  = $('#todoLastIntFilter').value;
-  if (v==='none') return;
-
-  const s  = $('#todoLastIntStart').value || '';
-  const e  = $('#todoLastIntEnd').value   || '';
-  const matchIds = clients
-    .filter(c => matchesLastInteractionRule(c.id, v, s, e))
-    .map(c => c.id);
-
-  const sel = $('#todoClients');
-  if (!sel) return;
-  [...sel.options].forEach(o => { o.selected = matchIds.includes(o.value); });
-});
-
-    // follow-ups button delegation (toggle/delete/create)
-    document.addEventListener('click', e=>{
-      const t=e.target.closest('[data-action="toggle-followup"]'); if (t){ toggleFollowUp(t.dataset.id); return; }
-      const d=e.target.closest('[data-action="delete-followup"]'); if (d){ deleteFollowUp(d.dataset.id); return; }
-      const c=e.target.closest('[data-action="create-followup-for-client"]'); if (c){ openFollowUpModal(c.dataset.id, c.dataset.notes||''); return; }
-    });
-  });
-
-  function renderAll(){ renderClients(); renderInteractions(); renderSalesView(); renderTodos(); renderFollowUps(); updateDashboard(); }
-
-  function closeAllModals(){ $$('.modal.active').forEach(m=>m.classList.remove('active')); }
-
-  // ---------- Tabs ----------
-  function switchTab(tab){ $$('.tab-content').forEach(c=>c.style.display = (c.id===tab?'block':'none')); $$('.tab').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab)); if(tab==='dashboard') updateDashboard(); if(tab==='sales') renderSalesView(); if(tab==='tasks'){ renderTodos(); renderFollowUps(); } }
-
-  // ---------- Helpers ----------
-  const fullNameOf = (c)=>`${c.firstName??''} ${c.lastName??''}`.trim();
-  const lastNameKey = (c)=>(c.lastName||'').toLowerCase();
-  function getActiveStyleFilters(){ return [...document.querySelectorAll('.style-filter:checked')].map(c=>c.value); }
-  function lastInteractionDate(clientId){
-    const ds = interactions.filter(i=>i.clientId===clientId).map(i=>new Date(i.date));
-    return ds.length? new Date(Math.max(...ds)) : null;
+    interactions.forEach(i=>{ if(i.date && i.date.length>10){ i.date=i.date.slice(0,10); migrated=true; }});
+    followUps.forEach(f=>{ if(f.completed===undefined){ f.completed=false; f.type=f.type||'manual'; migrated=true; }});
+    todos.forEach(t=>{ if(!t.status){ t.status='open'; migrated=true; }});
+    if (migrated) saveData();
+  }catch(e){
+    console.warn('load error',e);
+    clients=[]; interactions=[]; sales=[]; followUps=[]; todos=[];
   }
-
-  // ---------- Auto Follow-up ----------
-  function createAutoFollowUp(clientId, baseDate, type){
-    const d=new Date(baseDate); let notes='';
-    if(type==='weekly'){ d.setDate(d.getDate()+7); notes='Weekly follow-up (auto-created)'; }
-    else if(type==='monthly'){ d.setMonth(d.getMonth()+1); notes='Monthly follow-up (auto-created)'; }
-    followUps.push({ id:Date.now().toString()+Math.random().toString(36).slice(2,6), clientId, date:d.toISOString().slice(0,10), notes, createdAt:new Date().toISOString(), completed:false, type });
-  }
-  function toggleFollowUp(id){
-    const f=followUps.find(x=>x.id===id); if(!f) return;
-    f.completed=!f.completed; f.completedAt=f.completed?new Date().toISOString():null;
-    if (f.completed && f.type==='weekly') createAutoFollowUp(f.clientId, f.completedAt.slice(0,10), 'monthly');
-    saveData(); renderFollowUps(); updateDashboard();
-  }
-  function deleteFollowUp(id){
-    const f=followUps.find(x=>x.id===id); if(!f) return;
-    if (!confirm((f.type!=='manual')?'Delete this auto-created follow-up?':'Delete this follow-up?')) return;
-    followUps = followUps.filter(x=>x.id!==id);
-    saveData(); renderFollowUps(); updateDashboard();
-  }
-
-  // ---------- Clients ----------
-  function openClientModal(id=null){
-    editingClientId = id;
-    const m=$('#clientModal'); const form=$('#clientForm');
-    if (id){
-      const c=clients.find(x=>x.id===id);
-      $('#clientModalTitle').textContent='Edit Client';
-      $('#clientFirstName').value=c.firstName||''; $('#clientLastName').value=c.lastName||'';
-      $('#clientEmail').value=c.email||''; $('#clientPhone').value=c.phone||'';
-      [...$('#clientStyles').options].forEach(o=>o.selected=(c.styles||[]).includes(o.value));
-      $('#clientStatus').value = VALID_STATUSES.includes(c.status)?c.status:'Introductory';
-      $('#clientInitialSales').value=c.initialSales??'';
-      $('#clientNotes').value=c.notes||'';
-      // profile
-      $('#clientBdayMonth').value=c.birthdayMonth||''; $('#clientBdayDay').value=c.birthdayDay||'';
-      $('#clientColorsLiked').value=joinCSV(c.colorsLiked||[]); $('#clientColorsDisliked').value=joinCSV(c.colorsDisliked||[]);
-      $('#clientSizeTop').value=c.sizing?.top||''; $('#clientSizeBottom').value=c.sizing?.bottom||''; $('#clientSizeDress').value=c.sizing?.dress||''; $('#clientSizeShoe').value=c.sizing?.shoe||'';
-      $('#clientBrands').value=joinCSV(c.favoriteBrands||[]);
-    } else {
-      $('#clientModalTitle').textContent='Add New Client'; form.reset(); $('#clientStatus').value='Introductory';
-      [...$('#clientStyles').options].forEach(o=>o.selected=false);
-    }
-    m.classList.add('active');
-  }
-  function saveClient(e){
-    e.preventDefault();
-    const firstName=$('#clientFirstName').value.trim(), lastName=$('#clientLastName').value.trim();
-    if(!firstName||!lastName) return alert('First and last names are required.');
-
-    const data={
-      firstName,lastName,
-      email:$('#clientEmail').value.trim(), phone:$('#clientPhone').value.trim(),
-      styles: normalizeStyles(getSelectedValues($('#clientStyles'))),
-      status: $('#clientStatus').value||'Introductory',
-      initialSales: parseFloat($('#clientInitialSales').value)||0,
-      notes: $('#clientNotes').value.trim(),
-      birthdayMonth: $('#clientBdayMonth').value||'',
-      birthdayDay:   $('#clientBdayDay').value||'',
-      colorsLiked:   parseCSV($('#clientColorsLiked').value),
-      colorsDisliked:parseCSV($('#clientColorsDisliked').value),
-      sizing:{ top:$('#clientSizeTop').value.trim(), bottom:$('#clientSizeBottom').value.trim(), dress:$('#clientSizeDress').value.trim(), shoe:$('#clientSizeShoe').value.trim() },
-      favoriteBrands: parseCSV($('#clientBrands').value),
-      createdAt: new Date().toISOString()
-    };
-    if (editingClientId){
-      const i=clients.findIndex(c=>c.id===editingClientId); clients[i] = { ...clients[i], ...data, createdAt: clients[i].createdAt||data.createdAt };
-    } else { data.id=Date.now().toString(); clients.push(data); }
-    saveData(); $('#clientModal').classList.remove('active'); renderClients(); renderFollowUps(); updateDashboard(); populateTodoClientFilter();
-  }
-  function deleteClient(id){
-    if(!confirm('Delete this client and all related interactions, sales, follow ups & to‑dos?')) return;
-    clients=clients.filter(c=>c.id!==id);
-    interactions=interactions.filter(i=>i.clientId!==id);
-    sales=sales.filter(s=>s.clientId!==id);
-    followUps=followUps.filter(f=>f.clientId!==id);
-    todos=todos.map(t=>({...t, clientIds:t.clientIds.filter(cid=>cid!==id)})).filter(t=>t.clientIds.length>0);
-    saveData(); renderAll(); populateTodoClientFilter();
-  }
-  function totalSpentFor(clientId){
-    const c=clients.find(x=>x.id===clientId);
-    const extra=sales.filter(s=>s.clientId===clientId).reduce((sum,s)=>sum+(Number(s.amount)||0),0);
-    return (Number(c?.initialSales)||0)+extra;
-  }
-  function renderClients(src=clients){
-    const list=$('#clientList');
-    if(src.length===0){ list.innerHTML=`<div class="empty-state"><div style="font-size:42px;opacity:.6">👥</div><p>No clients yet. Add your first client!</p></div>`; lastClientFilterResult=[]; return;}
-    const sorted = sortClients([...src], $('#clientSort').value||'createdAt_desc'); lastClientFilterResult=[...sorted];
-    list.innerHTML = sorted.map(c=>{
-      const total=totalSpentFor(c.id); const li=lastInteractionDate(c.id);
-      const bdayThisMonth = c.birthdayMonth && Number(c.birthdayMonth)===(new Date().getMonth()+1);
-      return `<div class="client-item">
-        <div class="client-header">
-          <div>
-            <div class="client-name">
-              ${escapeHTML(fullNameOf(c))}
-              ${bdayThisMonth? `<span class="tag">🎂 ${escapeHTML(c.birthdayDay||'')}</span>`:''}
-              ${total>0? `<span class="badge-sale">${fmtUSD.format(total)}</span>`:''}
-            </div>
-            <div class="muted" style="margin-top:4px">${c.email?`📧 ${escapeHTML(c.email)} · `:''}${c.phone?`📱 ${escapeHTML(c.phone)}`:''}</div>
-            ${(c.styles&&c.styles.length)? `<div class="tags" aria-label="Style Vibes">${c.styles.map(s=>`<span class="tag">${escapeHTML(s)}</span>`).join('')}</div>`:''}
-            ${li? `<div class="muted" style="margin-top:6px;font-size:.85rem">Last Interaction: ${li.toLocaleDateString()}</div>`:''}
-          </div>
-          <span class="chip status-${statusSlug(c.status||'Introductory')}">${escapeHTML(c.status||'Introductory')}</span>
-        </div>
-        <div class="buttons">
-          <button class="btn primary" data-action="view" data-id="${c.id}">View</button>
-          <button class="btn ghost" data-action="edit" data-id="${c.id}">Edit</button>
-          <button class="btn danger" data-action="delete" data-id="${c.id}">Delete</button>
-        </div>
-      </div>`;
-    }).join('');
-    populateTodoClientFilter();
-  }
- function applyFiltersAndSort(){
-  const term = ($('#clientSearch').value||'').toLowerCase();
-  const selected = getActiveStyleFilters();
-  const mode = $('#styleMatch')?.value||'any';
-
-  // NEW: last interaction controls
-  const liMode  = $('#lastInteractionFilter')?.value || 'any';
-  const liStart = $('#lastInteractionStart')?.value || '';
-  const liEnd   = $('#lastInteractionEnd')?.value || '';
-
-  let list = clients.filter(c=>{
-    // existing “term” matching
-    const matchesTerm = fullNameOf(c).toLowerCase().includes(term) ||
-      (c.email&&c.email.toLowerCase().includes(term)) ||
-      (c.phone&&c.phone.includes(term)) ||
-      (c.styles&&c.styles.some(s=>s.toLowerCase().includes(term))) ||
-      (c.favoriteBrands&&c.favoriteBrands.some(b=>b.toLowerCase().includes(term))) ||
-      (c.colorsLiked&&c.colorsLiked.some(col=>col.toLowerCase().includes(term))) ||
-      (c.colorsDisliked&&c.colorsDisliked.some(col=>col.toLowerCase().includes(term)));
-    if(!matchesTerm) return false;
-
-    // existing style filter logic
-    if(selected.length){
-      const styles = c.styles||[];
-      const styleOk = (mode==='all') ? selected.every(s=>styles.includes(s)) : selected.some(s=>styles.includes(s));
-      if(!styleOk) return false;
-    }
-
-    // NEW: last interaction rule
-    if(!matchesLastInteractionRule(c.id, liMode, liStart, liEnd)) return false;
-
-    return true;
-  });
-
-  list = sortClients(list, $('#clientSort').value||'createdAt_desc');
-  renderClients(list);
 }
 
+/* ===========================
+   STARTUP
+   =========================== */
+document.addEventListener('DOMContentLoaded', ()=>{
+  loadData();
+  renderAll();
+
+  const today = new Date().toISOString().slice(0,10);
+  ['interactionDate','saleDate','followupDate','todoDate'].forEach(id=>{ const el=$( '#'+id ); if(el) el.value=today; });
+
+  // global modal close
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeAllModals(); });
+  document.addEventListener('click', e=>{
+    const m = e.target.closest('.modal');
+    if (m && !e.target.closest('.panel')) m.classList.remove('active');
+  });
+  document.addEventListener('click', (e)=>{
+    const btn = e.target.closest('[data-close-modal]'); if(!btn) return;
+    const m = btn.closest('.modal'); if (m){ m.classList.remove('active'); m.querySelector('form')?.reset(); }
+    editingInteractionId=editingSaleId=null;
+  });
+
+  // header
+  $('#exportBtn')?.addEventListener('click', exportData);
+  const importBtn=$('#importBtn'), importFile=$('#importFile');
+  if(importBtn && importFile){
+    importBtn.addEventListener('click',()=>importFile.click());
+    importFile.addEventListener('change',e=>{ const f=e.target.files[0]; if(f) importData(f); importFile.value=''; });
   }
-  function sortClients(arr, mode){
-    const bySpent=(a,b)=>totalSpentFor(a.id)-totalSpentFor(b.id);
-    const byLast=(a,b)=>lastNameKey(a).localeCompare(lastNameKey(b));
-    const byStyle=(a,b)=>{ const sa=(a.styles?.length?[...a.styles].sort()[0]:''); const sb=(b.styles?.length?[...b.styles].sort()[0]:''); return sa.toLowerCase().localeCompare(sb.toLowerCase()); };
-    const byCreatedDesc=(a,b)=>new Date(b.createdAt)-new Date(a.createdAt);
-    switch(mode){
-      case 'lastInteraction_desc': return arr.sort((a,b)=>{const da=lastInteractionDate(a.id),db=lastInteractionDate(b.id); if(da&&db) return db-da; if(da&&!db) return -1; if(!da&&db) return 1; return byLast(a,b);});
-      case 'lastInteraction_asc':  return arr.sort((a,b)=>{const da=lastInteractionDate(a.id),db=lastInteractionDate(b.id); if(da&&db) return da-db; if(da&&!db) return -1; if(!da&&db) return 1; return byLast(a,b);});
-      case 'lastName_asc': return arr.sort((a,b)=>byLast(a,b));
-      case 'lastName_desc':return arr.sort((a,b)=>byLast(b,a));
-      case 'style_asc':    return arr.sort((a,b)=>byStyle(a,b)||byLast(a,b));
-      case 'style_desc':   return arr.sort((a,b)=>byStyle(b,a)||byLast(a,b));
-      case 'spent_asc':    return arr.sort((a,b)=>bySpent(a,b)||byLast(a,b));
-      case 'spent_desc':   return arr.sort((a,b)=>bySpent(b,a)||byLast(a,b));
-      case 'createdAt_desc':
-      default:             return arr.sort(byCreatedDesc);
+  $('#clearBtn')?.addEventListener('click', ()=>{
+    if(confirm('Clear ALL data? This cannot be undone.')){
+      clients=[]; interactions=[]; sales=[]; followUps=[]; todos=[];
+      saveData(); renderAll();
     }
-    // --- Last Interaction Helpers ---
+  });
+
+  // tabs
+  $$('.tab').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
+
+  // clients page
+  $$('.style-filter').forEach(cb=>cb.addEventListener('change', applyFiltersAndSort));
+  $('#styleMatch')?.addEventListener('change', applyFiltersAndSort);
+  $('#clearFiltersBtn')?.addEventListener('click', ()=>{ $$('.style-filter').forEach(cb=>cb.checked=false); $('#styleMatch').value='any'; $('#clientSearch').value=''; resetLastInteractionUI(); applyFiltersAndSort(); });
+  $('#clientSearch')?.addEventListener('input', applyFiltersAndSort);
+  $('#clientSort')?.addEventListener('change', applyFiltersAndSort);
+  $('#openClientBtn')?.addEventListener('click', ()=>openClientModal());
+  $('#createTodoFromClientsBtn')?.addEventListener('click', ()=>openTodoModal(lastClientFilterResult.map(c=>c.id)));
+
+  // last interaction UI wiring
+  $('#lastInteractionFilter')?.addEventListener('change', ()=>{
+    const v = $('#lastInteractionFilter').value;
+    $('#lastInteractionStart').style.display = (v==='before' || v==='after' || v==='between') ? '' : 'none';
+    $('#lastInteractionEnd').style.display   = (v==='between') ? '' : 'none';
+    applyFiltersAndSort();
+  });
+  $('#lastInteractionStart')?.addEventListener('change', applyFiltersAndSort);
+  $('#lastInteractionEnd')?.addEventListener('change', applyFiltersAndSort);
+  $('#resetLastInteraction')?.addEventListener('click', ()=>{ resetLastInteractionUI(); applyFiltersAndSort(); });
+
+  // clients list delegation
+  $('#clientList')?.addEventListener('click', e=>{
+    const btn = e.target.closest('button[data-action]'); if(!btn) return;
+    const id = btn.getAttribute('data-id'); const action=btn.getAttribute('data-action');
+    if (action==='view') openClientView(id);
+    if (action==='edit') openClientModal(id);
+    if (action==='delete') deleteClient(id);
+  });
+
+  // interactions page
+  $('#openInteractionBtn')?.addEventListener('click', ()=>openInteractionModal());
+  $('#interactionSearch')?.addEventListener('input', searchInteractions);
+  $('#interactionList')?.addEventListener('click', e=>{
+    const del = e.target.closest('[data-action="delete-interaction"]');
+    const edit = e.target.closest('[data-action="edit-interaction"]');
+    if (del) return deleteInteraction(del.dataset.id);
+    if (edit) return openInteractionModal(edit.dataset.id);
+  });
+
+  // sales page
+  $('#openSaleBtn')?.addEventListener('click', ()=>openSaleModal());
+  $('#salesList')?.addEventListener('click', e=>{
+    const edit=e.target.closest('[data-action="edit-sale"]');
+    const del=e.target.closest('[data-action="delete-sale"]');
+    if (edit) return openSaleModal(edit.dataset.id);
+    if (del) return deleteSale(del.dataset.id);
+  });
+
+  // tasks page
+  $('#openTodoBtn')?.addEventListener('click', ()=>openTodoModal());
+  $('#todoSort')?.addEventListener('change', renderTodos);
+  $('#todoFilterStatus')?.addEventListener('change', renderTodos);
+  $('#todoFilterDue')?.addEventListener('change', renderTodos);
+  $('#todoFilterClient')?.addEventListener('change', renderTodos);
+
+  // To‑Do modal: quick select by last interaction
+  $('#todoLastIntFilter')?.addEventListener('change', ()=>{
+    const v = $('#todoLastIntFilter').value;
+    $('#todoLastIntStart').style.display = (v==='before' || v==='after' || v==='between') ? '' : 'none';
+    $('#todoLastIntEnd').style.display   = (v==='between') ? '' : 'none';
+  });
+
+  $('#todoSelectByLastInt')?.addEventListener('click', ()=>{
+    const v  = $('#todoLastIntFilter').value;
+    if (v==='none') return;
+    const s  = $('#todoLastIntStart').value || '';
+    const e  = $('#todoLastIntEnd').value   || '';
+    const matchIds = clients.filter(c => matchesLastInteractionRule(c.id, v, s, e)).map(c => c.id);
+    const sel = $('#todoClients'); if (!sel) return;
+    [...sel.options].forEach(o => { o.selected = matchIds.includes(o.value); });
+  });
+
+  // seasonal modal wiring
+  const seasonalModal   = $('#seasonalModal');
+  const btnSeasonalOpen = $('#btnSeasonalOpen');
+  const btnSeasonalMake = $('#btnSeasonalCreate');
+  const yearInp         = $('#seasonalYear');
+  if (yearInp) yearInp.value = new Date().getFullYear();
+  btnSeasonalOpen?.addEventListener('click', ()=> seasonalModal.showModal());
+  btnSeasonalMake?.addEventListener('click', (e)=>{
+    e.preventDefault();
+    const year = Number(yearInp?.value) || new Date().getFullYear();
+    const target = (new FormData($('#seasonalForm'))).get('target') || 'all';
+    const ids = getTargetClientIds(target);
+    const created = createSeasonalForClients(ids, year);
+    seasonalModal.close();
+    alert(created.length
+      ? `✅ Created ${created.length} seasonal follow-ups for ${new Set(created.map(c=>c.clientId)).size} client(s) for ${year}.`
+      : `ℹ️ Everything up to date — no new seasonal follow-ups needed for ${year}.`);
+  });
+
+});
+
+/* ===========================
+   RENDER HUB
+   =========================== */
+function renderAll(){ renderClients(); renderInteractions(); renderSalesView(); renderTodos(); renderFollowUps(); updateDashboard(); }
+function closeAllModals(){ $$('.modal.active').forEach(m=>m.classList.remove('active')); }
+
+/* ===========================
+   TABS
+   =========================== */
+function switchTab(tab){
+  $$('.tab-content').forEach(c=>c.style.display = (c.id===tab?'block':'none'));
+  $$('.tab').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+  if(tab==='dashboard') updateDashboard();
+  if(tab==='sales') renderSalesView();
+  if(tab==='tasks'){ renderTodos(); renderFollowUps(); }
+}
+
+/* ===========================
+   LAST INTERACTION HELPERS
+   =========================== */
+function resetLastInteractionUI(){
+  const f = $('#lastInteractionFilter'); if (!f) return;
+  f.value='any';
+  $('#lastInteractionStart').value=''; $('#lastInteractionEnd').value='';
+  $('#lastInteractionStart').style.display='none'; $('#lastInteractionEnd').style.display='none';
+}
+function lastInteractionDate(clientId){
+  const ds = interactions.filter(i=>i.clientId===clientId).map(i=>new Date(i.date));
+  return ds.length? new Date(Math.max(...ds)) : null;
+}
 function daysBetween(a, b) {
   const MS = 24*60*60*1000;
-  return Math.floor((Date.UTC(b.getFullYear(),b.getMonth(),b.getDate()) -
-                     Date.UTC(a.getFullYear(),a.getMonth(),a.getDate())) / MS);
+  return Math.floor((Date.UTC(b.getFullYear(),b.getMonth(),b.getDate()) - Date.UTC(a.getFullYear(),a.getMonth(),a.getDate())) / MS);
 }
 function matchesLastInteractionRule(clientId, mode, startStr, endStr){
-  const li = lastInteractionDate(clientId); // existing helper returns Date|null
+  const li = lastInteractionDate(clientId); // Date|null
   const today = new Date();
-  // Quick buckets based on "older than X days"
   const olderThan = (n) => (li ? daysBetween(li, today) > n : false);
-
   switch(mode){
     case 'any':     return true;
     case 'never':   return !li;
@@ -1041,237 +788,393 @@ function matchesLastInteractionRule(clientId, mode, startStr, endStr){
     case 'gt90':    return olderThan(90);
     case 'gt180':   return olderThan(180);
     case 'gt365':   return olderThan(365);
-    case 'before':  {
-      if(!startStr) return true;
-      const d = new Date(startStr);
-      return li ? li < d : false;
-    }
-    case 'after':   {
-      if(!startStr) return true;
-      const d = new Date(startStr);
-      return li ? li > d : false;
-    }
-    case 'between': {
-      if(!startStr || !endStr) return true;
-      const s = new Date(startStr), e = new Date(endStr);
-      return li ? (li >= s && li <= e) : false;
-    }
+    case 'before':  { if(!startStr) return true; const d = new Date(startStr); return li ? li < d : false; }
+    case 'after':   { if(!startStr) return true; const d = new Date(startStr); return li ? li > d : false; }
+    case 'between': { if(!startStr || !endStr) return true; const s = new Date(startStr), e = new Date(endStr); return li ? (li >= s && li <= e) : false; }
     default: return true;
   }
+}
+
+/* ===========================
+   CLIENTS
+   =========================== */
+function getActiveStyleFilters(){ return [...document.querySelectorAll('.style-filter:checked')].map(c=>c.value); }
+
+function totalSpentFor(clientId){
+  const c=clients.find(x=>x.id===clientId);
+  const extra=sales.filter(s=>s.clientId===clientId).reduce((sum,s)=>sum+(Number(s.amount)||0),0);
+  return (Number(c?.initialSales)||0)+extra;
+}
+
+function sortClients(arr, mode){
+  const bySpent=(a,b)=>totalSpentFor(a.id)-totalSpentFor(b.id);
+  const byLast=(a,b)=> lastNameKey(a).localeCompare(lastNameKey(b));
+  const byStyle=(a,b)=>{ const sa=(a.styles?.length?[...a.styles].sort()[0]:''); const sb=(b.styles?.length?[...b.styles].sort()[0]:''); return sa.toLowerCase().localeCompare(sb.toLowerCase()); };
+  const byCreatedDesc=(a,b)=>new Date(b.createdAt)-new Date(a.createdAt);
+  switch(mode){
+    case 'lastInteraction_desc': return arr.sort((a,b)=>{const da=lastInteractionDate(a.id),db=lastInteractionDate(b.id); if(da&&db) return db-da; if(da&&!db) return -1; if(!da&&db) return 1; return byLast(a,b);});
+    case 'lastInteraction_asc':  return arr.sort((a,b)=>{const da=lastInteractionDate(a.id),db=lastInteractionDate(b.id); if(da&&db) return da-db; if(da&&!db) return -1; if(!da&&db) return 1; return byLast(a,b);});
+    case 'lastName_asc': return arr.sort((a,b)=>byLast(a,b));
+    case 'lastName_desc':return arr.sort((a,b)=>byLast(b,a));
+    case 'style_asc':    return arr.sort((a,b)=>byStyle(a,b)||byLast(a,b));
+    case 'style_desc':   return arr.sort((a,b)=>byStyle(b,a)||byLast(a,b));
+    case 'spent_asc':    return arr.sort((a,b)=>bySpent(a,b)||byLast(a,b));
+    case 'spent_desc':   return arr.sort((a,b)=>bySpent(b,a)||byLast(a,b));
+    case 'createdAt_desc':
+    default:             return arr.sort(byCreatedDesc);
   }
+}
 
-  // ---------- Client Recap ----------
-  function openClientView(id){
-    const c=clients.find(x=>x.id===id); if(!c) return;
-    const total=totalSpentFor(id);
-    const its=interactions.filter(i=>i.clientId===id).sort((a,b)=>new Date(b.date)-new Date(a.date));
-    const lastIt=its[0];
-    const clSales=sales.filter(s=>s.clientId===id).sort((a,b)=>new Date(b.date)-new Date(a.date));
-    const bday = (c.birthdayMonth&&c.birthdayDay) ? new Date(2000, Number(c.birthdayMonth)-1, Number(c.birthdayDay)) : null;
+function applyFiltersAndSort(){
+  const term = ($('#clientSearch').value||'').toLowerCase();
+  const selected = getActiveStyleFilters();
+  const mode = $('#styleMatch')?.value||'any';
 
-    const html=`
-      <div class="card" style="box-shadow:none;padding:0">
-        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
-          <div style="min-width:0">
-            <h3 style="margin:0 0 6px">${escapeHTML(fullNameOf(c))}</h3>
-            <div class="muted">${c.email?`📧 ${escapeHTML(c.email)} · `:''}${c.phone?`📱 ${escapeHTML(c.phone)}`:''}</div>
-            ${(c.styles&&c.styles.length)? `<div class="tags" style="margin-top:6px">${c.styles.map(s=>`<span class="tag">${escapeHTML(s)}</span>`).join(' ')}</div>`:''}
-            <span class="chip status-${statusSlug(c.status||'Introductory')}" style="margin-top:8px;display:inline-block">${escapeHTML(c.status||'Introductory')}</span>
+  // Last interaction controls
+  const liMode  = $('#lastInteractionFilter')?.value || 'any';
+  const liStart = $('#lastInteractionStart')?.value || '';
+  const liEnd   = $('#lastInteractionEnd')?.value || '';
+
+  let list = clients.filter(c=>{
+    const matchesTerm =
+      fullNameOf(c).toLowerCase().includes(term) ||
+      (c.email && c.email.toLowerCase().includes(term)) ||
+      (c.phone && c.phone.includes(term)) ||
+      (Array.isArray(c.styles) && c.styles.some(s => s.toLowerCase().includes(term))) ||
+      (Array.isArray(c.favoriteBrands) && c.favoriteBrands.some(b => b.toLowerCase().includes(term))) ||
+      (Array.isArray(c.colorsLiked) && c.colorsLiked.some(col => col.toLowerCase().includes(term))) ||
+      (Array.isArray(c.colorsDisliked) && c.colorsDisliked.some(col => col.toLowerCase().includes(term)));
+    if(!matchesTerm) return false;
+
+    if(selected.length){
+      const styles = c.styles||[];
+      const styleOk = (mode==='all') ? selected.every(s=>styles.includes(s)) : selected.some(s=>styles.includes(s));
+      if(!styleOk) return false;
+    }
+
+    if(!matchesLastInteractionRule(c.id, liMode, liStart, liEnd)) return false;
+
+    return true;
+  });
+
+  list = sortClients(list, $('#clientSort').value||'createdAt_desc');
+  renderClients(list);
+}
+
+function renderClients(src=clients){
+  const list=$('#clientList');
+  if(src.length===0){ list.innerHTML=`<div class="empty-state"><div style="font-size:42px;opacity:.6">👥</div><p>No clients yet. Add your first client!</p></div>`; lastClientFilterResult=[]; return;}
+  const sorted = sortClients([...src], $('#clientSort').value||'createdAt_desc'); lastClientFilterResult=[...sorted];
+  list.innerHTML = sorted.map(c=>{
+    const total=totalSpentFor(c.id); const li=lastInteractionDate(c.id);
+    const bdayThisMonth = c.birthdayMonth && Number(c.birthdayMonth)===(new Date().getMonth()+1);
+    return `<div class="client-item">
+      <div class="client-header">
+        <div>
+          <div class="client-name">
+            ${escapeHTML(fullNameOf(c))}
+            ${bdayThisMonth? `<span class="tag">🎂 ${escapeHTML(c.birthdayDay||'')}</span>`:''}
+            ${total>0? `<span class="badge-sale">${fmtUSD.format(total)}</span>`:''}
           </div>
-          <div class="badge-sale">${fmtUSD.format(total)}</div>
+          <div class="muted" style="margin-top:4px">${c.email?`📧 ${escapeHTML(c.email)} · `:''}${c.phone?`📱 ${escapeHTML(c.phone)}`:''}</div>
+          ${(c.styles&&c.styles.length)? `<div class="tags" aria-label="Style Vibes">${c.styles.map(s=>`<span class="tag">${escapeHTML(s)}</span>`).join('')}</div>`:''}
+          ${li? `<div class="muted" style="margin-top:6px;font-size:.85rem">Last Interaction: ${li.toLocaleDateString()}</div>`:''}
         </div>
-        ${c.notes? `<div style="margin-top:12px"><strong>Notes:</strong><br>${escapeHTML(c.notes)}</div>`:''}
-        <div style="margin-top:16px;display:grid;gap:10px">
-          <div><strong>Interactions:</strong> ${its.length}${lastIt?` — Last: ${new Date(lastIt.date).toLocaleDateString()}`:''}</div>
-          <div><strong>Initial Sales:</strong> ${fmtUSD.format(Number(c.initialSales)||0)}</div>
+        <span class="chip status-${statusSlug(c.status||'Introductory')}">${escapeHTML(c.status||'Introductory')}</span>
+      </div>
+      <div class="buttons">
+        <button class="btn primary" data-action="view" data-id="${c.id}">View</button>
+        <button class="btn ghost" data-action="edit" data-id="${c.id}">Edit</button>
+        <button class="btn danger" data-action="delete" data-id="${c.id}">Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+  populateTodoClientFilter();
+}
+
+/* CRUD: Client */
+function openClientModal(id=null){
+  editingClientId = id;
+  const m=$('#clientModal'); const form=$('#clientForm');
+  if (id){
+    const c=clients.find(x=>x.id===id);
+    $('#clientModalTitle').textContent='Edit Client';
+    $('#clientFirstName').value=c.firstName||''; $('#clientLastName').value=c.lastName||'';
+    $('#clientEmail').value=c.email||''; $('#clientPhone').value=c.phone||'';
+    [...$('#clientStyles').options].forEach(o=>o.selected=(c.styles||[]).includes(o.value));
+    $('#clientStatus').value = VALID_STATUSES.includes(c.status)?c.status:'Introductory';
+    $('#clientInitialSales').value=c.initialSales??'';
+    $('#clientNotes').value=c.notes||'';
+    $('#clientBdayMonth').value=c.birthdayMonth||''; $('#clientBdayDay').value=c.birthdayDay||'';
+    $('#clientColorsLiked').value=joinCSV(c.colorsLiked||[]); $('#clientColorsDisliked').value=joinCSV(c.colorsDisliked||[]);
+    $('#clientSizeTop').value=c.sizing?.top||''; $('#clientSizeBottom').value=c.sizing?.bottom||''; $('#clientSizeDress').value=c.sizing?.dress||''; $('#clientSizeShoe').value=c.sizing?.shoe||'';
+    $('#clientBrands').value=joinCSV(c.favoriteBrands||[]);
+  } else {
+    $('#clientModalTitle').textContent='Add New Client';
+    form.reset(); $('#clientStatus').value='Introductory';
+    [...$('#clientStyles').options].forEach(o=>o.selected=false);
+  }
+  m.classList.add('active');
+
+  form.onsubmit = (e)=>{ e.preventDefault(); saveClient(); };
+}
+function saveClient(){
+  const firstName=$('#clientFirstName').value.trim(), lastName=$('#clientLastName').value.trim();
+  if(!firstName||!lastName) return alert('First and last names are required.');
+  const data={
+    firstName,lastName,
+    email:$('#clientEmail').value.trim(), phone:$('#clientPhone').value.trim(),
+    styles: normalizeStyles(getSelectedValues($('#clientStyles'))),
+    status: $('#clientStatus').value||'Introductory',
+    initialSales: parseFloat($('#clientInitialSales').value)||0,
+    notes: $('#clientNotes').value.trim(),
+    birthdayMonth: $('#clientBdayMonth').value||'',
+    birthdayDay:   $('#clientBdayDay').value||'',
+    colorsLiked:   parseCSV($('#clientColorsLiked').value),
+    colorsDisliked:parseCSV($('#clientColorsDisliked').value),
+    sizing:{ top:$('#clientSizeTop').value.trim(), bottom:$('#clientSizeBottom').value.trim(), dress:$('#clientSizeDress').value.trim(), shoe:$('#clientSizeShoe').value.trim() },
+    favoriteBrands: parseCSV($('#clientBrands').value),
+    createdAt: new Date().toISOString()
+  };
+  if (editingClientId){
+    const i=clients.findIndex(c=>c.id===editingClientId); clients[i] = { ...clients[i], ...data, createdAt: clients[i].createdAt||data.createdAt };
+  } else { data.id=Date.now().toString(); clients.push(data); }
+  saveData(); $('#clientModal').classList.remove('active'); renderClients(); renderFollowUps(); updateDashboard(); populateTodoClientFilter();
+}
+function deleteClient(id){
+  if(!confirm('Delete this client and all related interactions, sales, follow ups & to‑dos?')) return;
+  clients=clients.filter(c=>c.id!==id);
+  interactions=interactions.filter(i=>i.clientId!==id);
+  sales=sales.filter(s=>s.clientId!==id);
+  followUps=followUps.filter(f=>f.clientId!==id);
+  todos=todos.map(t=>({...t, clientIds:t.clientIds.filter(cid=>cid!==id)})).filter(t=>t.clientIds.length>0);
+  saveData(); renderAll(); populateTodoClientFilter();
+}
+
+/* Client Recap */
+function openClientView(id){
+  const c=clients.find(x=>x.id===id); if(!c) return;
+  const total=totalSpentFor(id);
+  const its=interactions.filter(i=>i.clientId===id).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const lastIt=its[0];
+  const clSales=sales.filter(s=>s.clientId===id).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const bday = (c.birthdayMonth&&c.birthdayDay) ? new Date(2000, Number(c.birthdayMonth)-1, Number(c.birthdayDay)) : null;
+
+  const html=`
+    <div class="card" style="box-shadow:none;padding:0">
+      <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
+        <div style="min-width:0">
+          <h3 style="margin:0 0 6px">${escapeHTML(fullNameOf(c))}</h3>
+          <div class="muted">${c.email?`📧 ${escapeHTML(c.email)} · `:''}${c.phone?`📱 ${escapeHTML(c.phone)}`:''}</div>
+          ${(c.styles&&c.styles.length)? `<div class="tags" style="margin-top:6px">${c.styles.map(s=>`<span class="tag">${escapeHTML(s)}</span>`).join(' ')}</div>`:''}
+          <span class="chip status-${statusSlug(c.status||'Introductory')}" style="margin-top:8px;display:inline-block">${escapeHTML(c.status||'Introductory')}</span>
         </div>
-        <div style="margin-top:16px">
-          <strong>Recent Sales</strong>
-          ${clSales.length===0? `<div class="muted">No sales recorded</div>`:`
-          <div style="margin-top:8px;display:grid;gap:8px">
-            ${clSales.slice(0,5).map(s=>`
-              <div style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding-bottom:6px">
-                <div><div style="font-weight:600">${escapeHTML(s.description||'Sale')}</div><div class="muted" style="font-size:.85rem">${new Date(s.date).toLocaleDateString()}</div></div>
-                <div style="font-weight:800;color:#2f855a">${fmtUSD.format(Number(s.amount)||0)}</div>
-              </div>`).join('')}
-          </div>`}
+        <div class="badge-sale">${fmtUSD.format(total)}</div>
+      </div>
+      ${c.notes? `<div style="margin-top:12px"><strong>Notes:</strong><br>${escapeHTML(c.notes)}</div>`:''}
+      <div style="margin-top:16px;display:grid;gap:10px">
+        <div><strong>Interactions:</strong> ${its.length}${lastIt?` — Last: ${new Date(lastIt.date).toLocaleDateString()}`:''}</div>
+        <div><strong>Initial Sales:</strong> ${fmtUSD.format(Number(c.initialSales)||0)}</div>
+      </div>
+      <div style="margin-top:16px">
+        <strong>Recent Sales</strong>
+        ${clSales.length===0? `<div class="muted">No sales recorded</div>`:`<div style="margin-top:8px;display:grid;gap:8px">
+          ${clSales.slice(0,5).map(s=>`
+            <div style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding-bottom:6px">
+              <div><div style="font-weight:600">${escapeHTML(s.description||'Sale')}</div><div class="muted" style="font-size:.85rem">${new Date(s.date).toLocaleDateString()}</div></div>
+              <div style="font-weight:800;color:#2f855a">${fmtUSD.format(Number(s.amount)||0)}</div>
+            </div>`).join('')}
+        </div>`}
+      </div>
+    </div>
+
+    <div style="margin-top:16px;display:grid;gap:14px">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px">
+        <div class="card" style="box-shadow:none;border:1px solid #eee">
+          <div style="font-weight:700;margin-bottom:6px">🎂 Birthday</div>
+          <div>${bday? bday.toLocaleDateString(undefined,{month:'long',day:'numeric'}) : '<span class="muted">Not set</span>'}</div>
+        </div>
+        <div class="card" style="box-shadow:none;border:1px solid #eee">
+          <div style="font-weight:700;margin-bottom:6px">🎯 Favorite Brands</div>
+          <div>${(c.favoriteBrands&&c.favoriteBrands.length)? c.favoriteBrands.map(b=>`<span class="tag">${escapeHTML(b)}</span>`).join(' ') : '<span class="muted">None listed</span>'}</div>
         </div>
       </div>
-
-      <div style="margin-top:16px;display:grid;gap:14px">
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px">
-          <div class="card" style="box-shadow:none;border:1px solid #eee">
-            <div style="font-weight:700;margin-bottom:6px">🎂 Birthday</div>
-            <div>${bday? bday.toLocaleDateString(undefined,{month:'long',day:'numeric'}) : '<span class="muted">Not set</span>'}</div>
+      <div class="card" style="box-shadow:none;border:1px solid #eee">
+        <div style="font-weight:700;margin-bottom:6px">🎨 Colors</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div><div class="muted" style="font-weight:700;margin-bottom:4px">Liked</div>
+            ${(c.colorsLiked&&c.colorsLiked.length)? c.colorsLiked.map(x=>`<span class="tag">${escapeHTML(x)}</span>`).join(' ') : '<span class="muted">None</span>'}
           </div>
-          <div class="card" style="box-shadow:none;border:1px solid #eee">
-            <div style="font-weight:700;margin-bottom:6px">🎯 Favorite Brands</div>
-            <div>${(c.favoriteBrands&&c.favoriteBrands.length)? c.favoriteBrands.map(b=>`<span class="tag">${escapeHTML(b)}</span>`).join(' ') : '<span class="muted">None listed</span>'}</div>
+          <div><div class="muted" style="font-weight:700;margin-bottom:4px">Disliked</div>
+            ${(c.colorsDisliked&&c.colorsDisliked.length)? c.colorsDisliked.map(x=>`<span class="tag">${escapeHTML(x)}</span>`).join(' ') : '<span class="muted">None</span>'}
           </div>
         </div>
-        <div class="card" style="box-shadow:none;border:1px solid #eee">
-          <div style="font-weight:700;margin-bottom:6px">🎨 Colors</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-            <div><div class="muted" style="font-weight:700;margin-bottom:4px">Liked</div>
-              ${(c.colorsLiked&&c.colorsLiked.length)? c.colorsLiked.map(x=>`<span class="tag">${escapeHTML(x)}</span>`).join(' ') : '<span class="muted">None</span>'}
-            </div>
-            <div><div class="muted" style="font-weight:700;margin-bottom:4px">Disliked</div>
-              ${(c.colorsDisliked&&c.colorsDisliked.length)? c.colorsDisliked.map(x=>`<span class="tag">${escapeHTML(x)}</span>`).join(' ') : '<span class="muted">None</span>'}
-            </div>
-          </div>
+      </div>
+      <div class="card" style="box-shadow:none;border:1px solid #eee">
+        <div style="font-weight:700;margin-bottom:6px">📏 Current Sizing</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px">
+          <div><span class="muted">Top:</span> ${escapeHTML(c.sizing?.top||'—')}</div>
+          <div><span class="muted">Bottom:</span> ${escapeHTML(c.sizing?.bottom||'—')}</div>
+          <div><span class="muted">Dress:</span> ${escapeHTML(c.sizing?.dress||'—')}</div>
+          <div><span class="muted">Shoe:</span> ${escapeHTML(c.sizing?.shoe||'—')}</div>
         </div>
-        <div class="card" style="box-shadow:none;border:1px solid #eee">
-          <div style="font-weight:700;margin-bottom:6px">📏 Current Sizing</div>
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px">
-            <div><span class="muted">Top:</span> ${escapeHTML(c.sizing?.top||'—')}</div>
-            <div><span class="muted">Bottom:</span> ${escapeHTML(c.sizing?.bottom||'—')}</div>
-            <div><span class="muted">Dress:</span> ${escapeHTML(c.sizing?.dress||'—')}</div>
-            <div><span class="muted">Shoe:</span> ${escapeHTML(c.sizing?.shoe||'—')}</div>
-          </div>
+      </div>
+    </div>`;
+  $('#clientViewBody').innerHTML=html;
+  $('#clientViewModal').classList.add('active');
+}
+
+/* ===========================
+   INTERACTIONS
+   =========================== */
+function openInteractionModal(id=null){
+  editingInteractionId=id;
+  const sel=$('#interactionClient'); sel.innerHTML='<option value="">Select client...</option>'+clients.map(c=>`<option value="${c.id}">${escapeHTML(fullNameOf(c))}</option>`).join('');
+  if (id){
+    const it=interactions.find(i=>i.id===id); if(!it) return;
+    $('#interactionModalTitle').textContent='Edit Interaction';
+    sel.value=it.clientId; $('#interactionType').value=['Call','Email','Text','In-person','Sale'].includes(it.type)?it.type:'Call';
+    $('#interactionDate').value=it.date; $('#interactionNotes').value=it.notes||'';
+  } else {
+    $('#interactionModalTitle').textContent='Log Interaction'; $('#interactionForm').reset(); $('#interactionDate').value=new Date().toISOString().slice(0,10);
+  }
+  $('#interactionModal').classList.add('active');
+
+  $('#interactionForm').onsubmit = (e)=>{ e.preventDefault(); saveInteraction(); };
+}
+function saveInteraction(){
+  const clientId=$('#interactionClient').value; if(!clientId) return alert('Please select a client.');
+  const date=$('#interactionDate').value||new Date().toISOString().slice(0,10);
+  const type=$('#interactionType').value; const notes=$('#interactionNotes').value.trim();
+  if (editingInteractionId){
+    const i=interactions.findIndex(x=>x.id===editingInteractionId);
+    if(i!==-1) interactions[i]={...interactions[i], clientId, type, date, notes};
+  } else {
+    interactions.push({ id:Date.now().toString(), clientId, type, date, notes, createdAt:new Date().toISOString() });
+    // Auto-follow-up: create monthly after a weekly completion
+    createAutoFollowUp(clientId, date, 'weekly');
+  }
+  saveData(); $('#interactionModal').classList.remove('active'); renderInteractions(); renderFollowUps(); updateDashboard();
+}
+function renderInteractions(src=interactions){
+  const el=$('#interactionList');
+  if(src.length===0){ el.innerHTML=`<div class="empty-state"><div style="font-size:42px;opacity:.6">💬</div><p>No interactions logged yet</p></div>`; return; }
+  const sorted=[...src].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  el.innerHTML = sorted.map(i=>{
+    const c=clients.find(x=>x.id===i.clientId); const when=new Date(i.date).toLocaleDateString([], { year:'numeric', month:'short', day:'numeric' });
+    const isSale = i.type==='Sale';
+    return `<div class="interaction-item">
+      <div class="client-header">
+        <div><div class="client-name">${escapeHTML(c?fullNameOf(c):'Unknown Client')}</div><div class="muted" style="margin-top:4px">${escapeHTML(i.type)} • ${when}</div></div>
+        <div class="buttons">
+          ${isSale? '' : `<button class="btn ghost" data-action="edit-interaction" data-id="${i.id}">Edit</button>`}
+          <button class="btn danger" data-action="delete-interaction" data-id="${i.id}">Delete</button>
         </div>
-      </div>`;
-    $('#clientViewBody').innerHTML=html;
-    $('#clientViewModal').classList.add('active');
-  }
+      </div>
+      ${i.notes? `<div style="margin-top:8px">${escapeHTML(i.notes)}</div>`:''}
+    </div>`;
+  }).join('');
+}
+function deleteInteraction(id){
+  if(!confirm('Delete this interaction?')) return;
+  const sIdx=sales.findIndex(s=>s.interactionId===id);
+  if (sIdx!==-1) sales[sIdx].interactionId=undefined; // unlink
+  interactions=interactions.filter(i=>i.id!==id);
+  saveData(); renderInteractions(); renderFollowUps(); updateDashboard();
+}
+function searchInteractions(){
+  const term=($('#interactionSearch').value||'').toLowerCase();
+  const filtered=interactions.filter(i=>{
+    const c=clients.find(x=>x.id===i.clientId);
+    return (c&&fullNameOf(c).toLowerCase().includes(term)) || i.type.toLowerCase().includes(term) || (i.notes&&i.notes.toLowerCase().includes(term));
+  });
+  renderInteractions(filtered);
+}
 
-  // ---------- Interactions ----------
-  function openInteractionModal(id=null){
-    editingInteractionId=id;
-    const sel=$('#interactionClient'); sel.innerHTML='<option value="">Select client...</option>'+clients.map(c=>`<option value="${c.id}">${escapeHTML(fullNameOf(c))}</option>`).join('');
-    if (id){
-      const it=interactions.find(i=>i.id===id); if(!it) return;
-      $('#interactionModalTitle').textContent='Edit Interaction';
-      sel.value=it.clientId; $('#interactionType').value=['Call','Email','Text','In-person'].includes(it.type)?it.type:'Call';
-      $('#interactionDate').value=it.date; $('#interactionNotes').value=it.notes||'';
-    } else {
-      $('#interactionModalTitle').textContent='Log Interaction'; $('#interactionForm').reset(); $('#interactionDate').value=new Date().toISOString().slice(0,10);
-    }
-    $('#interactionModal').classList.add('active');
+/* ===========================
+   SALES
+   =========================== */
+function openSaleModal(id=null){
+  editingSaleId=id; const sel=$('#saleClient'); sel.innerHTML='<option value="">Select client...</option>'+clients.map(c=>`<option value="${c.id}">${escapeHTML(fullNameOf(c))}</option>`).join('');
+  if (id){
+    const s=sales.find(x=>x.id===id); if(!s) return;
+    $('#saleModalTitle').textContent='Edit Sale';
+    sel.value=s.clientId; $('#saleAmount').value=s.amount; $('#saleDate').value=s.date; $('#saleDescription').value=s.description||'';
+  } else {
+    $('#saleModalTitle').textContent='Record Sale'; $('#saleForm').reset(); $('#saleDate').value=new Date().toISOString().slice(0,10);
   }
-  function saveInteraction(e){
-    e.preventDefault();
-    const clientId=$('#interactionClient').value; if(!clientId) return alert('Please select a client.');
-    const date=$('#interactionDate').value||new Date().toISOString().slice(0,10);
-    const type=$('#interactionType').value; const notes=$('#interactionNotes').value.trim();
+  $('#saleModal').classList.add('active');
 
-    if (editingInteractionId){
-      const i=interactions.findIndex(x=>x.id===editingInteractionId);
-      if(i!==-1) interactions[i]={...interactions[i], clientId, type, date, notes};
-    } else {
-      interactions.push({ id:Date.now().toString(), clientId, type, date, notes, createdAt:new Date().toISOString() });
-      createAutoFollowUp(clientId, date, 'weekly');
-    }
-    saveData(); $('#interactionModal').classList.remove('active'); renderInteractions(); renderFollowUps(); updateDashboard();
-  }
-  function renderInteractions(src=interactions){
-    const el=$('#interactionList');
-    if(src.length===0){ el.innerHTML=`<div class="empty-state"><div style="font-size:42px;opacity:.6">💬</div><p>No interactions logged yet</p></div>`; return; }
-    const sorted=[...src].sort((a,b)=>new Date(b.date)-new Date(a.date));
-    el.innerHTML = sorted.map(i=>{
-      const c=clients.find(x=>x.id===i.clientId); const when=new Date(i.date).toLocaleDateString([], { year:'numeric', month:'short', day:'numeric' });
-      const isSale = i.type==='Sale';
-      return `<div class="interaction-item">
-        <div class="client-header">
-          <div><div class="client-name">${escapeHTML(c?fullNameOf(c):'Unknown Client')}</div><div class="muted" style="margin-top:4px">${escapeHTML(i.type)} • ${when}</div></div>
-          <div class="buttons">
-            ${isSale? '' : `<button class="btn ghost" data-action="edit-interaction" data-id="${i.id}">Edit</button>`}
-            <button class="btn danger" data-action="delete-interaction" data-id="${i.id}">Delete</button>
-          </div>
-        </div>
-        ${i.notes? `<div style="margin-top:8px">${escapeHTML(i.notes)}</div>`:''}
-      </div>`;
-    }).join('');
-  }
-  function deleteInteraction(id){
-    if(!confirm('Delete this interaction?')) return;
-    const sIdx=sales.findIndex(s=>s.interactionId===id);
-    if (sIdx!==-1) sales[sIdx].interactionId=undefined; // unlink
-    interactions=interactions.filter(i=>i.id!==id);
-    saveData(); renderInteractions(); renderFollowUps(); updateDashboard();
-  }
-  function searchInteractions(){
-    const term=($('#interactionSearch').value||'').toLowerCase();
-    const filtered=interactions.filter(i=>{
-      const c=clients.find(x=>x.id===i.clientId);
-      return (c&&fullNameOf(c).toLowerCase().includes(term)) || i.type.toLowerCase().includes(term) || (i.notes&&i.notes.toLowerCase().includes(term));
-    });
-    renderInteractions(filtered);
-  }
+  $('#saleForm').onsubmit = (e)=>{ e.preventDefault(); saveSale(); };
+}
+function saveSale(){
+  const clientId=$('#saleClient').value; const amount=parseFloat($('#saleAmount').value);
+  const date=$('#saleDate').value||new Date().toISOString().slice(0,10);
+  const description=$('#saleDescription').value.trim();
+  if(!clientId || isNaN(amount)) return alert('Client and amount are required.');
 
-  // ---------- Sales (log as interaction) ----------
-  function openSaleModal(id=null){
-    editingSaleId=id; const sel=$('#saleClient'); sel.innerHTML='<option value="">Select client...</option>'+clients.map(c=>`<option value="${c.id}">${escapeHTML(fullNameOf(c))}</option>`).join('');
-    if (id){
-      const s=sales.find(x=>x.id===id); if(!s) return;
-      $('#saleModalTitle').textContent='Edit Sale';
-      sel.value=s.clientId; $('#saleAmount').value=s.amount; $('#saleDate').value=s.date; $('#saleDescription').value=s.description||'';
-    } else {
-      $('#saleModalTitle').textContent='Record Sale'; $('#saleForm').reset(); $('#saleDate').value=new Date().toISOString().slice(0,10);
-    }
-    $('#saleModal').classList.add('active');
-  }
-  function saveSale(e){
-    e.preventDefault();
-    const clientId=$('#saleClient').value; const amount=parseFloat($('#saleAmount').value);
-    const date=$('#saleDate').value||new Date().toISOString().slice(0,10);
-    const description=$('#saleDescription').value.trim();
-    if(!clientId || isNaN(amount)) return alert('Client and amount are required.');
-
-    if (editingSaleId){
-      const idx=sales.findIndex(s=>s.id===editingSaleId);
-      if (idx!==-1){
-        sales[idx]={...sales[idx], clientId, amount, date, description};
-        const iId=sales[idx].interactionId;
-        if (iId){
-          const iIdx=interactions.findIndex(i=>i.id===iId);
-          if (iIdx!==-1){
-            interactions[iIdx]={...interactions[iIdx], clientId, date, type:'Sale', notes:`Sale recorded: ${fmtUSD.format(amount)}${description?` — ${description}`:''}`};
-          }
+  if (editingSaleId){
+    const idx=sales.findIndex(s=>s.id===editingSaleId);
+    if (idx!==-1){
+      sales[idx]={...sales[idx], clientId, amount, date, description};
+      const iId=sales[idx].interactionId;
+      if (iId){
+        const iIdx=interactions.findIndex(i=>i.id===iId);
+        if (iIdx!==-1){
+          interactions[iIdx]={...interactions[iIdx], clientId, date, type:'Sale', notes:`Sale recorded: ${fmtUSD.format(amount)}${description?` — ${description}`:''}`};
         }
       }
-    } else {
-      const id=Date.now().toString(); const sale={id, clientId, amount, date, description, createdAt:new Date().toISOString()}; sales.push(sale);
-      const interactionId='sale-'+id;
-      interactions.push({ id:interactionId, clientId, type:'Sale', date, notes:`Sale recorded: ${fmtUSD.format(amount)}${description?` — ${description}`:''}`, createdAt:new Date().toISOString() });
-      const sIdx=sales.findIndex(s=>s.id===id); if (sIdx!==-1) sales[sIdx].interactionId=interactionId;
     }
-    saveData(); $('#saleModal').classList.remove('active'); renderSalesView(); renderInteractions(); renderFollowUps(); updateDashboard(); renderClients();
+  } else {
+    const id=Date.now().toString(); const sale={id, clientId, amount, date, description, createdAt:new Date().toISOString()}; sales.push(sale);
+    const interactionId='sale-'+id;
+    interactions.push({ id:interactionId, clientId, type:'Sale', date, notes:`Sale recorded: ${fmtUSD.format(amount)}${description?` — ${description}`:''}`, createdAt:new Date().toISOString() });
+    const sIdx=sales.findIndex(s=>s.id===id); if (sIdx!==-1) sales[sIdx].interactionId=interactionId;
   }
-  function deleteSale(id){
-    if(!confirm('Delete this sale?')) return;
-    const s=sales.find(x=>x.id===id);
-    if (s?.interactionId){ interactions=interactions.filter(i=>i.id!==s.interactionId); }
-    sales=sales.filter(s=>s.id!==id);
-    saveData(); renderSalesView(); renderInteractions(); renderClients(); renderFollowUps(); updateDashboard();
-  }
-  function renderSalesView(){
-    const el=$('#salesList'); const map=new Map();
-    clients.forEach(c=>{
-      const rows=sales.filter(s=>s.clientId===c.id);
-      const total=(Number(c.initialSales)||0)+rows.reduce((sum,s)=>sum+(Number(s.amount)||0),0);
-      if (total>0 || rows.length>0) map.set(c.id,{client:c,rows,total});
-    });
-    if (map.size===0){ el.innerHTML=`<div class="empty-state"><div style="font-size:42px;opacity:.6">💰</div><p>No sales data available</p></div>`; return; }
-    const sorted=[...map.values()].sort((a,b)=>b.total-a.total);
-    el.innerHTML = sorted.map(({client:c,rows,total})=>`
-      <div class="client-item">
-        <div class="client-header"><div><div class="client-name">${escapeHTML(fullNameOf(c))}</div><div class="muted" style="margin-top:4px">Total Sales: <strong style="color:#2f855a">${fmtUSD.format(total)}</strong></div></div></div>
-        ${Number(c.initialSales)>0? `<div style="padding:10px 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between"><div style="font-weight:600">Initial Sales</div><div style="font-weight:800;color:#2f855a">${fmtUSD.format(Number(c.initialSales)||0)}</div></div>`:''}
-        ${rows.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(s=>`
-          <div style="padding:10px 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center">
-            <div><div style="font-weight:600">${escapeHTML(s.description||'Sale')}</div><div class="muted" style="font-size:.85rem">${new Date(s.date).toLocaleDateString()}</div></div>
-            <div style="display:flex;align-items:center;gap:10px">
-              <div style="font-weight:800;color:#2f855a">${fmtUSD.format(Number(s.amount)||0)}</div>
-              <button class="btn ghost" data-action="edit-sale" data-id="${s.id}">Edit</button>
-              <button class="btn danger" data-action="delete-sale" data-id="${s.id}">Delete</button>
-            </div>
-          </div>`).join('')}
-      </div>`).join('');
-  }
+  saveData(); $('#saleModal').classList.remove('active'); renderSalesView(); renderInteractions(); renderFollowUps(); updateDashboard(); renderClients();
+}
+function deleteSale(id){
+  if(!confirm('Delete this sale?')) return;
+  const s=sales.find(x=>x.id===id);
+  if (s?.interactionId){ interactions=interactions.filter(i=>i.id!==s.interactionId); }
+  sales=sales.filter(s=>s.id!==id);
+  saveData(); renderSalesView(); renderInteractions(); renderClients(); renderFollowUps(); updateDashboard();
+}
+function renderSalesView(){
+  const el=$('#salesList'); const map=new Map();
+  clients.forEach(c=>{
+    const rows=sales.filter(s=>s.clientId===c.id);
+    const total=(Number(c.initialSales)||0)+rows.reduce((sum,s)=>sum+(Number(s.amount)||0),0);
+    if (total>0 || rows.length>0) map.set(c.id,{client:c,rows,total});
+  });
+  if (map.size===0){ el.innerHTML=`<div class="empty-state"><div style="font-size:42px;opacity:.6">💰</div><p>No sales data available</p></div>`; return; }
+  const sorted=[...map.values()].sort((a,b)=>b.total-a.total);
+  el.innerHTML = sorted.map(({client:c,rows,total})=>`
+    <div class="client-item">
+      <div class="client-header"><div><div class="client-name">${escapeHTML(fullNameOf(c))}</div><div class="muted" style="margin-top:4px">Total Sales: <strong style="color:#2f855a">${fmtUSD.format(total)}</strong></div></div></div>
+      ${Number(c.initialSales)>0? `<div style="padding:10px 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between"><div style="font-weight:600">Initial Sales</div><div style="font-weight:800;color:#2f855a">${fmtUSD.format(Number(c.initialSales)||0)}</div></div>`:''}
+      ${rows.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(s=>`
+        <div style="padding:10px 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center">
+          <div><div style="font-weight:600">${escapeHTML(s.description||'Sale')}</div><div class="muted" style="font-size:.85rem">${new Date(s.date).toLocaleDateString()}</div></div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="font-weight:800;color:#2f855a">${fmtUSD.format(Number(s.amount)||0)}</div>
+            <button class="btn ghost" data-action="edit-sale" data-id="${s.id}">Edit</button>
+            <button class="btn danger" data-action="delete-sale" data-id="${s.id}">Delete</button>
+          </div>
+        </div>`).join('')}
+    </div>`).join('');
+}
 
-  // ---------- To‑Dos ----------
-function openTodoModal(preselectIds = []){
-  editingTodoId = null;
+/* ===========================
+   TO‑DOS
+   =========================== */
+function populateTodoClientFilter(){
+  const sel=$('#todoFilterClient'); if(!sel) return;
+  const current=sel.value||'all';
+  sel.innerHTML = `<option value="all">All Clients</option>` + clients.map(c=>`<option value="${c.id}">${escapeHTML(fullNameOf(c))}</option>`).join('');
+  sel.value = [...sel.options].some(o=>o.value===current)? current : 'all';
+}
+function openTodoModal(preselectIds = [], editId = null){
   const modal = $('#todoModal');
   const sel = $('#todoClients');
 
@@ -1281,394 +1184,304 @@ function openTodoModal(preselectIds = []){
     .map(c=>`<option value="${c.id}">${escapeHTML(fullNameOf(c))}</option>`)
     .join('');
 
-  // If caller passed ids, select those; otherwise select current filtered clients
-  const ids = (preselectIds && preselectIds.length)
-    ? preselectIds
-    : (lastClientFilterResult && lastClientFilterResult.length ? lastClientFilterResult.map(c=>c.id) : []);
-
-  [...sel.options].forEach(o => { o.selected = ids.includes(o.value); });
-
-  // Reset quick-select UI
-  $('#todoLastIntFilter').value = 'none';
-  $('#todoLastIntStart').value = '';
-  $('#todoLastIntEnd').value = '';
-  $('#todoLastIntStart').style.display = 'none';
-  $('#todoLastIntEnd').style.display   = 'none';
-
-  // Default dates
-  const today = new Date().toISOString().slice(0,10);
+  // Default dates / reset
   $('#todoForm').reset();
+  const today = new Date().toISOString().slice(0,10);
   $('#todoDate').value = today;
+  $('#todoStatus').value = 'open';
+  $('#todoLastIntFilter').value = 'none';
+  $('#todoLastIntStart').value = ''; $('#todoLastIntEnd').value = '';
+  $('#todoLastIntStart').style.display = 'none'; $('#todoLastIntEnd').style.display = 'none';
+
+  if (editId){
+    const t = todos.find(x=>x.id===editId); if(!t) return;
+    $('#todoModalTitle').textContent='Edit To‑Do';
+    $('#todoEditingId').value = t.id;
+    $('#todoTitle').value = t.title;
+    $('#todoDate').value  = t.date;
+    $('#todoNotes').value = t.notes||'';
+    $('#todoStatus').value= t.status||'open';
+    [...sel.options].forEach(o => { o.selected = t.clientIds.includes(o.value); });
+  } else {
+    $('#todoModalTitle').textContent='New To‑Do';
+    $('#todoEditingId').value = '';
+    const ids = (preselectIds && preselectIds.length)
+      ? preselectIds
+      : (lastClientFilterResult && lastClientFilterResult.length ? lastClientFilterResult.map(c=>c.id) : []);
+    [...sel.options].forEach(o => { o.selected = ids.includes(o.value); });
+  }
 
   modal.classList.add('active');
+  $('#todoForm').onsubmit = (e)=>{ e.preventDefault(); saveTodo(); };
+}
+function saveTodo(){
+  const editId = $('#todoEditingId').value || null;
+  const title=$('#todoTitle').value.trim(); const date=$('#todoDate').value; const clientIds=getSelectedValues($('#todoClients'));
+  if(!title||!date) return alert('Title and due date are required.');
+  const payload = { title, date, clientIds, notes:$('#todoNotes').value.trim(), status:$('#todoStatus').value||'open' };
 
-  }
-  function saveTodo(e){
-    e.preventDefault();
-    const title=$('#todoTitle').value.trim(); const date=$('#todoDate').value; const clientIds=getSelectedValues($('#todoClients'));
-    if(!title||!date) return alert('Title and due date are required.');
-    if (editingTodoId){
-      const idx=todos.findIndex(t=>t.id===editingTodoId);
-      if(idx!==-1){
-        todos[idx]={...todos[idx], title, date, clientIds, notes:$('#todoNotes').value.trim(), status:$('#todoStatus').value||'open',
-          completedAt: ($('#todoStatus').value==='done') ? (todos[idx].completedAt||new Date().toISOString()) : null };
-      }
-    } else {
-      todos.push({ id:Date.now().toString(), title, date, clientIds, notes:$('#todoNotes').value.trim(), status:$('#todoStatus').value||'open', createdAt:new Date().toISOString(), completedAt:null });
+  if (editId){
+    const idx=todos.findIndex(t=>t.id===editId);
+    if(idx!==-1){
+      todos[idx] = { ...todos[idx], ...payload, completedAt: (payload.status==='done') ? (todos[idx].completedAt||new Date().toISOString()) : null };
     }
-    saveData(); $('#todoModal').classList.remove('active'); renderTodos();
+  } else {
+    todos.push({ id:Date.now().toString(), ...payload, createdAt:new Date().toISOString(), completedAt:null });
   }
-  function toggleTodo(id){
-    const t=todos.find(x=>x.id===id); if(!t) return;
-    if (t.status==='done'){ t.status='open'; t.completedAt=null; } else { t.status='done'; t.completedAt=new Date().toISOString(); }
-    saveData(); renderTodos();
-  }
-  function deleteTodo(id){ if(!confirm('Delete this to‑do?')) return; todos=todos.filter(t=>t.id!==id); saveData(); renderTodos(); }
+  saveData(); $('#todoModal').classList.remove('active'); renderTodos();
+}
+function editTodo(id){ openTodoModal([], id); }
+function toggleTodo(id){
+  const t=todos.find(x=>x.id===id); if(!t) return;
+  if (t.status==='done'){ t.status='open'; t.completedAt=null; } else { t.status='done'; t.completedAt=new Date().toISOString(); }
+  saveData(); renderTodos();
+}
+function deleteTodo(id){ if(!confirm('Delete this to‑do?')) return; todos=todos.filter(t=>t.id!==id); saveData(); renderTodos(); }
 
-  function populateTodoClientFilter(){
-    const sel=$('#todoFilterClient'); if(!sel) return;
-    const current=sel.value||'all';
-    sel.innerHTML = `<option value="all">All Clients</option>` + clients.map(c=>`<option value="${c.id}">${escapeHTML(fullNameOf(c))}</option>`).join('');
-    sel.value = [...sel.options].some(o=>o.value===current)? current : 'all';
-  }
+function renderTodos(){
+  populateTodoClientFilter();
+  const wrap=$('#todoList');
+  const sort=$('#todoSort')?.value||'date_asc';
+  const fStatus=$('#todoFilterStatus')?.value||'all';
+  const fDue=$('#todoFilterDue')?.value||'any';
+  const fClient=$('#todoFilterClient')?.value||'all';
 
-  function renderTodos(){
-    populateTodoClientFilter();
-    const wrap=$('#todoList');
-    const sort=$('#todoSort')?.value||'date_asc';
-    const fStatus=$('#todoFilterStatus')?.value||'all';
-    const fDue=$('#todoFilterDue')?.value||'any';
-    const fClient=$('#todoFilterClient')?.value||'all';
+  let src = (fStatus==='open') ? todos.filter(t=>t.status==='open') : (fStatus==='done') ? todos.filter(t=>t.status==='done') : [...todos];
 
-    let src = (fStatus==='open') ? todos.filter(t=>t.status==='open') : (fStatus==='done') ? todos.filter(t=>t.status==='done') : [...todos];
-
-    if (fDue!=='any'){
-      const today=new Date(); today.setHours(0,0,0,0);
-      const endWeek=new Date(today); endWeek.setDate(today.getDate() + (7 - today.getDay() || 7));
-      src = src.filter(t=>{
-        if(!t.date) return false; const d=new Date(t.date); d.setHours(0,0,0,0);
-        if (fDue==='today') return d.getTime()===today.getTime();
-        if (fDue==='week') return d>=today && d<=endWeek;
-        if (fDue==='overdue') return d<today && t.status!=='done';
-        return true;
-      });
-    }
-    if (fClient!=='all') src = src.filter(t=>t.clientIds.includes(fClient));
-
-    const cmp = {
-      date_asc:(a,b)=>(a.date||'')<(b.date||'')?-1:(a.date||'')>(b.date||'')?1:0,
-      date_desc:(a,b)=>(a.date||'')>(b.date||'')?-1:(a.date||'')<(b.date||'')?1:0,
-      created_desc:(a,b)=>new Date(b.createdAt)-new Date(a.createdAt),
-      created_asc:(a,b)=>new Date(a.createdAt)-new Date(b.createdAt),
-      title_asc:(a,b)=>a.title.localeCompare(b.title),
-      status:(a,b)=> (a.status==='open'&&b.status==='done')?-1:(a.status===b.status?0:1)
-    }[sort];
-
-    src.sort(cmp);
-
-    if (src.length===0){
-      wrap.innerHTML=`<div class="empty-state"><div style="font-size:42px;opacity:.6">📝</div><p>No to‑dos in this view</p></div>`;
-    } else {
-      wrap.innerHTML = src.map(t=>{
-        const clientBadges = t.clientIds.map(id=>{ const c=clients.find(x=>x.id===id); return c? `<span class="todo-client">${escapeHTML(fullNameOf(c))}</span>` : ''; }).join(' ');
-        const due=new Date(t.date).toLocaleDateString();
-        return `<div class="todo-item">
-          <div class="todo-head">
-            <div>
-              <div class="todo-title">${escapeHTML(t.title)}</div>
-              <div class="todo-meta">${due} • ${t.status==='done'?'Done ✅':'Open'}</div>
-              <div class="todo-clients">${clientBadges}</div>
-              ${t.notes? `<div class="muted" style="margin-top:6px">${escapeHTML(t.notes)}</div>`:''}
-            </div>
-          </div>
-          <div class="todo-actions">
-            <button class="btn ghost" onclick="openTodoModal(null,'${t.id}')">Edit</button>
-            <button class="btn ${t.status==='done'?'ghost':'primary'}" onclick="toggleTodo('${t.id}')">${t.status==='done'?'Reopen':'Mark Done'}</button>
-            <button class="btn danger" onclick="deleteTodo('${t.id}')">Delete</button>
-          </div>
-        </div>`;
-      }).join('');
-    }
-
-    const openCount=todos.filter(t=>t.status==='open').length; const doneCount=todos.filter(t=>t.status==='done').length;
-    $('#todoCount').textContent=`${src.length} items • ${openCount} open / ${doneCount} done`;
-  }
-
-  // ---------- Follow‑Ups (incl. 🚨911 after 2 months no interaction) ----------
-  function openFollowUpModal(clientId=null, notes=''){
-    const sel=$('#followupClient'); sel.innerHTML='<option value="">Select client...</option>'+clients.map(c=>`<option value="${c.id}">${escapeHTML(fullNameOf(c))}</option>`).join('');
-    $('#followupDate').value=new Date().toISOString().slice(0,10);
-    $('#followupNotes').value=notes||'';
-    if (clientId) sel.value=clientId;
-    $('#followupModal').classList.add('active');
-  }
-  function saveFollowUp(e){
-    e.preventDefault();
-    const clientId=$('#followupClient').value; const date=$('#followupDate').value; const notes=$('#followupNotes').value.trim();
-    if(!clientId||!date) return alert('Client and due date required.');
-    followUps.push({ id:Date.now().toString(), clientId, date, notes, createdAt:new Date().toISOString(), completed:false, type:'manual' });
-    saveData(); $('#followupModal').classList.remove('active'); renderFollowUps(); updateDashboard();
-  }
-
-  function renderFollowUps(){
-    // Generate 911 tasks (ephemeral display only) when >60 days since last interaction
-    const now=new Date();
-    const addDays=(d,n)=>{const x=new Date(d); x.setDate(x.getDate()+n); return x;};
-    const pastDue=$('#followupPastDue'), upcoming=$('#followupUpcoming'), future=$('#followupFuture'), f911=$('#followup911');
-
-    const real = [...followUps]; // saved followups
-    // Build synthetic 911s
-    const synthetic911 = clients.map(c=>{
-      const last = lastInteractionDate(c.id);
-      if (!last) return null;
-      const diffDays = Math.floor((now - last)/(1000*60*60*24));
-      if (diffDays > 60) { // >2 months
-        return { id:'911-'+c.id, clientId:c.id, date: new Date().toISOString().slice(0,10), notes:`🚨 No contact for ${diffDays} days — immediate follow-up`, createdAt:new Date().toISOString(), completed:false, type:'911' };
-      }
-      return null;
-    }).filter(Boolean);
-
-    // Combine; synthetic are not saved to storage
-    const all = [...real, ...synthetic911];
-
-    // Sort by date (ascending)
-    all.sort((a,b)=>new Date(a.date)-new Date(b.date));
-
+  if (fDue!=='any'){
     const today=new Date(); today.setHours(0,0,0,0);
-    const in7 = addDays(today,7);
-
-    const buckets={ past:[], upcoming:[], future:[], p911:[] };
-    all.forEach(f=>{
-      const d=new Date(f.date); d.setHours(0,0,0,0);
-      const is911 = f.type==='911';
-      const isPast = d<today && !f.completed;
-      if (is911) buckets.p911.push(f);
-      else if (isPast) buckets.past.push(f);
-      else if (d<=in7) buckets.upcoming.push(f);
-      else buckets.future.push(f);
+    const endWeek=new Date(today); endWeek.setDate(today.getDate() + (7 - today.getDay() || 7));
+    src = src.filter(t=>{
+      if(!t.date) return false; const d=new Date(t.date); d.setHours(0,0,0,0);
+      if (fDue==='today') return d.getTime()===today.getTime();
+      if (fDue==='week') return d>=today && d<=endWeek;
+      if (fDue==='overdue') return d<today && t.status!=='done';
+      return true;
     });
+  }
+  if (fClient!=='all') src = src.filter(t=>t.clientIds.includes(fClient));
 
-    const renderList=(arr, is911=false)=> {
-      if (arr.length===0) return `<div class="empty-state" style="padding:14px"><div class="muted">Nothing here</div></div>`;
-      return arr.map(f=>{
-        const c=clients.find(x=>x.id===f.clientId);
-        const when=new Date(f.date).toLocaleDateString();
-        const chip = is911? 'pill-911' : '';
-        return `<div class="followup-card ${chip}">
-          <div class="followup-top">
-            <div class="followup-main">
-              <div class="client-name">${escapeHTML(c?fullNameOf(c):'Unknown Client')}</div>
-              <div class="muted">${when}${f.type && f.type!=='manual' && f.type!=='911'? ` • ${escapeHTML(f.type)}`:''}</div>
-              ${f.notes? `<div>${escapeHTML(f.notes)}</div>`:''}
-            </div>
+  const cmp = {
+    date_asc:(a,b)=>(a.date||'')<(b.date||'')?-1:(a.date||'')>(b.date||'')?1:0,
+    date_desc:(a,b)=>(a.date||'')>(b.date||'')?-1:(a.date||'')<(b.date||'')?1:0,
+    created_desc:(a,b)=>new Date(b.createdAt)-new Date(a.createdAt),
+    created_asc:(a,b)=>new Date(a.createdAt)-new Date(b.createdAt),
+    title_asc:(a,b)=>a.title.localeCompare(b.title),
+    status:(a,b)=> (a.status==='open'&&b.status==='done')?-1:(a.status===b.status?0:1)
+  }[sort];
+
+  src.sort(cmp);
+
+  if (src.length===0){
+    wrap.innerHTML=`<div class="empty-state"><div style="font-size:42px;opacity:.6">📝</div><p>No to‑dos in this view</p></div>`;
+  } else {
+    wrap.innerHTML = src.map(t=>{
+      const clientBadges = t.clientIds.map(id=>{ const c=clients.find(x=>x.id===id); return c? `<span class="todo-client">${escapeHTML(fullNameOf(c))}</span>` : ''; }).join(' ');
+      const due=new Date(t.date).toLocaleDateString();
+      return `<div class="todo-item">
+        <div class="todo-head">
+          <div>
+            <div class="todo-title">${escapeHTML(t.title)}</div>
+            <div class="todo-meta">${due} • ${t.status==='done'?'Done ✅':'Open'}</div>
+            <div class="todo-clients">${clientBadges}</div>
+            ${t.notes? `<div class="muted" style="margin-top:6px">${escapeHTML(t.notes)}</div>`:''}
           </div>
-          <div class="card-actions">
-            ${is911? `<button class="btn primary" data-action="create-followup-for-client" data-id="${f.clientId}" data-notes="Created from 911 alert">Create Follow‑Up</button>`:''}
-            ${f.type!=='911'? `<button class="btn ${f.completed?'ghost':'primary'}" data-action="toggle-followup" data-id="${f.id}">${f.completed?'Reopen':'Mark Done'}</button>`:''}
-            ${f.type!=='911'? `<button class="btn danger" data-action="delete-followup" data-id="${f.id}">Delete</button>`:''}
+        </div>
+        <div class="todo-actions">
+          <button class="btn ghost" onclick="editTodo('${t.id}')">Edit</button>
+          <button class="btn ${t.status==='done'?'ghost':'primary'}" onclick="toggleTodo('${t.id}')">${t.status==='done'?'Reopen':'Mark Done'}</button>
+          <button class="btn danger" onclick="deleteTodo('${t.id}')">Delete</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  const openCount=todos.filter(t=>t.status==='open').length; const doneCount=todos.filter(t=>t.status==='done').length;
+  $('#todoCount').textContent=`${src.length} items • ${openCount} open / ${doneCount} done`;
+}
+
+/* ===========================
+   FOLLOW‑UPS (+ 911 after 60d)
+   =========================== */
+function createAutoFollowUp(clientId, baseDate, type){
+  const d=new Date(baseDate); let notes='';
+  if(type==='weekly'){ d.setDate(d.getDate()+7); notes='Weekly follow-up (auto-created)'; }
+  else if(type==='monthly'){ d.setMonth(d.getMonth()+1); notes='Monthly follow-up (auto-created)'; }
+  followUps.push({ id:Date.now().toString()+Math.random().toString(36).slice(2,6), clientId, date:d.toISOString().slice(0,10), notes, createdAt:new Date().toISOString(), completed:false, type });
+}
+function toggleFollowUp(id){
+  const f=followUps.find(x=>x.id===id); if(!f) return;
+  f.completed=!f.completed; f.completedAt=f.completed?new Date().toISOString():null;
+  if (f.completed && f.type==='weekly') createAutoFollowUp(f.clientId, f.completedAt.slice(0,10), 'monthly');
+  saveData(); renderFollowUps(); updateDashboard();
+}
+function deleteFollowUp(id){
+  const f=followUps.find(x=>x.id===id); if(!f) return;
+  if (!confirm((f.type!=='manual')?'Delete this auto-created follow-up?':'Delete this follow-up?')) return;
+  followUps = followUps.filter(x=>x.id!==id);
+  saveData(); renderFollowUps(); updateDashboard();
+}
+function openFollowUpModal(clientId=null, notes=''){
+  const sel=$('#followupClient'); sel.innerHTML='<option value="">Select client...</option>'+clients.map(c=>`<option value="${c.id}">${escapeHTML(fullNameOf(c))}</option>`).join('');
+  $('#followupDate').value=new Date().toISOString().slice(0,10);
+  $('#followupNotes').value=notes||'';
+  if (clientId) sel.value=clientId;
+  $('#followupModal').classList.add('active');
+
+  $('#followupForm').onsubmit = (e)=>{ e.preventDefault(); saveFollowUp(); };
+}
+function saveFollowUp(){
+  const clientId=$('#followupClient').value; const date=$('#followupDate').value; const notes=$('#followupNotes').value.trim();
+  if(!clientId||!date) return alert('Client and due date required.');
+  followUps.push({ id:Date.now().toString(), clientId, date, notes, createdAt:new Date().toISOString(), completed:false, type:'manual' });
+  saveData(); $('#followupModal').classList.remove('active'); renderFollowUps(); updateDashboard();
+}
+function renderFollowUps(){
+  const now=new Date();
+  const addDays=(d,n)=>{const x=new Date(d); x.setDate(x.getDate()+n); return x;};
+  const pastDue=$('#followupPastDue'), upcoming=$('#followupUpcoming'), future=$('#followupFuture'), f911=$('#followup911');
+
+  const real = [...followUps];
+
+  // Synthetic 911 (no saved)
+  const synthetic911 = clients.map(c=>{
+    const last = lastInteractionDate(c.id);
+    if (!last) return null;
+    const diffDays = Math.floor((now - last)/(1000*60*60*24));
+    if (diffDays > 60) {
+      return { id:'911-'+c.id, clientId:c.id, date: new Date().toISOString().slice(0,10), notes:`🚨 No contact for ${diffDays} days — immediate follow-up`, createdAt:new Date().toISOString(), completed:false, type:'911' };
+    }
+    return null;
+  }).filter(Boolean);
+
+  const all = [...real, ...synthetic911].sort((a,b)=>new Date(a.date)-new Date(b.date));
+
+  const today=new Date(); today.setHours(0,0,0,0);
+  const in7 = addDays(today,7);
+
+  const buckets={ past:[], upcoming:[], future:[], p911:[] };
+  all.forEach(f=>{
+    const d=new Date(f.date); d.setHours(0,0,0,0);
+    const is911 = f.type==='911';
+    const isPast = d<today && !f.completed;
+    if (is911) buckets.p911.push(f);
+    else if (isPast) buckets.past.push(f);
+    else if (d<=in7) buckets.upcoming.push(f);
+    else buckets.future.push(f);
+  });
+
+  const renderList=(arr, is911=false)=> {
+    if (arr.length===0) return `<div class="empty-state" style="padding:14px"><div class="muted">Nothing here</div></div>`;
+    return arr.map(f=>{
+      const c=clients.find(x=>x.id===f.clientId);
+      const when=new Date(f.date).toLocaleDateString();
+      const chip = is911? 'pill-911' : '';
+      // categorize basic types for styling
+      const typeGuess = is911 ? 'past-due' : (f.type||'relationship');
+      return `<div class="followup-card ${chip}" data-id="${f.id}" data-type="${typeGuess}">
+        <div class="followup-top">
+          <div class="followup-main">
+            <div class="client-name">${escapeHTML(c?fullNameOf(c):'Unknown Client')}</div>
+            <div class="muted">${when}${f.type && f.type!=='manual' && f.type!=='911'? ` • ${escapeHTML(f.type)}`:''}</div>
+            ${f.notes? `<div>${escapeHTML(f.notes)}</div>`:''}
           </div>
-        </div>`;
-      }).join('');
-    };
+        </div>
+        <div class="card-actions">
+          ${is911? `<button class="btn primary" data-action="create-followup-for-client" data-id="${f.clientId}" data-notes="Created from 911 alert">Create Follow‑Up</button>`:''}
+          ${f.type!=='911'? `<button class="btn ${f.completed?'ghost':'primary'}" data-action="toggle-followup" data-id="${f.id}">${f.completed?'Reopen':'Mark Done'}</button>`:''}
+          ${f.type!=='911'? `<button class="btn danger" data-action="delete-followup" data-id="${f.id}">Delete</button>`:''}
+        </div>
+      </div>`;
+    }).join('');
+  };
 
-    pastDue.innerHTML   = renderList(buckets.past);
-    upcoming.innerHTML  = renderList(buckets.upcoming);
-    future.innerHTML    = renderList(buckets.future);
-    f911.innerHTML      = renderList(buckets.p911, true);
+  pastDue.innerHTML   = renderList(buckets.past);
+  upcoming.innerHTML  = renderList(buckets.upcoming);
+  future.innerHTML    = renderList(buckets.future);
+  f911.innerHTML      = renderList(buckets.p911, true);
+
+  // delegation for card buttons
+  document.addEventListener('click', e=>{
+    const t=e.target.closest('[data-action="toggle-followup"]'); if (t){ toggleFollowUp(t.dataset.id); return; }
+    const d=e.target.closest('[data-action="delete-followup"]'); if (d){ deleteFollowUp(d.dataset.id); return; }
+    const c=e.target.closest('[data-action="create-followup-for-client"]'); if (c){ openFollowUpModal(c.dataset.id, c.dataset.notes||''); return; }
+  }, { once:true });
+}
+
+/* ===========================
+   DASHBOARD
+   =========================== */
+function updateDashboard(){
+  $('#totalClients').textContent = clients.length;
+  $('#totalInteractions').textContent = interactions.length;
+  const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0,0,0,0);
+  const activeThisMonth = new Set(interactions.filter(i=>new Date(i.date)>=monthStart).map(i=>i.clientId)).size;
+  $('#activeThisMonth').textContent = activeThisMonth;
+  const totalSales = clients.reduce((sum,c)=>sum+(Number(c.initialSales)||0),0) + sales.reduce((s,x)=>s+(Number(x.amount)||0),0);
+  $('#totalSales').textContent = fmtUSD.format(totalSales);
+
+  // Recent activity lists
+  const interWrap=$('#interactionActivityList'), salesWrap=$('#salesActivityList');
+  if (interactions.length===0){
+    interWrap.innerHTML=`<div class="empty-state"><div style="font-size:42px;opacity:.6">💬</div><p>No interactions yet</p></div>`;
+  } else {
+    const items=[...interactions].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,5).map(i=>{
+      const c=clients.find(x=>x.id===i.clientId);
+      return `<div class="interaction-item" style="padding:10px"><div class="client-name">${escapeHTML(c?fullNameOf(c):'Unknown')}</div><div class="muted" style="font-size:.85rem">${escapeHTML(i.type)} • ${new Date(i.date).toLocaleDateString()}</div></div>`;
+    }).join('');
+    interWrap.innerHTML=items;
   }
-
-  // ---------- Dashboard ----------
-  function updateDashboard(){
-    $('#totalClients').textContent = clients.length;
-    $('#totalInteractions').textContent = interactions.length;
-    const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0,0,0,0);
-    const activeThisMonth = new Set(interactions.filter(i=>new Date(i.date)>=monthStart).map(i=>i.clientId)).size;
-    $('#activeThisMonth').textContent = activeThisMonth;
-    const totalSales = clients.reduce((sum,c)=>sum+(Number(c.initialSales)||0),0) + sales.reduce((s,x)=>s+(Number(x.amount)||0),0);
-    $('#totalSales').textContent = fmtUSD.format(totalSales);
-
-    // Recent activity lists
-    const interWrap=$('#interactionActivityList'), salesWrap=$('#salesActivityList');
-    if (interactions.length===0){
-      interWrap.innerHTML=`<div class="empty-state"><div style="font-size:42px;opacity:.6">💬</div><p>No interactions yet</p></div>`;
-    } else {
-      const items=[...interactions].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,5).map(i=>{
-        const c=clients.find(x=>x.id===i.clientId);
-        return `<div class="interaction-item" style="padding:10px"><div class="client-name">${escapeHTML(c?fullNameOf(c):'Unknown')}</div><div class="muted" style="font-size:.85rem">${escapeHTML(i.type)} • ${new Date(i.date).toLocaleDateString()}</div></div>`;
-      }).join('');
-      interWrap.innerHTML=items;
-    }
-    if (sales.length===0){
-      salesWrap.innerHTML=`<div class="empty-state"><div style="font-size:42px;opacity:.6">💰</div><p>No sales yet</p></div>`;
-    } else {
-      const items=[...sales].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,5).map(s=>{
-        const c=clients.find(x=>x.id===s.clientId);
-        return `<div class="interaction-item" style="padding:10px"><div class="client-name">${escapeHTML(c?fullNameOf(c):'Unknown')}</div><div class="muted" style="font-size:.85rem">${new Date(s.date).toLocaleDateString()} • ${fmtUSD.format(Number(s.amount)||0)}</div></div>`;
-      }).join('');
-      salesWrap.innerHTML=items;
-    }
-  }
-
-  // ---------- Import/Export ----------
-  function exportData(){
-    const payload={ exportedAt:new Date().toISOString(), version:4, clients, interactions, sales, followUps, todos };
-    const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob);
-    const a=document.createElement('a'); a.href=url; a.download='crm-backup.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-  }
-  function importData(file){
-    const reader=new FileReader();
-    reader.onload=()=>{
-      try{
-        const data=JSON.parse(reader.result);
-        if(!data||!Array.isArray(data.clients)||!Array.isArray(data.interactions)||!Array.isArray(data.sales)){ alert('Invalid file format.'); return; }
-        clients = data.clients.map(c=>({
-          ...c,
-          styles: normalizeStyles(c.styles??c.style),
-          status: mapOldStatus(c.status),
-          initialSales: Number(c.initialSales)||0,
-          birthdayMonth: c.birthdayMonth??'',
-          birthdayDay: c.birthdayDay??'',
-          colorsLiked: Array.isArray(c.colorsLiked)?c.colorsLiked:parseCSV(c.colorsLiked),
-          colorsDisliked: Array.isArray(c.colorsDisliked)?c.colorsDisliked:parseCSV(c.colorsDisliked),
-          sizing: (c.sizing&&typeof c.sizing==='object')? {top:c.sizing.top||'',bottom:c.sizing.bottom||'',dress:c.sizing.dress||'',shoe:c.sizing.shoe||''}:{top:'',bottom:'',dress:'',shoe:''},
-          favoriteBrands: Array.isArray(c.favoriteBrands)?c.favoriteBrands:parseCSV(c.favoriteBrands)
-        }));
-        interactions = data.interactions.map(i=>({ ...i, date:(i.date||'').slice(0,10) }));
-        sales = data.sales.map(s=>({ ...s, amount:Number(s.amount)||0 }));
-        followUps = (data.followUps||[]).map(f=>({ ...f, date:(f.date||'').slice(0,10), completed: !!f.completed, type: f.type||'manual' }));
-        todos = (data.todos||[]).map(t=>({ ...t, date:(t.date||'').slice(0,10), status:t.status||'open' }));
-        saveData(); renderAll(); alert('Import complete ✔️');
-      }catch(e){ console.error(e); alert('Could not parse the file.'); }
-    };
-    reader.readAsText(file);
-  }
-</script>
-
-  <script>
-
-function categorizeFollowUp(fu) {
-  // Try to assign type if missing
-  if (!fu.type) {
-    const t = fu.title.toLowerCase();
-    if (t.includes("outreach") || t.includes("holiday")) fu.type = "seasonal";
-    else if (t.includes("sale") || t.includes("promo")) fu.type = "promotion";
-    else if (t.includes("follow up") && fu.relatedTo === "appointment") fu.type = "post-appointment";
-    else if (t.includes("birthday")) fu.type = "birthday";
-    else if (fu.isPastDue) fu.type = "past-due";
-    else fu.type = "relationship";
+  if (sales.length===0){
+    salesWrap.innerHTML=`<div class="empty-state"><div style="font-size:42px;opacity:.6">💰</div><p>No sales yet</p></div>`;
+  } else {
+    const items=[...sales].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,5).map(s=>{
+      const c=clients.find(x=>x.id===s.clientId);
+      return `<div class="interaction-item" style="padding:10px"><div class="client-name">${escapeHTML(c?fullNameOf(c):'Unknown')}</div><div class="muted" style="font-size:.85rem">${new Date(s.date).toLocaleDateString()} • ${fmtUSD.format(Number(s.amount)||0)}</div></div>`;
+    }).join('');
+    salesWrap.innerHTML=items;
   }
 }
 
-// Initial tagging
-followUps.forEach(categorizeFollowUp);
-
-// Hook into render to apply colors and dataset
-function decorateFollowUps() {
-  document.querySelectorAll('.follow-up').forEach(card => {
-    const id = card.dataset.id;
-    const fu = followUps.find(f => f.id == id);
-    if (fu) {
-      card.dataset.type = fu.type;
-    }
-  });
+/* ===========================
+   IMPORT / EXPORT
+   =========================== */
+function exportData(){
+  const payload={ exportedAt:new Date().toISOString(), version:4, clients, interactions, sales, followUps, todos };
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='crm-backup.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+}
+function importData(file){
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const data=JSON.parse(reader.result);
+      if(!data||!Array.isArray(data.clients)||!Array.isArray(data.interactions)||!Array.isArray(data.sales)){ alert('Invalid file format.'); return; }
+      clients = data.clients.map(c=>({
+        ...c,
+        styles: normalizeStyles(c.styles??c.style),
+        status: mapOldStatus(c.status),
+        initialSales: Number(c.initialSales)||0,
+        birthdayMonth: c.birthdayMonth??'',
+        birthdayDay: c.birthdayDay??'',
+        colorsLiked: Array.isArray(c.colorsLiked)?c.colorsLiked:parseCSV(c.colorsLiked),
+        colorsDisliked: Array.isArray(c.colorsDisliked)?c.colorsDisliked:parseCSV(c.colorsDisliked),
+        sizing: (c.sizing&&typeof c.sizing==='object')? {top:c.sizing.top||'',bottom:c.sizing.bottom||'',dress:c.sizing.dress||'',shoe:c.sizing.shoe||''}:{top:'',bottom:'',dress:'',shoe:''},
+        favoriteBrands: Array.isArray(c.favoriteBrands)?c.favoriteBrands:parseCSV(c.favoriteBrands)
+      }));
+      interactions = data.interactions.map(i=>({ ...i, date:(i.date||'').slice(0,10) }));
+      sales = data.sales.map(s=>({ ...s, amount:Number(s.amount)||0 }));
+      followUps = (data.followUps||[]).map(f=>({ ...f, date:(f.date||'').slice(0,10), completed: !!f.completed, type: f.type||'manual' }));
+      todos = (data.todos||[]).map(t=>({ ...t, date:(t.date||'').slice(0,10), status:t.status||'open' }));
+      saveData(); renderAll(); alert('Import complete ✔️');
+    }catch(e){ console.error(e); alert('Could not parse the file.'); }
+  };
+  reader.readAsText(file);
 }
 
-// Filter control
-document.getElementById('categoryFilter').addEventListener('change', e => {
-  const val = e.target.value;
-  document.querySelectorAll('.follow-up').forEach(card => {
-    if (val === 'all' || card.dataset.type === val) {
-      card.style.display = '';
-    } else {
-      card.style.display = 'none';
-    }
-  });
-});
-
-// Auto-apply colors on load
-document.addEventListener('DOMContentLoaded', decorateFollowUps);
-</script>
-
-  <script>
-/* ==========================================================
-   FOLLOW-UPS MASTER SCRIPT (Seasonal + Categories + Focus)
-   Tailored to your file: uses .followup-card, renderFollowUps(),
-   followUps[] with { id, clientId, date, notes, type, ... }
-   ========================================================== */
-
-/* --------------- Helpers & Globals --------------- */
-const $  = (s, r=document) => r.querySelector(s);
-const $$ = (s, r=document) => [...r.querySelectorAll(s)];
-const byId = (id) => document.getElementById(id);
-const uid  = () => 'fu_' + Math.random().toString(36).slice(2, 10);
-
-// Ensure arrays exist (your app already defines these earlier)
-window.clients   = Array.isArray(window.clients)   ? window.clients   : [];
-window.followUps = Array.isArray(window.followUps) ? window.followUps : [];
-
-/* --------------- Categorization --------------- */
-function categorizeFollowUp(fu) {
-  // Only set type if missing, so we respect your weekly/monthly/manual/etc.
-  if (!fu.type) {
-    const t = String(fu.title || fu.notes || '').toLowerCase();
-    if (t.includes('birthday')) fu.type = 'birthday';
-    else if (t.includes('outreach') || t.includes('holiday')) fu.type = 'seasonal';
-    else if (t.includes('sale') || t.includes('promo')) fu.type = 'promotion';
-    else if ((t.includes('follow up') || t.includes('follow-up')) && fu.relatedTo === 'appointment') fu.type = 'post-appointment';
-    else fu.type = 'relationship';
-  }
-}
-
-/* --------------- Decorator (colors + badges) --------------- */
-function decorateFollowUps() {
-  const cards = $$('.followup-card'); // your card class
-  cards.forEach(card => {
-    const id = card.dataset.id;
-    const fu = window.followUps.find(f => String(f.id) === String(id));
-    if (!fu) return;
-
-    // expose type to CSS
-    card.dataset.type = fu.type || '';
-
-    // add seasonal badge
-    if (fu.type === 'seasonal' && !card.querySelector('.badge-season')) {
-      card.classList.add('seasonal'); // lets your seasonal background kick in
-      const badge = document.createElement('span');
-      badge.className = 'badge-season';
-      badge.textContent = fu.season || 'Seasonal';
-      // Attach near the title/top; fall back to main area
-      const host = card.querySelector('.title, .followup-top, .followup-main') || card;
-      host.appendChild(badge);
-    }
-  });
-}
-
-/* Monkey-patch your render to always re-decorate after drawing */
-(function patchRender(){
-  const orig = window.renderFollowUps;
-  if (typeof orig === 'function') {
-    window.renderFollowUps = function patchedRenderFollowUps(...args){
-      const out = orig.apply(this, args);
-      // Wait until DOM updated
-      requestAnimationFrame(decorateFollowUps);
-      return 
-
-/* --------------- Seasonal-only chip --------------- */
-function bindSeasonalOnlyChip(){
-  const chk = byId('filterSeasonalOnly');
-  if (!chk) return;
-  chk.addEventListener('change', () => {
-    const onlySeasonal = chk.checked;
-    $$('.followup-card').forEach(card => {
-      const isSeasonal = card.classList.contains('seasonal') || card.dataset.type === 'seasonal';
-      card.style.display = (!onlySeasonal || isSeasonal) ? '' : 'none';
-    });
-  });
-}
-
-/* --------------- Seasonal Generator --------------- */
+/* ===========================
+   SEASONAL GENERATOR
+   =========================== */
 function seasonDatesForYear(year) {
-  // Your chosen dates (Mar 1, Jun 1, Sep 1, Dec 1)
   return [
     { season: 'Spring',  month: 3,  day: 1 },
     { season: 'Summer',  month: 6,  day: 1 },
@@ -1676,360 +1489,34 @@ function seasonDatesForYear(year) {
     { season: 'Winter',  month: 12, day: 1 }
   ].map(s => ({ ...s, date: new Date(Date.UTC(year, s.month - 1, s.day, 12, 0, 0)) }));
 }
-
-function hasSeasonalFU(clientId, season, year) {
-  return window.followUps.some(fu =>
-    fu.clientId === clientId &&
-    fu.type === 'seasonal' &&
-    String(fu.season) === String(season) &&
-    Number(fu.year) === Number(year)
-  );
-}
-
-function makeSeasonalFU({ clientId, season, date, year }) {
-  return {
-    id: uid(),
-    clientId,
-    title: `${season} Outreach`,
-    type: 'seasonal',
-    season,
-    year,
-    // IMPORTANT: your app uses "date" (YYYY-MM-DD), not "dueDate"
-    date: date.toISOString().slice(0, 10),
-    notes: '',
-    createdAt: new Date().toISOString(),
-    completed: false
-  };
-}
-
 function getTargetClientIds(mode = 'all') {
-  const allIds = window.clients.map(c => c.id);
+  const allIds = clients.map(c => c.id);
   if (mode === 'filtered') {
-    // your list of filtered clients is kept in lastClientFilterResult
-    const list = Array.isArray(window.lastClientFilterResult) ? window.lastClientFilterResult.map(c => c.id) : [];
+    const list = Array.isArray(lastClientFilterResult) ? lastClientFilterResult.map(c => c.id) : [];
     return list.length ? list : allIds;
   }
   return allIds;
 }
-
+function hasSeasonalFU(clientId, season, year) {
+  return followUps.some(fu => fu.clientId===clientId && fu.type==='seasonal' && String(fu.season)===String(season) && Number(fu.year)===Number(year));
+}
+function makeSeasonalFU({ clientId, season, date, year }) {
+  return { id: 'fu_'+Math.random().toString(36).slice(2,10), clientId, title: `${season} Outreach`, type:'seasonal', season, year, date: date.toISOString().slice(0,10), notes:'', createdAt:new Date().toISOString(), completed:false };
+}
 function createSeasonalForClients(clientIds, year) {
   const dates = seasonDatesForYear(year);
   const created = [];
-
   clientIds.forEach(clientId => {
     dates.forEach(({ season, date }) => {
       if (!hasSeasonalFU(clientId, season, year)) {
         const fu = makeSeasonalFU({ clientId, season, date, year });
-        window.followUps.push(fu);
-        created.push(fu);
+        followUps.push(fu); created.push(fu);
       }
     });
   });
-
-  // Persist & re-render using your app’s functions if present
-  if (typeof window.saveData === 'function') window.saveData();
-  if (typeof window.renderFollowUps === 'function') window.renderFollowUps();
-
+  saveData(); renderFollowUps();
   return created;
 }
-
-/* --------------- Wire up UI --------------- */
-document.addEventListener('DOMContentLoaded', () => {
-  // Tag existing items if needed (safe: only sets missing type)
-  window.followUps.forEach(categorizeFollowUp);
-
-  // Initial decoration (in case board is already rendered)
-  requestAnimationFrame(decorateFollowUps);
-
-  // Focus dropdown + seasonal-only chip
-
-  bindSeasonalOnlyChip();
-
-  // Seasonal modal & buttons (you already have these elements)
-  const modal   = byId('seasonalModal');
-  const btnOpen = byId('btnSeasonalOpen');
-  const btnMake = byId('btnSeasonalCreate');
-  const yearInp = byId('seasonalYear');
-
-  if (yearInp) yearInp.value = new Date().getFullYear();
-
-  btnOpen?.addEventListener('click', () => {
-    if (typeof modal?.showModal === 'function') modal.showModal();
-    else modal?.setAttribute('open','');
-  });
-
-  btnMake?.addEventListener('click', (e) => {
-    e.preventDefault();
-    const year   = Number(yearInp?.value) || new Date().getFullYear();
-    const target = (new FormData(byId('seasonalForm')).get('target')) || 'all';
-    const ids    = getTargetClientIds(target);
-    const created = createSeasonalForClients(ids, year);
-
-    if (typeof modal?.close === 'function') modal.close();
-    else modal?.removeAttribute('open');
-
-    alert(
-      created.length
-        ? `✅ Created ${created.length} seasonal follow-ups for ${new Set(created.map(c=>c.clientId)).size} client(s) for ${year}.`
-        : `ℹ️ Everything up to date — no new seasonal follow-ups needed for ${year}.`
-    );
-  });
-});
 </script>
-  <script>
-// --- SAFETY PATCH: only add if missing ---
-(function(){
-  // 1) Polyfill the last-interaction matcher if not present
-  if (typeof window.matchesLastInteractionRule !== 'function') {
-    window.matchesLastInteractionRule = function(/*clientId, mode, startStr, endStr*/){
-      // No last-interaction UI installed -> don't filter anything by date
-      return true;
-    };
-  }
-
-  // 2) Robust applyFiltersAndSort that can't crash
-  window.applyFiltersAndSort = function(){
-    try{
-      const term = (document.querySelector('#clientSearch')?.value || '').toLowerCase();
-      const selected = (typeof getActiveStyleFilters === 'function') ? getActiveStyleFilters() : [];
-      const mode = document.querySelector('#styleMatch')?.value || 'any';
-
-      // If you later add the Last Interaction UI, these will just work; otherwise default to no-op
-      const liMode  = document.querySelector('#lastInteractionFilter')?.value || 'any';
-      const liStart = document.querySelector('#lastInteractionStart')?.value || '';
-      const liEnd   = document.querySelector('#lastInteractionEnd')?.value || '';
-
-      let list = (Array.isArray(window.clients) ? window.clients : []).filter(c=>{
-        // text search across common fields
-        const matchesText =
-          ((`${c.firstName??''} ${c.lastName??''}`).toLowerCase().includes(term)) ||
-          (c.email && c.email.toLowerCase().includes(term)) ||
-          (c.phone && String(c.phone).includes(term)) ||
-          (Array.isArray(c.styles) && c.styles.some(s => s.toLowerCase().includes(term))) ||
-          (Array.isArray(c.favoriteBrands) && c.favoriteBrands.some(b => b.toLowerCase().includes(term))) ||
-          (Array.isArray(c.colorsLiked) && c.colorsLiked.some(col => col.toLowerCase().includes(term))) ||
-          (Array.isArray(c.colorsDisliked) && c.colorsDisliked.some(col => col.toLowerCase().includes(term)));
-        if (!matchesText) return false;
-
-        // style chips
-        if (selected.length){
-          const styles = Array.isArray(c.styles) ? c.styles : [];
-          const styleOk = (mode === 'all') ? selected.every(s => styles.includes(s)) : selected.some(s => styles.includes(s));
-          if (!styleOk) return false;
-        }
-
-        // last-interaction date rule (no-op unless you added the UI + helper)
-        if (!window.matchesLastInteractionRule(c.id, liMode, liStart, liEnd)) return false;
-
-        return true;
-      });
-
-      const sortMode = document.querySelector('#clientSort')?.value || 'createdAt_desc';
-      list = (typeof sortClients === 'function') ? sortClients(list, sortMode) : list;
-
-      if (typeof renderClients === 'function') renderClients(list);
-    } catch (err){
-      console.error('applyFiltersAndSort failed, showing all clients:', err);
-      if (typeof renderClients === 'function') renderClients(window.clients || []);
-    }
-  };
-})();
-</script>
-<script>
-/* === Fix Pack: Last Interaction filter + safe rendering === */
-(function(){
-  const $  = (sel,root=document)=>root.querySelector(sel);
-  const $$ = (sel,root=document)=>[...root.querySelectorAll(sel)];
-
-  // --- Safe globals ---
-  const getClients       = () => Array.isArray(window.clients) ? window.clients : (window.clients = []);
-  const getInteractions  = () => Array.isArray(window.interactions) ? window.interactions : (window.interactions = []);
-  const fullNameOf       = (c)=>`${c?.firstName??''} ${c?.lastName??''}`.trim();
-
-  // --- Date helpers ---
-  const dayStart = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  const MS = 24*60*60*1000;
-  const daysBetween = (a,b)=> Math.floor((dayStart(b)-dayStart(a))/MS);
-
-  // Compute a client's last interaction Date or null
-  function lastInteractionDate(clientId){
-    const ints = getInteractions().filter(x => x.clientId === clientId && x.date);
-    if (!ints.length) return null;
-    // assume interaction.date is "YYYY-MM-DD"
-    const latest = ints.reduce((max, it) => {
-      const d = new Date(it.date);
-      return (!max || d > max) ? d : max;
-    }, null);
-    return latest || null;
-  }
-
-  // If app hasn't defined it yet, provide the matcher
-  if (typeof window.matchesLastInteractionRule !== 'function') {
-    window.matchesLastInteractionRule = function(clientId, mode='any', startStr='', endStr=''){
-      const li = lastInteractionDate(clientId);
-      const today = new Date();
-      const olderThan = n => li ? daysBetween(li, today) > n : false;
-
-      switch(mode){
-        case 'any':     return true;
-        case 'never':   return !li;
-        case 'gt7':     return olderThan(7);
-        case 'gt14':    return olderThan(14);
-        case 'gt30':    return olderThan(30);
-        case 'gt60':    return olderThan(60);
-        case 'gt90':    return olderThan(90);
-        case 'gt180':   return olderThan(180);
-        case 'gt365':   return olderThan(365);
-        case 'before':  return li ? (startStr ? li < new Date(startStr) : true) : false;
-        case 'after':   return li ? (startStr ? li > new Date(startStr) : true) : false;
-        case 'between': return li ? (startStr && endStr ? (li >= new Date(startStr) && li <= new Date(endStr)) : true) : false;
-        default:        return true;
-      }
-    };
-  }
-
-  // Fallback for style filter chips
-  if (typeof window.getActiveStyleFilters !== 'function') {
-    window.getActiveStyleFilters = function(){
-      return $$('.style-filter:checked').map(x=>x.value);
-    };
-  }
-
-  // Non‑crashy applyFiltersAndSort (wrap existing if present)
-  const originalApply = window.applyFiltersAndSort;
-  window.applyFiltersAndSort = function(){
-    try{
-      const term = ($('#clientSearch')?.value || '').toLowerCase();
-      const selected = (typeof getActiveStyleFilters === 'function') ? getActiveStyleFilters() : [];
-      const styleMatch = $('#styleMatch')?.value || 'any';
-
-      const liMode  = $('#lastInteractionFilter')?.value || 'any';
-      const liStart = $('#lastInteractionStart')?.value || '';
-      const liEnd   = $('#lastInteractionEnd')?.value || '';
-
-      let list = getClients().filter(c=>{
-        // text search
-        const hay = [
-          fullNameOf(c),
-          c.email||'',
-          String(c.phone||''),
-          ...(Array.isArray(c.styles)?c.styles:[]),
-          ...(Array.isArray(c.favoriteBrands)?c.favoriteBrands:[]),
-          ...(Array.isArray(c.colorsLiked)?c.colorsLiked:[]),
-          ...(Array.isArray(c.colorsDisliked)?c.colorsDisliked:[]),
-        ].join(' | ').toLowerCase();
-
-        if (term && !hay.includes(term)) return false;
-
-        // styles
-        if (selected.length){
-          const styles = Array.isArray(c.styles)?c.styles:[];
-          const ok = (styleMatch==='all') ? selected.every(s=>styles.includes(s)) : selected.some(s=>styles.includes(s));
-          if (!ok) return false;
-        }
-
-        // last interaction rule
-        if (!window.matchesLastInteractionRule(c.id, liMode, liStart, liEnd)) return false;
-
-        return true;
-      });
-
-      // basic sorts if your app didn't define sortClients
-      const sortMode = $('#clientSort')?.value || 'createdAt_desc';
-      if (typeof window.sortClients === 'function') {
-        list = window.sortClients(list, sortMode);
-      } else {
-        const getLI = (c)=>lastInteractionDate(c.id);
-        const by = {
-          createdAt_desc:(a,b)=>(b.createdAt||0)-(a.createdAt||0),
-          lastInteraction_desc:(a,b)=> (getLI(b)?.getTime()||0)-(getLI(a)?.getTime()||0),
-          lastInteraction_asc:(a,b)=> (getLI(a)?.getTime()||0)-(getLI(b)?.getTime()||0),
-          lastName_asc:(a,b)=> (a.lastName||'').localeCompare(b.lastName||''),
-          lastName_desc:(a,b)=> (b.lastName||'').localeCompare(a.lastName||''),
-          style_asc:(a,b)=> (a.styles?.[0]||'').localeCompare(b.styles?.[0]||''),
-          style_desc:(a,b)=> (b.styles?.[0]||'').localeCompare(a.styles?.[0]||''),
-          spent_desc:(a,b)=> (b.totalSpent||0)-(a.totalSpent||0),
-          spent_asc:(a,b)=> (a.totalSpent||0)-(b.totalSpent||0),
-        };
-        list.sort(by[sortMode] || by.createdAt_desc);
-      }
-
-      if (typeof window.renderClients === 'function') {
-        window.renderClients(list);
-      } else {
-        // ultra‑simple renderer in case yours is missing, so you can see data
-        const ul = $('#clientList');
-        ul.innerHTML = list.length ? '' :
-          `<div class="empty-state"><div style="font-size:42px;opacity:.6">👥</div><p>No clients match.</p></div>`;
-        list.forEach(c=>{
-          const li = document.createElement('div');
-          li.className = 'client-item';
-          const liDate = lastInteractionDate(c.id);
-          li.innerHTML = `
-            <div class="client-header">
-              <div>
-                <div class="client-name">${fullNameOf(c) || '(No name)'}</div>
-                <div class="muted">${c.email||''}</div>
-              </div>
-              <div class="chip ${c.status ? 'status-'+String(c.status).toLowerCase().replace(/\s+/g,'-') : ''}">
-                ${c.status || 'Introductory'}
-              </div>
-            </div>
-            <div class="tags">
-              ${ (c.styles||[]).map(s=>`<span class="tag">${s}</span>`).join('') }
-              <span class="tag">Last: ${ liDate ? liDate.toISOString().slice(0,10) : '—' }</span>
-            </div>
-          `;
-          ul.appendChild(li);
-        });
-      }
-    } catch (e){
-      console.error('applyFiltersAndSort failed; rendering all clients as fallback', e);
-      if (typeof window.renderClients === 'function') window.renderClients(getClients());
-    }
-  };
-
-  // Wire filter UI (only if present in DOM)
-  $('#lastInteractionFilter')?.addEventListener('change', ()=>{
-    const v = $('#lastInteractionFilter').value;
-    const showStart = (v==='before' || v==='after' || v==='between');
-    const showEnd   = (v==='between');
-    $('#lastInteractionStart').style.display = showStart ? '' : 'none';
-    $('#lastInteractionEnd').style.display   = showEnd   ? '' : 'none';
-    window.applyFiltersAndSort();
-  });
-  $('#lastInteractionStart')?.addEventListener('change', window.applyFiltersAndSort);
-  $('#lastInteractionEnd')?.addEventListener('change', window.applyFiltersAndSort);
-  $('#resetLastInteraction')?.addEventListener('click', ()=>{
-    if (!$('#lastInteractionFilter')) return;
-    $('#lastInteractionFilter').value='any';
-    if ($('#lastInteractionStart')) $('#lastInteractionStart').value='';
-    if ($('#lastInteractionEnd'))   $('#lastInteractionEnd').value='';
-    if ($('#lastInteractionStart')) $('#lastInteractionStart').style.display='none';
-    if ($('#lastInteractionEnd'))   $('#lastInteractionEnd').style.display='none';
-    window.applyFiltersAndSort();
-  });
-
-  // Also re‑apply on text/style changes
-  $('#clientSearch')?.addEventListener('input', window.applyFiltersAndSort);
-  $('#clientSort')?.addEventListener('change', window.applyFiltersAndSort);
-  $('#styleMatch')?.addEventListener('change', window.applyFiltersAndSort);
-  $$('.style-filter').forEach(chk=>chk.addEventListener('change', window.applyFiltersAndSort));
-
-  // First paint
-  document.addEventListener('DOMContentLoaded', ()=> {
-    try { window.applyFiltersAndSort(); } catch(e){ console.error(e); }
-  });
-})();
-</script>
-
 </body>
 </html>
-
-
-
-
-
-
-
-
