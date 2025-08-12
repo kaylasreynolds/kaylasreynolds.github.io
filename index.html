@@ -627,6 +627,7 @@
   </div>
 
 <script>
+  
   // ---------- Utilities ----------
   const fmtUSD = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
   const $  = (s, r=document) => r.querySelector(s);
@@ -1772,9 +1773,69 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 </script>
+  <script>
+// --- SAFETY PATCH: only add if missing ---
+(function(){
+  // 1) Polyfill the last-interaction matcher if not present
+  if (typeof window.matchesLastInteractionRule !== 'function') {
+    window.matchesLastInteractionRule = function(/*clientId, mode, startStr, endStr*/){
+      // No last-interaction UI installed -> don't filter anything by date
+      return true;
+    };
+  }
+
+  // 2) Robust applyFiltersAndSort that can't crash
+  window.applyFiltersAndSort = function(){
+    try{
+      const term = (document.querySelector('#clientSearch')?.value || '').toLowerCase();
+      const selected = (typeof getActiveStyleFilters === 'function') ? getActiveStyleFilters() : [];
+      const mode = document.querySelector('#styleMatch')?.value || 'any';
+
+      // If you later add the Last Interaction UI, these will just work; otherwise default to no-op
+      const liMode  = document.querySelector('#lastInteractionFilter')?.value || 'any';
+      const liStart = document.querySelector('#lastInteractionStart')?.value || '';
+      const liEnd   = document.querySelector('#lastInteractionEnd')?.value || '';
+
+      let list = (Array.isArray(window.clients) ? window.clients : []).filter(c=>{
+        // text search across common fields
+        const matchesText =
+          ((`${c.firstName??''} ${c.lastName??''}`).toLowerCase().includes(term)) ||
+          (c.email && c.email.toLowerCase().includes(term)) ||
+          (c.phone && String(c.phone).includes(term)) ||
+          (Array.isArray(c.styles) && c.styles.some(s => s.toLowerCase().includes(term))) ||
+          (Array.isArray(c.favoriteBrands) && c.favoriteBrands.some(b => b.toLowerCase().includes(term))) ||
+          (Array.isArray(c.colorsLiked) && c.colorsLiked.some(col => col.toLowerCase().includes(term))) ||
+          (Array.isArray(c.colorsDisliked) && c.colorsDisliked.some(col => col.toLowerCase().includes(term)));
+        if (!matchesText) return false;
+
+        // style chips
+        if (selected.length){
+          const styles = Array.isArray(c.styles) ? c.styles : [];
+          const styleOk = (mode === 'all') ? selected.every(s => styles.includes(s)) : selected.some(s => styles.includes(s));
+          if (!styleOk) return false;
+        }
+
+        // last-interaction date rule (no-op unless you added the UI + helper)
+        if (!window.matchesLastInteractionRule(c.id, liMode, liStart, liEnd)) return false;
+
+        return true;
+      });
+
+      const sortMode = document.querySelector('#clientSort')?.value || 'createdAt_desc';
+      list = (typeof sortClients === 'function') ? sortClients(list, sortMode) : list;
+
+      if (typeof renderClients === 'function') renderClients(list);
+    } catch (err){
+      console.error('applyFiltersAndSort failed, showing all clients:', err);
+      if (typeof renderClients === 'function') renderClients(window.clients || []);
+    }
+  };
+})();
+</script>
 
 </body>
 </html>
+
 
 
 
