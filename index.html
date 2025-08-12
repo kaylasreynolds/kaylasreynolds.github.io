@@ -107,6 +107,14 @@
     .container{padding:12px}
     .followup-main .client-name{font-size:.9rem}
     .followup-main .muted{font-size:.8rem}
+    /* 2) Category color coding */
+    .follow-up[data-type="seasonal"] { border-left: 5px solid #60a5fa; background: #f0f9ff; }
+    .follow-up[data-type="promotion"] { border-left: 5px solid #facc15; background: #fefce8; }
+    .follow-up[data-type="post-appointment"] { border-left: 5px solid #34d399; background: #ecfdf5; }
+    .follow-up[data-type="relationship"] { border-left: 5px solid #f472b6; background: #fdf2f8; }
+    .follow-up[data-type="past-due"] { border-left: 5px solid #ef4444; background: #fef2f2; }
+    .follow-up[data-type="birthday"] { border-left: 5px solid #a78bfa; background: #f5f3ff; }
+
   }
 </style>
 </head>
@@ -248,6 +256,20 @@
         </div>
       </div>
     </div>
+    
+    // Follow Up Controls
+<div id="followup-controls" class="fu-controls">
+  <label for="categoryFilter">Focus:</label>
+  <select id="categoryFilter">
+    <option value="all">All</option>
+    <option value="seasonal">Seasonal / Holiday</option>
+    <option value="promotion">Promotion / Sales</option>
+    <option value="post-appointment">Post-Appointment</option>
+    <option value="relationship">Relationship</option>
+    <option value="past-due">Past Due</option>
+    <option value="birthday">Birthday</option>
+  </select>
+</div>
 
     <!-- Tasks (To‑Do + Follow‑Ups) -->
     <div id="tasks" class="tab-content" style="display:none">
@@ -1287,5 +1309,54 @@
     reader.readAsText(file);
   }
 </script>
+
+  <script>
+// Assuming followUps[] already exists in your CRM JS
+window.followUps = window.followUps || [];
+
+function categorizeFollowUp(fu) {
+  // Try to assign type if missing
+  if (!fu.type) {
+    const t = fu.title.toLowerCase();
+    if (t.includes("outreach") || t.includes("holiday")) fu.type = "seasonal";
+    else if (t.includes("sale") || t.includes("promo")) fu.type = "promotion";
+    else if (t.includes("follow up") && fu.relatedTo === "appointment") fu.type = "post-appointment";
+    else if (t.includes("birthday")) fu.type = "birthday";
+    else if (fu.isPastDue) fu.type = "past-due";
+    else fu.type = "relationship";
+  }
+}
+
+// Initial tagging
+followUps.forEach(categorizeFollowUp);
+
+// Hook into render to apply colors and dataset
+function decorateFollowUps() {
+  document.querySelectorAll('.follow-up').forEach(card => {
+    const id = card.dataset.id;
+    const fu = followUps.find(f => f.id == id);
+    if (fu) {
+      card.dataset.type = fu.type;
+    }
+  });
+}
+
+// Filter control
+document.getElementById('categoryFilter').addEventListener('change', e => {
+  const val = e.target.value;
+  document.querySelectorAll('.follow-up').forEach(card => {
+    if (val === 'all' || card.dataset.type === val) {
+      card.style.display = '';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+});
+
+// Auto-apply colors on load
+document.addEventListener('DOMContentLoaded', decorateFollowUps);
+</script>
+
 </body>
 </html>
+
