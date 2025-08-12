@@ -1832,9 +1832,197 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 })();
 </script>
+<script>
+/* === Fix Pack: Last Interaction filter + safe rendering === */
+(function(){
+  const $  = (sel,root=document)=>root.querySelector(sel);
+  const $$ = (sel,root=document)=>[...root.querySelectorAll(sel)];
+
+  // --- Safe globals ---
+  const getClients       = () => Array.isArray(window.clients) ? window.clients : (window.clients = []);
+  const getInteractions  = () => Array.isArray(window.interactions) ? window.interactions : (window.interactions = []);
+  const fullNameOf       = (c)=>`${c?.firstName??''} ${c?.lastName??''}`.trim();
+
+  // --- Date helpers ---
+  const dayStart = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const MS = 24*60*60*1000;
+  const daysBetween = (a,b)=> Math.floor((dayStart(b)-dayStart(a))/MS);
+
+  // Compute a client's last interaction Date or null
+  function lastInteractionDate(clientId){
+    const ints = getInteractions().filter(x => x.clientId === clientId && x.date);
+    if (!ints.length) return null;
+    // assume interaction.date is "YYYY-MM-DD"
+    const latest = ints.reduce((max, it) => {
+      const d = new Date(it.date);
+      return (!max || d > max) ? d : max;
+    }, null);
+    return latest || null;
+  }
+
+  // If app hasn't defined it yet, provide the matcher
+  if (typeof window.matchesLastInteractionRule !== 'function') {
+    window.matchesLastInteractionRule = function(clientId, mode='any', startStr='', endStr=''){
+      const li = lastInteractionDate(clientId);
+      const today = new Date();
+      const olderThan = n => li ? daysBetween(li, today) > n : false;
+
+      switch(mode){
+        case 'any':     return true;
+        case 'never':   return !li;
+        case 'gt7':     return olderThan(7);
+        case 'gt14':    return olderThan(14);
+        case 'gt30':    return olderThan(30);
+        case 'gt60':    return olderThan(60);
+        case 'gt90':    return olderThan(90);
+        case 'gt180':   return olderThan(180);
+        case 'gt365':   return olderThan(365);
+        case 'before':  return li ? (startStr ? li < new Date(startStr) : true) : false;
+        case 'after':   return li ? (startStr ? li > new Date(startStr) : true) : false;
+        case 'between': return li ? (startStr && endStr ? (li >= new Date(startStr) && li <= new Date(endStr)) : true) : false;
+        default:        return true;
+      }
+    };
+  }
+
+  // Fallback for style filter chips
+  if (typeof window.getActiveStyleFilters !== 'function') {
+    window.getActiveStyleFilters = function(){
+      return $$('.style-filter:checked').map(x=>x.value);
+    };
+  }
+
+  // Non‑crashy applyFiltersAndSort (wrap existing if present)
+  const originalApply = window.applyFiltersAndSort;
+  window.applyFiltersAndSort = function(){
+    try{
+      const term = ($('#clientSearch')?.value || '').toLowerCase();
+      const selected = (typeof getActiveStyleFilters === 'function') ? getActiveStyleFilters() : [];
+      const styleMatch = $('#styleMatch')?.value || 'any';
+
+      const liMode  = $('#lastInteractionFilter')?.value || 'any';
+      const liStart = $('#lastInteractionStart')?.value || '';
+      const liEnd   = $('#lastInteractionEnd')?.value || '';
+
+      let list = getClients().filter(c=>{
+        // text search
+        const hay = [
+          fullNameOf(c),
+          c.email||'',
+          String(c.phone||''),
+          ...(Array.isArray(c.styles)?c.styles:[]),
+          ...(Array.isArray(c.favoriteBrands)?c.favoriteBrands:[]),
+          ...(Array.isArray(c.colorsLiked)?c.colorsLiked:[]),
+          ...(Array.isArray(c.colorsDisliked)?c.colorsDisliked:[]),
+        ].join(' | ').toLowerCase();
+
+        if (term && !hay.includes(term)) return false;
+
+        // styles
+        if (selected.length){
+          const styles = Array.isArray(c.styles)?c.styles:[];
+          const ok = (styleMatch==='all') ? selected.every(s=>styles.includes(s)) : selected.some(s=>styles.includes(s));
+          if (!ok) return false;
+        }
+
+        // last interaction rule
+        if (!window.matchesLastInteractionRule(c.id, liMode, liStart, liEnd)) return false;
+
+        return true;
+      });
+
+      // basic sorts if your app didn't define sortClients
+      const sortMode = $('#clientSort')?.value || 'createdAt_desc';
+      if (typeof window.sortClients === 'function') {
+        list = window.sortClients(list, sortMode);
+      } else {
+        const getLI = (c)=>lastInteractionDate(c.id);
+        const by = {
+          createdAt_desc:(a,b)=>(b.createdAt||0)-(a.createdAt||0),
+          lastInteraction_desc:(a,b)=> (getLI(b)?.getTime()||0)-(getLI(a)?.getTime()||0),
+          lastInteraction_asc:(a,b)=> (getLI(a)?.getTime()||0)-(getLI(b)?.getTime()||0),
+          lastName_asc:(a,b)=> (a.lastName||'').localeCompare(b.lastName||''),
+          lastName_desc:(a,b)=> (b.lastName||'').localeCompare(a.lastName||''),
+          style_asc:(a,b)=> (a.styles?.[0]||'').localeCompare(b.styles?.[0]||''),
+          style_desc:(a,b)=> (b.styles?.[0]||'').localeCompare(a.styles?.[0]||''),
+          spent_desc:(a,b)=> (b.totalSpent||0)-(a.totalSpent||0),
+          spent_asc:(a,b)=> (a.totalSpent||0)-(b.totalSpent||0),
+        };
+        list.sort(by[sortMode] || by.createdAt_desc);
+      }
+
+      if (typeof window.renderClients === 'function') {
+        window.renderClients(list);
+      } else {
+        // ultra‑simple renderer in case yours is missing, so you can see data
+        const ul = $('#clientList');
+        ul.innerHTML = list.length ? '' :
+          `<div class="empty-state"><div style="font-size:42px;opacity:.6">👥</div><p>No clients match.</p></div>`;
+        list.forEach(c=>{
+          const li = document.createElement('div');
+          li.className = 'client-item';
+          const liDate = lastInteractionDate(c.id);
+          li.innerHTML = `
+            <div class="client-header">
+              <div>
+                <div class="client-name">${fullNameOf(c) || '(No name)'}</div>
+                <div class="muted">${c.email||''}</div>
+              </div>
+              <div class="chip ${c.status ? 'status-'+String(c.status).toLowerCase().replace(/\s+/g,'-') : ''}">
+                ${c.status || 'Introductory'}
+              </div>
+            </div>
+            <div class="tags">
+              ${ (c.styles||[]).map(s=>`<span class="tag">${s}</span>`).join('') }
+              <span class="tag">Last: ${ liDate ? liDate.toISOString().slice(0,10) : '—' }</span>
+            </div>
+          `;
+          ul.appendChild(li);
+        });
+      }
+    } catch (e){
+      console.error('applyFiltersAndSort failed; rendering all clients as fallback', e);
+      if (typeof window.renderClients === 'function') window.renderClients(getClients());
+    }
+  };
+
+  // Wire filter UI (only if present in DOM)
+  $('#lastInteractionFilter')?.addEventListener('change', ()=>{
+    const v = $('#lastInteractionFilter').value;
+    const showStart = (v==='before' || v==='after' || v==='between');
+    const showEnd   = (v==='between');
+    $('#lastInteractionStart').style.display = showStart ? '' : 'none';
+    $('#lastInteractionEnd').style.display   = showEnd   ? '' : 'none';
+    window.applyFiltersAndSort();
+  });
+  $('#lastInteractionStart')?.addEventListener('change', window.applyFiltersAndSort);
+  $('#lastInteractionEnd')?.addEventListener('change', window.applyFiltersAndSort);
+  $('#resetLastInteraction')?.addEventListener('click', ()=>{
+    if (!$('#lastInteractionFilter')) return;
+    $('#lastInteractionFilter').value='any';
+    if ($('#lastInteractionStart')) $('#lastInteractionStart').value='';
+    if ($('#lastInteractionEnd'))   $('#lastInteractionEnd').value='';
+    if ($('#lastInteractionStart')) $('#lastInteractionStart').style.display='none';
+    if ($('#lastInteractionEnd'))   $('#lastInteractionEnd').style.display='none';
+    window.applyFiltersAndSort();
+  });
+
+  // Also re‑apply on text/style changes
+  $('#clientSearch')?.addEventListener('input', window.applyFiltersAndSort);
+  $('#clientSort')?.addEventListener('change', window.applyFiltersAndSort);
+  $('#styleMatch')?.addEventListener('change', window.applyFiltersAndSort);
+  $$('.style-filter').forEach(chk=>chk.addEventListener('change', window.applyFiltersAndSort));
+
+  // First paint
+  document.addEventListener('DOMContentLoaded', ()=> {
+    try { window.applyFiltersAndSort(); } catch(e){ console.error(e); }
+  });
+})();
+</script>
 
 </body>
 </html>
+
 
 
 
