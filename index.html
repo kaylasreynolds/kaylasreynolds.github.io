@@ -311,7 +311,6 @@
     
 
 <div id="followup-controls" class="fu-controls">
-  <label for="categoryFilter">Focus:</label>
   <select id="categoryFilter">
     <option value="all">All</option>
     <option value="seasonal">Seasonal / Holiday</option>
@@ -323,71 +322,7 @@
   </select>
 </div>
 
-    <!-- Seasonal Follow-Ups UI -->
-<div id="seasonalFU-controls" class="seasonal-controls">
-  <button id="btnSeasonalOpen" class="btn btn-primary">Generate Seasonal Follow-Ups</button>
-  <label class="chip chip-filter">
-    <input type="checkbox" id="filterSeasonalOnly" />
-    <span>Seasonal only</span>
-  </label>
-</div>
-
- <script>
-/* Seasons (Northern Hemisphere) */
-function seasonDatesForYear(year) {
-  return [
-    { season: 'Spring',  month: 3,  day: 1 },
-    { season: 'Summer',  month: 6,  day: 1 },
-    { season: 'Fall',    month: 9,  day: 1 },
-    { season: 'Winter',  month: 12, day: 1 }
-  ].map(s => ({
-    ...s,
-    date: new Date(Date.UTC(year, s.month - 1, s.day, 12, 0, 0))
-  }));
-}
-
-/* Create a seasonal follow-up object matching your renderer's schema */
-function makeSeasonalFU({ clientId, season, date, year }) {
-  return {
-    id: 'fu_' + Math.random().toString(36).slice(2, 10),
-    clientId,
-    // IMPORTANT: your UI reads "date" (YYYY-MM-DD), not "dueDate"
-    date: date.toISOString().slice(0, 10),
-    notes: `${season} Outreach`,
-    createdAt: new Date().toISOString(),
-    completed: false,
-    type: 'seasonal',
-    season,
-    year
-  };
-}
-
-function createSeasonalForClients(clientIds, year) {
-  const dates = seasonDatesForYear(year);
-  const created = [];
-
-  clientIds.forEach(clientId => {
-    dates.forEach(({ season, date }) => {
-      const exists = followUps.some(fu =>
-        fu.clientId === clientId &&
-        fu.type === 'seasonal' &&
-        fu.season === season &&
-        Number(fu.year) === Number(year)
-      );
-      if (!exists) {
-        const fu = makeSeasonalFU({ clientId, season, date, year });
-        followUps.push(fu);               // push into the same array your UI renders
-        created.push(fu);
-      }
-    });
-  });
-
-  if (typeof saveData === 'function') saveData();   // persist with your app's storage
-  if (typeof renderFollowUps === 'function') renderFollowUps();
-  return created;
-}
-</script>
-
+  
 
 <!-- Minimal modal -->
 <dialog id="seasonalModal">
@@ -1556,22 +1491,7 @@ function decorateFollowUps() {
       const out = orig.apply(this, args);
       // Wait until DOM updated
       requestAnimationFrame(decorateFollowUps);
-      return out;
-    };
-  }
-})();
-
-/* --------------- Focus Mode (dropdown) --------------- */
-function bindFocusFilter(){
-  const sel = byId('categoryFilter');
-  if (!sel) return;
-  sel.addEventListener('change', e => {
-    const val = e.target.value;
-    $$('.followup-card').forEach(card => {
-      card.style.display = (val === 'all' || card.dataset.type === val) ? '' : 'none';
-    });
-  });
-}
+      return 
 
 /* --------------- Seasonal-only chip --------------- */
 function bindSeasonalOnlyChip(){
@@ -1662,7 +1582,7 @@ document.addEventListener('DOMContentLoaded', () => {
   requestAnimationFrame(decorateFollowUps);
 
   // Focus dropdown + seasonal-only chip
-  bindFocusFilter();
+
   bindSeasonalOnlyChip();
 
   // Seasonal modal & buttons (you already have these elements)
