@@ -441,12 +441,10 @@ document.addEventListener('DOMContentLoaded', ()=>{
   $('#todoSort')?.addEventListener('change', renderTodos);
   $('#todoFilterStatus')?.addEventListener('change', renderTodos);
   $('#todoFilterDue')?.addEventListener('change', renderTodos);
-  $('#todoFilterClient')?.addEventListener('change', renderTodos);
-  
+   $('#todoFilterClient')?.addEventListener('change', renderTodos);
   });
-});
 
-function renderAll(){ renderClients(); renderSalesView(); renderTodos(); updateDashboard(); }
+  function renderAll(){ renderClients(); renderSalesView(); renderTodos(); updateDashboard(); }
 function closeAllModals(){ $$('.modal.active').forEach(m=>m.classList.remove('active')); }
 function switchTab(tab){
   $$('.tab-content').forEach(c=>c.style.display=(c.id===tab?'block':'none'));
@@ -461,7 +459,6 @@ function switchTab(tab){
 ========================= */
 const fullNameOf = (c)=>`${c.firstName??''} ${c.lastName??''}`.trim();
 function getActiveStyleFilters(){ return [...document.querySelectorAll('.style-filter:checked')].map(c=>c.value); }
-}
 function daysBetween(a, b) {
   const MS = 24*60*60*1000;
   return Math.floor((Date.UTC(b.getFullYear(),b.getMonth(),b.getDate()) -
@@ -842,11 +839,8 @@ function importData(file){
   };
   reader.readAsText(file);
 }
-  });
-  });
 </script>
 </body>
 </html>
-
 
 
