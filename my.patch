@@ -1,0 +1,133 @@
+ (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
+diff --git a/index.html b/index.html
+index cbf22f91cacf6215def643efe4dfa495d3487e48..4a3a148a440225bb33090887ae8364b8b3d92769 100644
+--- a/index.html
++++ b/index.html
+@@ -419,72 +419,69 @@ document.addEventListener('DOMContentLoaded', ()=>{
+ 
+   $('#openClientBtn')?.addEventListener('click', ()=>openClientModal());
+   $('#createTodoFromClientsBtn')?.addEventListener('click', ()=>openTodoModal(lastClientFilterResult.map(c=>c.id)));
+   $('#clientList')?.addEventListener('click', e=>{
+     const btn = e.target.closest('button[data-action]'); if(!btn) return;
+     const id = btn.getAttribute('data-id'); const action=btn.getAttribute('data-action');
+     if (action==='view') openClientView(id);
+     if (action==='edit') openClientModal(id);
+     if (action==='delete') deleteClient(id);
+   });
+ 
+   // sales
+   $('#openSaleBtn')?.addEventListener('click', ()=>openSaleModal());
+   $('#salesList')?.addEventListener('click', e=>{
+     const edit=e.target.closest('[data-action="edit-sale"]');
+     const del=e.target.closest('[data-action="delete-sale"]');
+     if (edit) return openSaleModal(edit.dataset.id);
+     if (del) return deleteSale(del.dataset.id);
+   });
+ 
+   // tasks
+   $('#openTodoBtn')?.addEventListener('click', ()=>openTodoModal());
+   $('#todoSort')?.addEventListener('change', renderTodos);
+   $('#todoFilterStatus')?.addEventListener('change', renderTodos);
+   $('#todoFilterDue')?.addEventListener('change', renderTodos);
+-  $('#todoFilterClient')?.addEventListener('change', renderTodos);
+-  
+-  });
+-});
+-
+-function renderAll(){ renderClients(); renderSalesView(); renderTodos(); updateDashboard(); }
++    $('#todoFilterClient')?.addEventListener('change', renderTodos);
++  });
++
++  function renderAll(){ renderClients(); renderSalesView(); renderTodos(); updateDashboard(); }
+ function closeAllModals(){ $$('.modal.active').forEach(m=>m.classList.remove('active')); }
+ function switchTab(tab){
+   $$('.tab-content').forEach(c=>c.style.display=(c.id===tab?'block':'none'));
+   $$('.tab').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+   if(tab==='dashboard') updateDashboard();
+   if(tab==='sales') renderSalesView();
+   if(tab==='tasks'){ renderTodos(); }
+ }
+ 
+ /* =========================
+    Helpers
+ ========================= */
+-const fullNameOf = (c)=>`${c.firstName??''} ${c.lastName??''}`.trim();
+-function getActiveStyleFilters(){ return [...document.querySelectorAll('.style-filter:checked')].map(c=>c.value); }
+-}
+-function daysBetween(a, b) {
++const fullNameOf = (c)=>`${c.firstName??''} ${c.lastName??''}`.trim();
++function getActiveStyleFilters(){ return [...document.querySelectorAll('.style-filter:checked')].map(c=>c.value); }
++function daysBetween(a, b) {
+   const MS = 24*60*60*1000;
+   return Math.floor((Date.UTC(b.getFullYear(),b.getMonth(),b.getDate()) -
+                      Date.UTC(a.getFullYear(),a.getMonth(),a.getDate())) / MS);
+ 
+ }
+ 
+ /* =========================
+    Clients
+ ========================= */
+ function openClientModal(id=null){
+   editingClientId = id;
+   const m=$('#clientModal'); const form=$('#clientForm');
+   if (id){
+     const c=clients.find(x=>x.id===id);
+     $('#clientModalTitle').textContent='Edit Client';
+     $('#clientFirstName').value=c.firstName||''; $('#clientLastName').value=c.lastName||'';
+     $('#clientEmail').value=c.email||''; $('#clientPhone').value=c.phone||'';
+     [...$('#clientStyles').options].forEach(o=>o.selected=(c.styles||[]).includes(o.value));
+     $('#clientInitialSales').value=c.initialSales??'';
+     $('#clientNotes').value=c.notes||'';
+   } else {
+     $('#clientModalTitle').textContent='Add New Client'; form.reset();
+     [...$('#clientStyles').options].forEach(o=>o.selected=false);
+   }
+   m.classList.add('active');
+diff --git a/index.html b/index.html
+index cbf22f91cacf6215def643efe4dfa495d3487e48..4a3a148a440225bb33090887ae8364b8b3d92769 100644
+--- a/index.html
++++ b/index.html
+@@ -818,35 +815,33 @@ function updateDashboard(){
+   $('#totalSales').textContent = fmtUSD.format(totalSales);
+ }
+ 
+ /* =========================
+    Import/Export JSON
+ ========================= */
+ function exportData(){
+   const payload={ exportedAt:new Date().toISOString(), version:5, clients,  sales, todos };
+   const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob);
+   const a=document.createElement('a'); a.href=url; a.download='crm-backup.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+ }
+ function importData(file){
+   const reader=new FileReader();
+   reader.onload=()=>{
+     try{
+       const data=JSON.parse(reader.result);
+       if(!data||!Array.isArray(data.clients)||!Array.isArray(data.sales)){ alert('Invalid file format.'); return; }
+       clients = data.clients;
+      
+       sales = data.sales.map(s=>({ ...s, amount:Number(s.amount)||0 }));
+ 
+       todos = Array.isArray(data.todos)? data.todos : [];
+       saveData(); loadData(); renderAll(); alert('Import complete ✔️');
+     }catch(e){ console.error(e); alert('Could not parse the file.'); }
+   };
+-  reader.readAsText(file);
+-}
+-  });
+-  });
+-</script>
+-</body>
+-</html>
++  reader.readAsText(file);
++}
++</script>
++</body>
++</html>
+ 
+ 
+ 
+ 
+EOF
+)
