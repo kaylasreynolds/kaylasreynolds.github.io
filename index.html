@@ -1,49 +1,73 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Client Management</title>
-  <style>
-    :root {
-      --grad1:#4c51bf; --grad2:#553c9a;
-      --ok:#2f855a;--ok2:#276749;
-      --danger:#c53030;--danger2:#97266d;
-      --text:#222;--muted:#555;--muted2:#888;
-      --card:rgba(255,255,255,.95);--ring:#d6d6d6;
-      --shadow:0 10px 30px rgba(0,0,0,.12);
-    }
-    *{box-sizing:border-box}html,body{height:100%}
-    body {
-      margin:0;
-      font-family:system-ui,-apple-system,"Segoe UI",Inter,Roboto,Ubuntu,sans-serif;
-      background:linear-gradient(135deg,#667eea,#764ba2);
-      color:var(--text)
-    }
-    .container{max-width:1200px;margin:auto;padding:20px}
-    header {
-      background:var(--card);
-      backdrop-filter:blur(10px);
-      border-radius:20px;
-      padding:24px;
-      margin-bottom:20px;
-      box-shadow:var(--shadow)
-    }
-    h1 {
-      margin:0 0 6px;
-      background:linear-gradient(135deg,var(--grad1),var(--grad2));
-      -webkit-background-clip:text;
-      background-clip:text;
-      -webkit-text-fill-color:transparent
-    }
-    .toolbar {
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:10px
-    }
-    /* Tabs, cards, buttons, etc. (same as previous CSS definitions) */
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Client Management</title>
+<style>
+  :root{
+    --grad1:#4c51bf; --grad2:#553c9a;
+    --ok:#2f855a;--ok2:#276749;
+    --danger:#c53030;--danger2:#97266d;
+    --text:#222;--muted:#555;--muted2:#888;
+    --card:rgba(255,255,255,.95);--ring:#d6d6d6;
+    --shadow:0 10px 30px rgba(0,0,0,.12);
+  }
+  *{box-sizing:border-box}html,body{height:100%}
+  body{margin:0;font-family:system-ui, -apple-system, "Segoe UI", Inter, Roboto, Ubuntu, sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);color:var(--text)}
+  .container{max-width:1200px;margin:auto;padding:20px}
+  header{background:var(--card);backdrop-filter:blur(10px);border-radius:20px;padding:24px;margin-bottom:20px;box-shadow:var(--shadow)}
+  h1{margin:0 0 6px;background:linear-gradient(135deg,var(--grad1),var(--grad2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+  .tabs{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}
+  .tab{padding:10px 18px;border:0;border-radius:999px;background:#ffffff;cursor:pointer;font-weight:700;box-shadow:0 4px 15px rgba(0,0,0,.1)}
+  .tab.active,[aria-selected="true"]{color:#fff;background:linear-gradient(135deg,var(--grad1),var(--grad2))}
+  .stats-grid{display:grid;grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));gap:20px;margin-bottom:30px;align-items:stretch}
+  .card{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:20px}
+  .stat-number{font-size:2rem;font-weight:800;background:linear-gradient(135deg,var(--grad1),var(--grad2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .muted{color:var(--muted);font-size:.95rem}
+  .search{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;margin-bottom:12px}
+  .search .row{display:flex;gap:10px}
+  .search input,.search select{width:100%;padding:12px 14px;border-radius:12px;border:2px solid var(--ring);font-size:1rem}
+  .list{display:grid;gap:12px}
+  .client-header{display:flex;justify-content:space-between;gap:12px}
+  .client-name{font-weight:800}
+  .chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:.75rem;font-weight:700}
+  .status-introductory{background:#e6f0ff;color:#1a365d}
+  .status-first-appointment{background:#fffbea;color:#744210}
+  .status-established{background:#c6f6d5;color:#22543d}
+  .badge-sale{background:linear-gradient(135deg,var(--ok),var(--ok2));color:#fff;padding:4px 10px;border-radius:999px;font-size:.75rem;font-weight:800;margin-left:8px}
+  .buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .btn{padding:10px 16px;border:0;border-radius:999px;font-weight:800;cursor:pointer}
+  .btn.primary{color:#fff;background:linear-gradient(135deg,var(--grad1),var(--grad2))}
+  .btn.ghost{background:#e5e5e5}
+  .btn.danger{color:#fff;background:linear-gradient(135deg,var(--danger),var(--danger2))}
+  .btn.small{padding:6px 10px;font-size:.85rem}
+  .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+  .tag{background:#eef;color:#333;padding:4px 10px;border-radius:999px;font-size:.75rem;font-weight:700}
+  .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.45);z-index:10}
+  .modal.active{display:flex}
+  .panel{background:#fff;border-radius:16px;width:min(720px,92vw);max-height:90vh;overflow:auto;padding:20px}
+  .panel header{display:flex;align-items:center;justify-content:space-between;margin:0 0 10px}
+  .x{background:transparent;border:0;font-size:22px;cursor:pointer;color:var(--muted2)}
+  label{display:block;font-weight:700;margin:12px 0 6px}
+  input,select,textarea{width:100%;padding:10px;border-radius:10px;border:2px solid var(--ring);font-size:1rem}
+  textarea{min-height:90px;resize:vertical}
+  .row-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+  .empty-state{text-align:center;color:var(--muted2);padding:28px}
+  .tasks-block{display:grid;gap:16px}
+  .todo-controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+  .todo-list{display:grid;gap:10px}
+  .todo-item{background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.06);padding:12px;border-left:4px solid #4c51bf;display:flex;flex-direction:column}
+  .todo-title{font-weight:800}
+  .todo-meta{font-size:.85rem;color:var(--muted)}
+  .todo-clients{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+  .todo-client{background:#eef;border-radius:999px;padding:2px 8px;font-size:.8rem}
+  .followup-sections{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+  .followup-card{background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.06);border-left:4px solid transparent;padding:12px}
+  .pill-911{background:#ffe2e2;color:#7a0613}
+  @media (max-width:900px){.container{padding:12px}}
+</style>
 </head>
 <body>
   <div class="container">
@@ -63,93 +87,761 @@
       <button class="tab" data-tab="sales">💰 Sales</button>
       <button class="tab" data-tab="tasks">📅 Tasks</button>
     </div>
-<!-- Dashboard -->
-<div id="dashboard" class="tab-content">
-  <div class="stats-grid">
-    <div class="card"><div class="stat-number" id="totalClients">0</div><div class="muted">Total Clients</div></div>
-    <div class="card"><div class="stat-number" id="activeThisMonth">0</div><div class="muted">Active This Month</div></div>
-    <div class="card"><div class="stat-number" id="totalSales">$0.00</div><div class="muted">Total Sales</div></div>
-  </div>
-</div>
 
-<!-- Clients, Sales, Tasks tabs follow same as previous structure -->
-<!-- Be sure to include modal HTML for client, sale, todo -->
-<!-- Client Modal -->
-<div id="clientModal" class="modal">
-  <div class="panel">
-    <header><h3 id="clientModalTitle">Add New Client</h3><button class="x" data-close-modal>×</button></header>
-    <form id="clientForm">
-      <div class="row-cols">
-        <div><label>First Name *</label><input type="text" id="clientFirstName" required></div>
-        <div><label>Last Name *</label><input type="text" id="clientLastName" required></div>
+    <!-- Dashboard -->
+    <div id="dashboard" class="tab-content">
+      <div class="stats-grid">
+        <div class="card"><div class="stat-number" id="totalClients">0</div><div class="muted">Total Clients</div></div>
+        <div class="card"><div class="stat-number" id="activeThisMonth">0</div><div class="muted">Active This Month</div></div>
+        <div class="card"><div class="stat-number" id="totalSales">$0.00</div><div class="muted">Total Sales</div></div>
       </div>
-      <div class="row-cols">
-        <div><label>Email</label><input type="email" id="clientEmail"></div>
-        <div><label>Phone</label><input type="tel" id="clientPhone"></div>
+    </div>
+
+    <!-- Clients -->
+    <div id="clients" class="tab-content" style="display:none">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+          <h2 style="margin:0">Client Management</h2>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button id="openClientBtn" class="btn primary">+ Add New Client</button>
+            <button id="createTodoFromClientsBtn" class="btn ghost">📝 Create To‑Do from Filter</button>
+          </div>
+        </div>
+
+        <div class="search">
+          <input type="text" id="clientSearch" placeholder="Search clients by name, email, phone, style, brand, color...">
+          <div class="row">
+            <select id="clientSort">
+              <option value="createdAt_desc">Sort: Recently Added</option>
+              <option value="lastName_asc">Sort: Last Name (A→Z)</option>
+              <option value="lastName_desc">Sort: Last Name (Z→A)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+          <div class="row" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <strong class="muted">Style:</strong>
+            <label class="chk"><input type="checkbox" class="style-filter" value="Bohemian"> Bohemian</label>
+            <label class="chk"><input type="checkbox" class="style-filter" value="Classic"> Classic</label>
+            <label class="chk"><input type="checkbox" class="style-filter" value="Edgy"> Edgy</label>
+            <label class="chk"><input type="checkbox" class="style-filter" value="Casual"> Casual</label>
+            <label class="chk"><input type="checkbox" class="style-filter" value="Vintage"> Vintage</label>
+            <label class="chk"><input type="checkbox" class="style-filter" value="Trendy"> Trendy</label>
+            <select id="styleMatch" title="Match mode">
+              <option value="any">Match any selected</option>
+              <option value="all">Match all selected</option>
+            </select>
+            <button class="btn ghost" id="clearFiltersBtn" type="button">Clear</button>
+          </div>
+        </div>
+
+        <div class="list" id="clientList">
+          <div class="empty-state">
+            <div style="font-size:42px;opacity:.6">👥</div>
+            <p>No clients yet. Add your first client!</p>
+          </div>
+        </div>
       </div>
-      <div><label>Notes</label><textarea id="clientNotes" placeholder="Notes..."></textarea></div>
-      <div style="display:flex;justify-content:flex-end;gap:10px">
-        <button type="button" class="btn ghost" data-close-modal>Cancel</button>
-        <button type="submit" class="btn primary">Save Client</button>
+    </div>
+
+    <!-- Sales -->
+    <div id="sales" class="tab-content" style="display:none">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+          <h2 style="margin:0">Sales Tracking</h2>
+          <button id="openSaleBtn" class="btn primary">+ Record Sale</button>
+        </div>
+        <div class="list" id="salesList">
+          <div class="empty-state"><div style="font-size:42px;opacity:.6">💰</div><p>No sales data available</p></div>
+        </div>
       </div>
-    </form>
+    </div>
+
+    <!-- Tasks -->
+    <div id="tasks" class="tab-content" style="display:none">
+      <div class="card tasks-block">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+          <h2 style="margin:0">Tasks</h2>
+          <button id="openTodoBtn" class="btn primary">📝 New To‑Do</button>
+        </div>
+
+        <div>
+          <div class="todo-controls">
+            <div class="left">
+              <strong>To‑Do</strong>
+              <span class="muted" id="todoCount">0 items</span>
+            </div>
+            <div class="right" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <label class="muted" style="font-weight:700">Filter</label>
+              <select id="todoFilterStatus" title="Status Filter">
+                <option value="all">All</option><option value="open">Open</option><option value="done">Done</option>
+              </select>
+              <select id="todoFilterDue" title="Due Filter">
+                <option value="any">Any Due</option><option value="today">Due Today</option><option value="week">Due This Week</option><option value="overdue">Overdue</option>
+              </select>
+              <select id="todoFilterClient" title="Client Filter"><option value="all">All Clients</option></select>
+              <label for="todoSort" class="muted" style="font-weight:700">Sort</label>
+              <select id="todoSort">
+                <option value="date_asc">Due Date (Soonest)</option>
+                <option value="date_desc">Due Date (Latest)</option>
+                <option value="created_desc">Recently Added</option>
+                <option value="created_asc">Oldest Added</option>
+                <option value="title_asc">Title (A→Z)</option>
+                <option value="status">Status (Open→Done)</option>
+              </select>
+            </div>
+          </div>
+          <div class="todo-list" id="todoList">
+            <div class="empty-state"><div style="font-size:42px;opacity:.6">📝</div><p>No to‑dos yet</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-</div>
-<!-- Add similar modals for sale and todo -->
+
+  <!-- Client Modal -->
+  <div id="clientModal" class="modal">
+    <div class="panel">
+      <header><h3 id="clientModalTitle" style="margin:0">Add New Client</h3><button class="x" data-close-modal>×</button></header>
+      <form id="clientForm">
+        <div class="row-cols">
+          <div><label>First Name *</label><input type="text" id="clientFirstName" required></div>
+          <div><label>Last Name *</label><input type="text" id="clientLastName" required></div>
+        </div>
+        <div class="row-cols">
+          <div><label>Email</label><input type="email" id="clientEmail"></div>
+          <div><label>Phone</label><input type="tel" id="clientPhone"></div>
+        </div>
+        <div class="row-cols">
+          <div>
+            <label>Style Vibe (choose one or more)</label>
+            <select id="clientStyles" multiple size="6">
+              <option>Bohemian</option><option>Classic</option><option>Edgy</option>
+              <option>Casual</option><option>Vintage</option><option>Trendy</option>
+            </select>
+          </div>
+          <div>
+            <label>Initial Sales Amount</label>
+            <input type="number" id="clientInitialSales" min="0" step="0.01" placeholder="0.00">
+          </div>
+        </div>
+        <div><label>Notes</label><textarea id="clientNotes" placeholder="Add any notes..."></textarea></div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
+          <button type="button" class="btn ghost" data-close-modal>Cancel</button>
+          <button type="submit" class="btn primary">Save Client</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Sale Modal -->
+  <div id="saleModal" class="modal">
+    <div class="panel">
+      <header><h3 id="saleModalTitle" style="margin:0">Record Sale</h3><button class="x" data-close-modal>×</button></header>
+      <form id="saleForm">
+        <div>
+          <label>Client *</label>
+          <select id="saleClient" required><option value="">Select client...</option></select>
+        </div>
+        <div class="row-cols">
+          <div><label>Amount *</label><input type="number" id="saleAmount" min="0" step="0.01" required placeholder="0.00"></div>
+          <div><label>Date *</label><input type="date" id="saleDate" required></div>
+        </div>
+        <div><label>Description</label><input type="text" id="saleDescription" placeholder="What was sold?"></div>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button type="button" class="btn ghost" data-close-modal>Cancel</button>
+          <button type="submit" class="btn primary">Save Sale</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- To‑Do Modal -->
+  <div id="todoModal" class="modal">
+    <div class="panel">
+      <header><h3 id="todoModalTitle" style="margin:0">New To‑Do</h3><button class="x" data-close-modal>×</button></header>
+      <form id="todoForm">
+        <input type="hidden" id="todoEditingId">
+        <div><label>Title *</label><input id="todoTitle" required placeholder="e.g., Send lookbook"></div>
+        <div class="row-cols">
+          <div><label>Due Date *</label><input type="date" id="todoDate" required></div>
+          <div>
+            <label>Status</label>
+            <select id="todoStatus"><option value="open">Open</option><option value="done">Done</option></select>
+          </div>
+        </div>
+
+      
+        <div>
+          <label>Clients (multi‑select)</label>
+          <select id="todoClients" multiple size="8"></select>
+          <div class="muted" style="font-size:.85rem;margin-top:6px">Selecting multiple clients will create separate tasks for each client.</div>
+        </div>
+        <div><label>Notes</label><textarea id="todoNotes" placeholder="Details for this task..."></textarea></div>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button type="button" class="btn ghost" data-close-modal>Cancel</button>
+          <button type="submit" class="btn primary">Save To‑Do</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const $ = (s, r=document) => r.querySelector(s);
-  const $$ = (s, r=document) => [...r.querySelectorAll(s)];
-  let clients = [];
+/* =========================
+   Utilities & Globals
+========================= */
+const fmtUSD = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
+const $  = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const escapeHTML = (str) => String(str ?? '')
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
 
-  // Load data
-  function loadData() {
-    try {
-      clients = JSON.parse(localStorage.getItem('crm_clients') || '[]');
-    } catch {
-      clients = [];
+const VALID_STATUSES = ["Introductory","First Appointment","Established"];
+const statusSlug = s => String(s||"").toLowerCase().replace(/\s+/g,'-');
+
+const ALLOWED_STYLES = ["Bohemian","Classic","Edgy","Casual","Vintage","Trendy"];
+const getSelectedValues = (sel) => [...sel.options].filter(o=>o.selected).map(o=>o.value);
+const normalizeStyles = (v) => Array.isArray(v) ? v.filter(x=>ALLOWED_STYLES.includes(x))
+  : (typeof v==='string' && v.trim()
+     ? v.split(/[;,]/).map(s=>s.trim()).filter(x=>ALLOWED_STYLES.includes(x))
+     : []);
+/* =========================
+   Data
+========================= */
+let clients = [];
+let sales = [];
+let followUps = [];
+let todos = [];
+
+let editingClientId = null;
+let editingSaleId = null;
+let lastClientFilterResult = [];
+
+/* =========================
+   Storage
+========================= */
+function saveData(){
+  localStorage.setItem('crm_clients', JSON.stringify(clients));
+  localStorage.setItem('crm_sales', JSON.stringify(sales));
+  localStorage.setItem('crm_followups', JSON.stringify(followUps));
+  localStorage.setItem('crm_todos', JSON.stringify(todos));
+}
+function loadData(){
+  try{
+    clients = JSON.parse(localStorage.getItem('crm_clients') || '[]');
+    sales = JSON.parse(localStorage.getItem('crm_sales') || '[]');
+    followUps = JSON.parse(localStorage.getItem('crm_followups') || '[]');
+    todos = JSON.parse(localStorage.getItem('crm_todos') || '[]');
+
+    let migrated = false;
+
+    // normalize dates
+  
+    followUps.forEach(f=>{ if(f.completed===undefined){ f.completed=false; migrated=true; }});
+    todos.forEach(t=>{ if(!t.status){ t.status='open'; migrated=true; }});
+
+    // 🔧 MIGRATION: Split any existing To‑Dos that have multiple clients into one per client
+    if (Array.isArray(todos) && todos.length){
+      const split = [];
+      let changed = false;
+      for (const t of todos){
+        const ids = Array.isArray(t.clientIds) ? t.clientIds.filter(Boolean) : [];
+        if (ids.length > 1){
+          ids.forEach((cid) => {
+            split.push({
+              ...t,
+              id: (t.id || Date.now().toString()) + '-' + cid,
+              clientIds: [cid]
+            });
+          });
+          changed = true;
+        } else {
+          split.push(t);
+        }
+      }
+      if (changed){ todos = split; migrated = true; }
     }
+
+    if (migrated) saveData();
+  }catch(e){
+    console.warn('load error',e); clients=[]; sales=[]; followUps=[]; todos=[];
   }
+}
 
-  // Save data
-  function saveData() {
-    localStorage.setItem('crm_clients', JSON.stringify(clients));
-  }
-
-  // Add client
-  $('#clientForm').addEventListener('submit', e => {
-    e.preventDefault();
-    const data = {
-      id: Date.now().toString(),
-      firstName: $('#clientFirstName').value.trim(),
-      lastName: $('#clientLastName').value.trim(),
-      email: $('#clientEmail').value.trim(),
-      phone: $('#clientPhone').value.trim(),
-      notes: $('#clientNotes').value.trim(),
-      createdAt: new Date().toISOString()
-    };
-    clients.push(data);
-    saveData();
-    $('#clientModal').classList.remove('active');
-    alert('Client saved!');
-  });
-
-  // Modal open/close
-  $('#openClientBtn')?.addEventListener('click', () => $('#clientModal').classList.add('active'));
-  $$('.x, [data-close-modal]').forEach(btn => btn.addEventListener('click', () => $('#clientModal').classList.remove('active')));
-
-  // Tab switch
-  $$('.tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      const name = tab.dataset.tab;
-      $$('.tab-content').forEach(c => c.style.display = (c.id === name ? 'block' : 'none'));
-      $$('.tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-    });
-  });
-
+/* =========================
+   Startup
+========================= */
+document.addEventListener('DOMContentLoaded', ()=>{
   loadData();
+  renderAll();
+
+  const today = new Date().toISOString().slice(0,10);
+  ['saleDate','todoDate'].forEach(id=>{ const el=$('#'+id); if(el) el.value=today; });
+
+  // close modals
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeAllModals(); });
+  document.addEventListener('click', e=>{
+    const m = e.target.closest('.modal');
+    if (m && !e.target.closest('.panel')) m.classList.remove('active');
+  });
+  document.addEventListener('click', (e)=>{
+    const btn = e.target.closest('[data-close-modal]'); if(!btn) return;
+    const m = btn.closest('.modal'); if (m){ m.classList.remove('active'); m.querySelector('form')?.reset(); }
+  });
+
+  // header
+  $('#exportBtn')?.addEventListener('click', exportData);
+  const importBtn=$('#importBtn'), importFile=$('#importFile');
+  if(importBtn && importFile){
+    importBtn.addEventListener('click',()=>importFile.click());
+    importFile.addEventListener('change',e=>{ const f=e.target.files[0]; if(f) importData(f); importFile.value=''; });
+  }
+
+  $('#clearBtn')?.addEventListener('click', ()=>{
+    if(confirm('Clear ALL data? This cannot be undone.')){
+      clients=[]; sales=[]; followUps=[]; todos=[];
+      saveData(); renderAll();
+    }
+  });
+
+  // tabs
+  $$('.tab').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
+
+  // clients page
+  $$('.style-filter').forEach(cb=>cb.addEventListener('change', applyFiltersAndSort));
+  $('#styleMatch')?.addEventListener('change', applyFiltersAndSort);
+  $('#clearFiltersBtn')?.addEventListener('click', ()=>{ $$('.style-filter').forEach(cb=>cb.checked=false); $('#styleMatch').value='any'; applyFiltersAndSort(); });
+  $('#clientSearch')?.addEventListener('input', applyFiltersAndSort);
+  $('#clientSort')?.addEventListener('change', applyFiltersAndSort);
+
+  $('#openClientBtn')?.addEventListener('click', ()=>openClientModal());
+  $('#createTodoFromClientsBtn')?.addEventListener('click', ()=>openTodoModal(lastClientFilterResult.map(c=>c.id)));
+  $('#clientList')?.addEventListener('click', e=>{
+    const btn = e.target.closest('button[data-action]'); if(!btn) return;
+    const id = btn.getAttribute('data-id'); const action=btn.getAttribute('data-action');
+    if (action==='view') openClientView(id);
+    if (action==='edit') openClientModal(id);
+    if (action==='delete') deleteClient(id);
+  });
+
+  // sales
+  $('#openSaleBtn')?.addEventListener('click', ()=>openSaleModal());
+  $('#salesList')?.addEventListener('click', e=>{
+    const edit=e.target.closest('[data-action="edit-sale"]');
+    const del=e.target.closest('[data-action="delete-sale"]');
+    if (edit) return openSaleModal(edit.dataset.id);
+    if (del) return deleteSale(del.dataset.id);
+  });
+
+  // tasks
+  $('#openTodoBtn')?.addEventListener('click', ()=>openTodoModal());
+  $('#todoSort')?.addEventListener('change', renderTodos);
+  $('#todoFilterStatus')?.addEventListener('change', renderTodos);
+  $('#todoFilterDue')?.addEventListener('change', renderTodos);
+  $('#todoFilterClient')?.addEventListener('change', renderTodos);
+  
+  });
 });
+
+function renderAll(){ renderClients(); renderSalesView(); renderTodos(); updateDashboard(); }
+function closeAllModals(){ $$('.modal.active').forEach(m=>m.classList.remove('active')); }
+function switchTab(tab){
+  $$('.tab-content').forEach(c=>c.style.display=(c.id===tab?'block':'none'));
+  $$('.tab').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+  if(tab==='dashboard') updateDashboard();
+  if(tab==='sales') renderSalesView();
+  if(tab==='tasks'){ renderTodos(); }
+}
+
+/* =========================
+   Helpers
+========================= */
+const fullNameOf = (c)=>`${c.firstName??''} ${c.lastName??''}`.trim();
+function getActiveStyleFilters(){ return [...document.querySelectorAll('.style-filter:checked')].map(c=>c.value); }
+}
+function daysBetween(a, b) {
+  const MS = 24*60*60*1000;
+  return Math.floor((Date.UTC(b.getFullYear(),b.getMonth(),b.getDate()) -
+                     Date.UTC(a.getFullYear(),a.getMonth(),a.getDate())) / MS);
+
+}
+
+/* =========================
+   Clients
+========================= */
+function openClientModal(id=null){
+  editingClientId = id;
+  const m=$('#clientModal'); const form=$('#clientForm');
+  if (id){
+    const c=clients.find(x=>x.id===id);
+    $('#clientModalTitle').textContent='Edit Client';
+    $('#clientFirstName').value=c.firstName||''; $('#clientLastName').value=c.lastName||'';
+    $('#clientEmail').value=c.email||''; $('#clientPhone').value=c.phone||'';
+    [...$('#clientStyles').options].forEach(o=>o.selected=(c.styles||[]).includes(o.value));
+    $('#clientInitialSales').value=c.initialSales??'';
+    $('#clientNotes').value=c.notes||'';
+  } else {
+    $('#clientModalTitle').textContent='Add New Client'; form.reset();
+    [...$('#clientStyles').options].forEach(o=>o.selected=false);
+  }
+  m.classList.add('active');
+}
+$('#clientForm')?.addEventListener('submit', e=>{
+  e.preventDefault();
+  const firstName=$('#clientFirstName').value.trim(), lastName=$('#clientLastName').value.trim();
+  if(!firstName||!lastName) return alert('First and last names are required.');
+  const data={
+    firstName,lastName,
+    email:$('#clientEmail').value.trim(), phone:$('#clientPhone').value.trim(),
+    styles: normalizeStyles(getSelectedValues($('#clientStyles'))),
+    initialSales: parseFloat($('#clientInitialSales').value)||0,
+    notes: $('#clientNotes').value.trim(),
+    createdAt: new Date().toISOString()
+  };
+  if (editingClientId){
+    const i=clients.findIndex(c=>c.id===editingClientId);
+    clients[i] = { ...clients[i], ...data, createdAt: clients[i].createdAt||data.createdAt };
+  } else { data.id=Date.now().toString(); clients.push(data); }
+  saveData(); $('#clientModal').classList.remove('active'); renderClients(); updateDashboard(); populateTodoClientFilter();
+});
+function deleteClient(id){
+  if(!confirm('Delete this client and related items?')) return;
+  clients=clients.filter(c=>c.id!==id);
+  sales=sales.filter(s=>s.clientId!==id);
+  followUps=followUps.filter(f=>f.clientId!==id);
+  todos=todos.filter(t=>!t.clientIds.includes(id));
+  saveData(); renderAll(); populateTodoClientFilter();
+}
+function totalSpentFor(clientId){
+  const c=clients.find(x=>x.id===clientId);
+  const extra=sales.filter(s=>s.clientId===clientId).reduce((sum,s)=>sum+(Number(s.amount)||0),0);
+  return (Number(c?.initialSales)||0)+extra;
+}
+function sortClients(arr, mode){
+  const byLast=(a,b)=>(a.lastName||'').localeCompare(b.lastName||'');
+  const byCreatedDesc=(a,b)=>new Date(b.createdAt)-new Date(a.createdAt);
+  switch(mode){
+    case 'lastName_asc': return arr.sort(byLast);
+    case 'lastName_desc':return arr.sort((a,b)=>byLast(b,a));
+    case 'createdAt_desc':
+    default:             return arr.sort(byCreatedDesc);
+  }
+}
+function applyFiltersAndSort(){
+  const term = ($('#clientSearch').value||'').toLowerCase();
+  const selected = getActiveStyleFilters();
+  const mode = $('#styleMatch')?.value||'any';
+ 
+
+  let list = clients.filter(c=>{
+    const matchesTerm = fullNameOf(c).toLowerCase().includes(term) ||
+      (c.email&&c.email.toLowerCase().includes(term)) ||
+      (c.phone&&c.phone.includes(term)) ||
+      (c.styles&&c.styles.some(s=>s.toLowerCase().includes(term)));
+    if(!matchesTerm) return false;
+
+    if(selected.length){
+      const styles = c.styles||[];
+      const styleOk = (mode==='all') ? selected.every(s=>styles.includes(s)) : selected.some(s=>styles.includes(s));
+      if(!styleOk) return false;
+
+  });
+
+  list = sortClients(list, $('#clientSort').value||'createdAt_desc');
+  renderClients(list);
+}
+function renderClients(src=clients){
+  const list=$('#clientList');
+  if(src.length===0){ list.innerHTML=`<div class="empty-state"><div style="font-size:42px;opacity:.6">👥</div><p>No clients yet. Add your first client!</p></div>`; lastClientFilterResult=[]; return;}
+  const sorted = sortClients([...src], $('#clientSort').value||'createdAt_desc'); lastClientFilterResult=[...sorted];
+  list.innerHTML = sorted.map(c=>{
+    const total=totalSpentFor(c.id); 
+    return `<div class="client-item">
+      <div class="client-header">
+        <div>
+          <div class="client-name">${escapeHTML(fullNameOf(c))} ${total>0? `<span class="badge-sale">${fmtUSD.format(total)}</span>`:''}</div>
+          <div class="muted" style="margin-top:4px">${c.email?`📧 ${escapeHTML(c.email)} · `:''}${c.phone?`📱 ${escapeHTML(c.phone)}`:''}</div>
+          ${(c.styles&&c.styles.length)? `<div class="tags" aria-label="Style Vibes">${c.styles.map(s=>`<span class="tag">${escapeHTML(s)}</span>`).join('')}</div>`:''}
+        </div>
+        <span class="chip status-${statusSlug('Established')}">Established</span>
+      </div>
+      <div class="buttons">
+        <button class="btn primary" data-action="view" data-id="${c.id}">View</button>
+        <button class="btn ghost" data-action="edit" data-id="${c.id}">Edit</button>
+        <button class="btn danger" data-action="delete" data-id="${c.id}">Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+  populateTodoClientFilter();
+}
+function openClientView(id){
+  const c=clients.find(x=>x.id===id); if(!c) return alert('Client not found');
+  alert(`${fullNameOf(c)}\nEmail: ${c.email||'—'}\nPhone: ${c.phone||'—'}\nStyles: ${(c.styles||[]).join(', ')||'—'}`);
+}
+
+/* =========================
+   Sales
+========================= */
+function openSaleModal(id=null){
+  editingSaleId=id; const sel=$('#saleClient'); sel.innerHTML='<option value="">Select client...</option>'+clients.map(c=>`<option value="${c.id}">${escapeHTML(fullNameOf(c))}</option>`).join('');
+  if (id){
+    const s=sales.find(x=>x.id===id); if(!s) return;
+    $('#saleModalTitle').textContent='Edit Sale';
+    sel.value=s.clientId; $('#saleAmount').value=s.amount; $('#saleDate').value=s.date; $('#saleDescription').value=s.description||'';
+  } else {
+    $('#saleModalTitle').textContent='Record Sale'; $('#saleForm').reset(); $('#saleDate').value=new Date().toISOString().slice(0,10);
+  }
+  $('#saleModal').classList.add('active');
+}
+$('#saleForm')?.addEventListener('submit', e=>{
+  e.preventDefault();
+  const clientId=$('#saleClient').value; const amount=parseFloat($('#saleAmount').value);
+  const date=$('#saleDate').value||new Date().toISOString().slice(0,10);
+  const description=$('#saleDescription').value.trim();
+  if(!clientId || isNaN(amount)) return alert('Client and amount are required.');
+  if (editingSaleId){
+    const idx=sales.findIndex(s=>s.id===editingSaleId);
+    if (idx!==-1){ sales[idx]={...sales[idx], clientId, amount, date, description}; }
+  } else {
+    const id=Date.now().toString(); sales.push({id, clientId, amount, date, description, createdAt:new Date().toISOString()});
+  }
+  saveData(); $('#saleModal').classList.remove('active'); renderSalesView(); updateDashboard(); renderClients();
+});
+function deleteSale(id){
+  if(!confirm('Delete this sale?')) return;
+  sales=sales.filter(s=>s.id!==id);
+  saveData(); renderSalesView(); renderClients(); updateDashboard();
+}
+function renderSalesView(){
+  const el=$('#salesList'); const map=new Map();
+  clients.forEach(c=>{
+    const rows=sales.filter(s=>s.clientId===c.id);
+    const total=(Number(c.initialSales)||0)+rows.reduce((sum,s)=>sum+(Number(s.amount)||0),0);
+    if (total>0 || rows.length>0) map.set(c.id,{client:c,rows,total});
+  });
+  if (map.size===0){ el.innerHTML=`<div class="empty-state"><div style="font-size:42px;opacity:.6">💰</div><p>No sales data available</p></div>`; return; }
+  const sorted=[...map.values()].sort((a,b)=>b.total-a.total);
+  el.innerHTML = sorted.map(({client:c,rows,total})=>`
+    <div class="client-item">
+      <div class="client-header"><div><div class="client-name">${escapeHTML(fullNameOf(c))}</div><div class="muted" style="margin-top:4px">Total Sales: <strong style="color:#2f855a">${fmtUSD.format(total)}</strong></div></div></div>
+      ${Number(c.initialSales)>0? `<div style="padding:10px 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between"><div style="font-weight:600">Initial Sales</div><div style="font-weight:800;color:#2f855a">${fmtUSD.format(Number(c.initialSales)||0)}</div></div>`:''}
+      ${rows.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(s=>`
+        <div style="padding:10px 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center">
+          <div><div style="font-weight:600">${escapeHTML(s.description||'Sale')}</div><div class="muted" style="font-size:.85rem">${new Date(s.date).toLocaleDateString()}</div></div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="font-weight:800;color:#2f855a">${fmtUSD.format(Number(s.amount)||0)}</div>
+            <button class="btn danger" data-action="delete-sale" data-id="${s.id}">Delete</button>
+          </div>
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+/* =========================
+   To‑Dos (one per client)
+========================= */
+function openTodoModal(preselectIds = [], editId = null){
+  const modal = $('#todoModal');
+  const sel = $('#todoClients');
+  $('#todoForm').reset();
+  $('#todoEditingId').value = editId || '';
+  const today = new Date().toISOString().slice(0,10);
+  $('#todoDate').value = today;
+
+  // Populate list
+  sel.innerHTML = clients
+    .sort((a,b)=>fullNameOf(a).localeCompare(fullNameOf(b)))
+    .map(c=>`<option value="${c.id}">${escapeHTML(fullNameOf(c))}</option>`)
+    .join('');
+
+  // Use provided ids or current filtered
+  const ids = (preselectIds && preselectIds.length)
+    ? preselectIds
+    : (lastClientFilterResult && lastClientFilterResult.length ? lastClientFilterResult.map(c=>c.id) : []);
+
+  [...sel.options].forEach(o => { o.selected = ids.includes(o.value); });
+
+  // Reset quick-select UI
+  $('#todoLastIntFilter').value = 'none';
+  $('#todoLastIntStart').value = '';
+  $('#todoLastIntEnd').value = '';
+  $('#todoLastIntStart').style.display = 'none';
+  $('#todoLastIntEnd').style.display   = 'none';
+
+  modal.classList.add('active');
+}
+$('#todoForm')?.addEventListener('submit', e=>{
+  e.preventDefault();
+  saveTodo();
+});
+
+// 🔑 The new logic: create one task per client; edit updates one & spawns extras
+function saveTodo(){
+  const editId = $('#todoEditingId').value || null;
+  const title  = $('#todoTitle').value.trim();
+  const date   = $('#todoDate').value;
+  const notes  = $('#todoNotes').value.trim();
+  const status = $('#todoStatus').value || 'open';
+  const selectedClientIds = getSelectedValues($('#todoClients')).filter(Boolean);
+
+  if (!title || !date) return alert('Title and due date are required.');
+  if (!selectedClientIds.length) return alert('Please select at least one client.');
+
+  const nowIso = new Date().toISOString();
+
+  if (editId){
+    // Update existing; keep 1st client on edited one, create new tasks for the rest
+    const idx = todos.findIndex(t => t.id === editId);
+    if (idx === -1){ alert('This to‑do no longer exists.'); return; }
+
+    const firstId = selectedClientIds[0];
+    todos[idx] = {
+      ...todos[idx],
+      title, date, notes, status,
+      clientIds: [firstId],
+      completedAt: (status === 'done') ? (todos[idx].completedAt || nowIso) : null
+    };
+
+    // Extra tasks
+    const extraIds = selectedClientIds.slice(1);
+    extraIds.forEach(cid => {
+      todos.push({
+        id: Date.now().toString() + Math.random().toString(36).slice(2,6),
+        title, date, notes, status,
+        clientIds: [cid],
+        createdAt: nowIso,
+        completedAt: (status === 'done') ? nowIso : null
+      });
+    });
+
+  } else {
+    // New: always one per client
+    selectedClientIds.forEach(cid => {
+      todos.push({
+        id: Date.now().toString() + Math.random().toString(36).slice(2,6),
+        title, date, notes, status,
+        clientIds: [cid],
+        createdAt: nowIso,
+        completedAt: (status === 'done') ? nowIso : null
+      });
+    });
+  }
+
+  saveData();
+  $('#todoModal').classList.remove('active');
+  renderTodos();
+}
+
+function toggleTodo(id){
+  const t=todos.find(x=>x.id===id); if(!t) return;
+  if (t.status==='done'){ t.status='open'; t.completedAt=null; } else { t.status='done'; t.completedAt=new Date().toISOString(); }
+  saveData(); renderTodos();
+}
+function deleteTodo(id){ if(!confirm('Delete this to‑do?')) return; todos=todos.filter(t=>t.id!==id); saveData(); renderTodos(); }
+
+function populateTodoClientFilter(){
+  const sel=$('#todoFilterClient'); if(!sel) return;
+  const current=sel.value||'all';
+  sel.innerHTML = `<option value="all">All Clients</option>` + clients.map(c=>`<option value="${c.id}">${escapeHTML(fullNameOf(c))}</option>`).join('');
+  sel.value = [...sel.options].some(o=>o.value===current)? current : 'all';
+}
+
+function renderTodos(){
+  populateTodoClientFilter();
+  const wrap=$('#todoList');
+  const sort=$('#todoSort')?.value||'date_asc';
+  const fStatus=$('#todoFilterStatus')?.value||'all';
+  const fDue=$('#todoFilterDue')?.value||'any';
+  const fClient=$('#todoFilterClient')?.value||'all';
+
+  let src = (fStatus==='open') ? todos.filter(t=>t.status==='open') : (fStatus==='done') ? todos.filter(t=>t.status==='done') : [...todos];
+
+  if (fDue!=='any'){
+    const today=new Date(); today.setHours(0,0,0,0);
+    const endWeek=new Date(today); endWeek.setDate(today.getDate() + (7 - today.getDay() || 7));
+    src = src.filter(t=>{
+      if(!t.date) return false; const d=new Date(t.date); d.setHours(0,0,0,0);
+      if (fDue==='today') return d.getTime()===today.getTime();
+      if (fDue==='week') return d>=today && d<=endWeek;
+      if (fDue==='overdue') return d<today && t.status!=='done';
+      return true;
+    });
+  }
+  if (fClient!=='all') src = src.filter(t=>t.clientIds.includes(fClient));
+
+  const cmp = {
+    date_asc:(a,b)=>(a.date||'').localeCompare(b.date||''),
+    date_desc:(a,b)=>(b.date||'').localeCompare(a.date||''),
+    created_desc:(a,b)=>new Date(b.createdAt)-new Date(a.createdAt),
+    created_asc:(a,b)=>new Date(a.createdAt)-new Date(b.createdAt),
+    title_asc:(a,b)=>a.title.localeCompare(b.title),
+    status:(a,b)=> (a.status==='open'&&b.status==='done')?-1:(a.status===b.status?0:1)
+  }[sort];
+
+  src.sort(cmp);
+
+  if (src.length===0){
+    wrap.innerHTML=`<div class="empty-state"><div style="font-size:42px;opacity:.6">📝</div><p>No to‑dos in this view</p></div>`;
+  } else {
+    wrap.innerHTML = src.map(t=>{
+      const clientBadges = t.clientIds.map(id=>{ const c=clients.find(x=>x.id===id); return c? `<span class="todo-client">${escapeHTML(fullNameOf(c))}</span>` : ''; }).join(' ');
+      const due=new Date(t.date).toLocaleDateString();
+      return `<div class="todo-item">
+        <div>
+          <div class="todo-title">${escapeHTML(t.title)}</div>
+          <div class="todo-meta">${due} • ${t.status==='done'?'Done ✅':'Open'}</div>
+          <div class="todo-clients">${clientBadges}</div>
+          ${t.notes? `<div class="muted" style="margin-top:6px">${escapeHTML(t.notes)}</div>`:''}
+        </div>
+        <div style="margin-top:10px;display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap">
+          <button class="btn ${t.status==='done'?'ghost':'primary'}" onclick="toggleTodo('${t.id}')">${t.status==='done'?'Reopen':'Mark Done'}</button>
+          <button class="btn danger" onclick="deleteTodo('${t.id}')">Delete</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  const openCount=todos.filter(t=>t.status==='open').length; const doneCount=todos.filter(t=>t.status==='done').length;
+  $('#todoCount').textContent=`${src.length} items • ${openCount} open / ${doneCount} done`;
+}
+
+/* =========================
+   Dashboard
+========================= */
+function updateDashboard(){
+  $('#totalClients').textContent = clients.length;
+  const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0,0,0,0);
+  const totalSales = clients.reduce((sum,c)=>sum+(Number(c.initialSales)||0),0) + sales.reduce((s,x)=>s+(Number(x.amount)||0),0);
+  $('#totalSales').textContent = fmtUSD.format(totalSales);
+}
+
+/* =========================
+   Import/Export JSON
+========================= */
+function exportData(){
+  const payload={ exportedAt:new Date().toISOString(), version:5, clients,  sales, followUps, todos };
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='crm-backup.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+}
+function importData(file){
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const data=JSON.parse(reader.result);
+      if(!data||!Array.isArray(data.clients)||!Array.isArray(data.sales)){ alert('Invalid file format.'); return; }
+      clients = data.clients;
+     
+      sales = data.sales.map(s=>({ ...s, amount:Number(s.amount)||0 }));
+      followUps = Array.isArray(data.followUps)? data.followUps : [];
+      todos = Array.isArray(data.todos)? data.todos : [];
+      saveData(); loadData(); renderAll(); alert('Import complete ✔️');
+    }catch(e){ console.error(e); alert('Could not parse the file.'); }
+  };
+  reader.readAsText(file);
+}
 </script>
 </body>
 </html>
+
