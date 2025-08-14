@@ -79,8 +79,6 @@
         <button id="exportBtn" class="btn ghost">⬇️ Export JSON</button>
         <button id="importBtn" class="btn ghost">⬆️ Import JSON</button>
         <input id="importFile" type="file" accept="application/json" style="display:none">
-        <button id="importCsvBtn" class="btn ghost">⬆️ Import CSV</button>
-        <input id="importCsvFile" type="file" accept=".csv,text/csv" style="display:none">
         <button id="clearBtn" class="btn danger">🗑️ Clear Data</button>
       </div>
     </header>
@@ -405,9 +403,6 @@ const normalizeStyles = (v) => Array.isArray(v) ? v.filter(x=>ALLOWED_STYLES.inc
   : (typeof v==='string' && v.trim()
      ? v.split(/[;,]/).map(s=>s.trim()).filter(x=>ALLOWED_STYLES.includes(x))
      : []);
-const parseCSV = (str) => String(str || '')
-  .split(/[;,]/).map(s => s.trim()).filter(Boolean);
-
 /* =========================
    Data
 ========================= */
@@ -502,12 +497,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
   if(importBtn && importFile){
     importBtn.addEventListener('click',()=>importFile.click());
     importFile.addEventListener('change',e=>{ const f=e.target.files[0]; if(f) importData(f); importFile.value=''; });
-  }
-  // CSV import
-  const importCsvBtn=$('#importCsvBtn'), importCsvFile=$('#importCsvFile');
-  if(importCsvBtn && importCsvFile){
-    importCsvBtn.addEventListener('click',()=>importCsvFile.click());
-    importCsvFile.addEventListener('change',e=>{ const f=e.target.files[0]; if(f) importClientsFromCsvFile(f); importCsvFile.value=''; });
   }
 
   $('#clearBtn')?.addEventListener('click', ()=>{
@@ -1086,102 +1075,7 @@ function importData(file){
   };
   reader.readAsText(file);
 }
-
-/* =========================
-   CSV Import (Clients)
-========================= */
-function csvToRows(text){
-  const rows = []; let row = [], cell = '';
-  let i=0, inQuotes=false;
-  while (i < text.length){
-    const ch = text[i];
-    if (inQuotes){
-      if (ch === '"'){
-        if (text[i+1] === '"'){ cell += '"'; i+=2; continue; }
-        inQuotes = false; i++; continue;
-      }
-      cell += ch; i++; continue;
-    } else {
-      if (ch === '"'){ inQuotes = true; i++; continue; }
-      if (ch === ','){ row.push(cell); cell=''; i++; continue; }
-      if (ch === '\r'){ if (text[i+1] === '\n') i++; rows.push(row.concat(cell)); row=[]; cell=''; i++; continue; }
-      if (ch === '\n'){ rows.push(row.concat(cell)); row=[]; cell=''; i++; continue; }
-      cell += ch; i++; continue;
-    }
-  }
-  if (cell.length || row.length) rows.push(row.concat(cell));
-  if (rows.length && rows[0].length){ rows[0][0] = rows[0][0].replace(/^\uFEFF/, ''); }
-  return rows;
-}
-function normalizeHeader(h){
-  return String(h||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,' ')
-    .replace(/\s+(.)/g, (_,c)=>c.toUpperCase()).replace(/\s+/g,'')
-    .replace(/^firstname$/,'firstName').replace(/^lastname$/,'lastName')
-    .replace(/^emailaddress$/,'email').replace(/^phonenumber$|^phone$/,'phone')
-    .replace(/^styles?$|^stylevibe$/,'styles')
-    .replace(/^initialsales$|^initialamount$|^initialsale$/,'initialSales');
-}
-function csvToObjects(text){
-  const rows = csvToRows(text).filter(r => r.length && r.some(c=>String(c).trim()!=='')); 
-  if (!rows.length) return [];
-  const headers = rows[0].map(normalizeHeader);
-  return rows.slice(1).map(r=>{
-    const o = {}; headers.forEach((h,idx)=>{ o[h] = (r[idx] ?? '').trim(); }); return o;
-  });
-}
-function clientFromCsv(row){
-  let firstName = row.firstName || ''; let lastName  = row.lastName  || '';
-  if ((!firstName || !lastName) && row.name){
-    const parts = String(row.name).trim().split(/\s+/); firstName = firstName || parts.shift() || ''; lastName  = lastName  || parts.join(' ');
-  }
-  const styles = normalizeStyles(row.styles || '');
-  return {
-    id: Date.now().toString() + Math.random().toString(36).slice(2,6),
-    firstName: String(firstName).trim(),
-    lastName:  String(lastName).trim(),
-    email: String(row.email||'').trim(),
-    phone: String(row.phone||'').trim(),
-    styles,
-    initialSales: Number(row.initialSales||0) || 0,
-    notes: String(row.notes||'').trim(),
-    createdAt: new Date().toISOString()
-  };
-}
-function clientIdentityKey(c){
-  if (c.email) return `email:${c.email.toLowerCase()}`;
-  if (c.phone) return `phone:${c.phone.replace(/\D+/g,'')}`;
-  const name = `${c.firstName||''} ${c.lastName||''}`.trim().toLowerCase();
-  return name ? `name:${name}` : `id:${c.id}`;
-}
-function mergeClient(existing, incoming){
-  return { ...existing, ...incoming, id: existing.id, createdAt: existing.createdAt || incoming.createdAt };
-}
-function importClientsFromCsvFile(file){
-  const reader = new FileReader();
-  reader.onload = ()=>{
-    try{
-      const rows = csvToObjects(reader.result);
-      if (!rows.length){ alert('No rows found in CSV.'); return; }
-      let added=0, updated=0, skipped=0;
-      const index = new Map(); clients.forEach(c => index.set(clientIdentityKey(c), c.id));
-      rows.forEach(r=>{
-        const draft = clientFromCsv(r);
-        const hasAny = draft.firstName || draft.lastName || draft.email || draft.phone;
-        if (!hasAny){ skipped++; return; }
-        const key = clientIdentityKey(draft);
-        if (index.has(key)){
-          const id = index.get(key);
-          const i = clients.findIndex(c=>c.id===id);
-          if (i !== -1){ clients[i] = mergeClient(clients[i], {...draft, id}); updated++; }
-          else { draft.id = id; clients.push(draft); updated++; }
-        } else { clients.push(draft); index.set(key, draft.id); added++; }
-      });
-      saveData(); renderClients(); updateDashboard(); populateTodoClientFilter();
-      alert(`CSV import complete ✔️\nAdded: ${added}\nUpdated: ${updated}\nSkipped: ${skipped}`);
-    }catch(err){ console.error(err); alert('Could not parse CSV file.'); }
-  };
-  reader.readAsText(file);
-}
 </script>
 </body>
 </html>
+
