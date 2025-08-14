@@ -255,6 +255,7 @@
   <div class="modal" id="clientDetailModal">
     <div class="panel">
       <header><h3 id="clientDetailName"></h3><button class="x" onclick="closeModal('clientDetailModal')">✕</button></header>
+      <div id="clientInfo" class="list"></div>
       <div id="clientTimeline" class="list"></div>
       <div class="buttons" style="justify-content:flex-end">
         <button class="btn" onclick="openAppointmentModal(null,[currentDetailClient])">Book Appointment</button>
@@ -377,7 +378,7 @@ function renderClients(){
   $('#clientCount').textContent=`Total Clients: ${clients.length}`;
   const brands=[...new Set(clients.flatMap(c=>c.brands||[]).filter(Boolean))];
   $('#brandList').innerHTML=brands.map(b=>`<option value="${b}"></option>`).join('');
-  if(!src.length){
+   if(!src.length){
     list.innerHTML='<div class="empty-state"><div style="font-size:42px;opacity:.6">👥</div><p>No clients</p></div>';
     return;
   }
@@ -386,13 +387,6 @@ function renderClients(){
     const appts=appointments.filter(a=>a.clientIds.includes(c.id));
     const apptList=appts.map(a=>`<li><a href="#" onclick="editAppt('${a.id}')">${a.title} - ${new Date(a.date).toLocaleDateString()}</a></li>`).join('');
     return `<div class="card"><div class="client-header"><div class="client-name">${fullName(c)}</div><div class="buttons"><button class="btn small" onclick="viewClient('${c.id}')">View</button><button class="btn small" onclick="editClient('${c.id}')">Edit</button><button class="btn small danger" onclick="deleteClient('${c.id}')">Delete</button></div></div>
-    <div>Email: ${c.email||''}</div>
-    <div>Phone: ${c.phone||''}</div>
-    <div>Birthday: ${c.birthday?new Date(c.birthday).toLocaleDateString():''}</div>
-    <div>Initial Sales Amount: ${fmtUSD.format(c.initialSale||0)}</div>
-    <div>Preferred Styles: ${(c.styles||[]).join(', ')}</div>
-    <div>Preferred Brands: ${(c.brands||[]).join(', ')}</div>
-    <div>Sizes: Shirt ${c.sizeShirt||''} | Dress ${c.sizeDress||''} | Pant ${c.sizePant||''} | Shoe ${c.sizeShoe||''}</div>
     <div>Running Sales: ${fmtUSD.format(total)}</div>
     <div>Appointments:<ul>${apptList}</ul></div></div>`;
   }).join('');
@@ -467,8 +461,30 @@ function editClient(id){
   openModal('clientModal');
 }
 function deleteClient(id){if(!confirm('Delete client?'))return;clients=clients.filter(c=>c.id!==id);outreach=outreach.filter(o=>!o.clientIds.includes(id));appointments.forEach(a=>a.clientIds=a.clientIds.filter(cid=>cid!==id));sales=sales.filter(s=>s.clientId!==id);saveData();renderAll();}
-function viewClient(id){currentDetailClient=id;const c=clients.find(x=>x.id===id);if(!c)return;$('#clientDetailName').textContent=fullName(c);const timeline=[];appointments.filter(a=>a.clientIds.includes(id)).forEach(a=>timeline.push({type:'Appointment',date:a.date,desc:a.title}));sales.filter(s=>s.clientId===id).forEach(s=>timeline.push({type:'Sale',date:s.date,desc:fmtUSD.format(s.amount)}));outreach.filter(o=>o.clientIds.includes(id)).forEach(o=>timeline.push({type:'Outreach',date:o.date,desc:o.title}));timeline.sort((a,b)=>a.date.localeCompare(b.date));$('#clientTimeline').innerHTML=timeline.map(t=>`<div class="todo-item"><div class="todo-title">${t.type}: ${t.desc}</div><div class="todo-meta">${new Date(t.date).toLocaleString()}</div></div>`).join('');openModal('clientDetailModal');}
-
+function viewClient(id){
+  currentDetailClient=id;
+  const c=clients.find(x=>x.id===id);
+  if(!c)return;
+  $('#clientDetailName').textContent=fullName(c);
+  const total=sales.filter(s=>s.clientId===id).reduce((a,b)=>a+b.amount,0)+(c.initialSale||0);
+  $('#clientInfo').innerHTML=
+    `<div>Email: ${c.email||''}</div>`+
+    `<div>Phone: ${c.phone||''}</div>`+
+    `<div>Birthday: ${c.birthday?new Date(c.birthday).toLocaleDateString():''}</div>`+
+    `<div>Preferred Styles: ${(c.styles||[]).join(', ')}</div>`+
+    `<div>Preferred Brands: ${(c.brands||[]).join(', ')}</div>`+
+    `<div>Sizes: Shirt ${c.sizeShirt||''} | Dress ${c.sizeDress||''} | Pant ${c.sizePant||''} | Shoe ${c.sizeShoe||''}</div>`+
+    `<div>Initial Sales Amount: ${fmtUSD.format(c.initialSale||0)}</div>`+
+    `<div>Running Sales: ${fmtUSD.format(total)}</div>`+
+    `<div>Notes: ${c.notes||''}</div>`;
+  const timeline=[];
+  appointments.filter(a=>a.clientIds.includes(id)).forEach(a=>timeline.push({type:'Appointment',date:a.date,desc:a.title}));
+  sales.filter(s=>s.clientId===id).forEach(s=>timeline.push({type:'Sale',date:s.date,desc:fmtUSD.format(s.amount)}));
+  outreach.filter(o=>o.clientIds.includes(id)).forEach(o=>timeline.push({type:'Outreach',date:o.date,desc:o.title}));
+  timeline.sort((a,b)=>a.date.localeCompare(b.date));
+  $('#clientTimeline').innerHTML=timeline.map(t=>`<div class="todo-item"><div class="todo-title">${t.type}: ${t.desc}</div><div class="todo-meta">${new Date(t.date).toLocaleString()}</div></div>`).join('');
+  openModal('clientDetailModal');
+}
 function createSeasonalOutreach(client){const yr=new Date().getFullYear();const seasons=[['Spring','03-01'],['Summer','06-01'],['Fall','09-01'],['Winter','12-01']];seasons.forEach(([season,md])=>{outreach.push({id:uuid(),title:`${season} Update`,category:'Seasonal',date:`${yr}-${md}`,status:'open',clientIds:[client.id]});});}
 
 /* ===== Appointments ===== */
@@ -519,6 +535,7 @@ renderAll();
 </script>
 </body>
 </html>
+
 
 
 
