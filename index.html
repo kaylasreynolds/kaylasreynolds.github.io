@@ -120,7 +120,7 @@
     </div>
 
     <!-- Clients -->
-   <div id="clients" class="tab-content" style="display:none">
+    <div id="clients" class="tab-content" style="display:none">
       <div class="card">
         <div class="client-top" style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:12px">
           <div style="flex:1;min-width:220px">
@@ -146,6 +146,7 @@
                     <option value="firstAsc">First Name Ascending</option>
                     <option value="firstDesc">First Name Descending</option>
                   </select>
+                  <button id="clearFilters" class="btn small ghost" style="margin-top:4px;width:100%">Clear Filters</button>
                 </div>
               </div>
               <input type="text" id="clientSearch" placeholder="Search clients">
@@ -225,7 +226,7 @@
         <div><label>First Name<input id="clientFirst"></label></div>
         <div><label>Last Name<input id="clientLast"></label></div>
       </div>
-  <label>Email<input id="clientEmail" type="email"></label>
+ <label>Email<input id="clientEmail" type="email"></label>
       <label>Phone<input id="clientPhone"></label>
       <label>Birthday<input id="clientBirthday" type="date"></label>
       <label>Style<select id="clientStyle">
@@ -362,6 +363,14 @@ $('#clientSearch').addEventListener('input',renderClients);
 $('#filterStyles').addEventListener('change',renderClients);
 $('#filterBrand').addEventListener('input',renderClients);
 $('#filterSort').addEventListener('change',renderClients);
+$('#clearFilters').addEventListener('click',()=>{
+  [...$('#filterStyles').options].forEach(o=>o.selected=false);
+  $('#filterBrand').value='';
+  $('#filterSort').value='';
+  $('#clientSearch').value='';
+  renderClients();
+  $('#filterMenu').classList.remove('show');
+});
 $('#filterToggle').onclick=()=>$('#filterMenu').classList.toggle('show');
 document.addEventListener('click',e=>{if(!$('#filterDropdown').contains(e.target))$('#filterMenu').classList.remove('show');});
 $('#openClientBtn').onclick=()=>{currentEditClient=null;$('#clientModalTitle').textContent='New Client';$('#clientFirst').value='';$('#clientLast').value='';$('#clientEmail').value='';$('#clientPhone').value='';$('#clientBirthday').value='';$('#clientStyle').value='';$('#clientBrand').value='';$('#clientNotes').value='';openModal('clientModal');};
@@ -417,8 +426,7 @@ function renderDashboard(){const now=new Date();const mStart=new Date(now.getFul
 $('#exportBtn').onclick=()=>{const blob=new Blob([JSON.stringify({clients,appointments,sales,outreach},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='crm.json';a.click();URL.revokeObjectURL(url);};
 $('#importBtn').onclick=()=>$('#importFile').click();
 // Import expects a JSON object with {clients:[],appointments:[],sales:[],outreach:[]}
-$('#importFile').addEventListener('change',e=>{const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const d=JSON.parse(reader.result);for(const k of['clients','appointments','sales','outreach']){if(!Array.isArray(d[k])){alert(`Missing \`${k}\` array`);return;}}const rawClients=d.clients;clients=rawClients.map(c=>({id:c.id||uuid(),first:c.first||c.firstName||'',last:c.last||c.lastName||'',email:c.email||'',phone:c.phone||'',notes:c.notes||'',birthday:c.birthday||'',style:c.style||'',brand:c.brand||''}));appointments=d.appointments;sales=d.sales.map(s=>({id:s.id||uuid(),clientId:s.clientId||'',amount:Number(s.amount||0),date:s.date||todayStr(),desc:s.description||s.desc||'',appointmentId:s.appointmentId||''}));outreach=d.outreach.map(t=>({id:t.id||uuid(),title:t.title||'',date:t.date||todayStr(),category:t.category||'Follow-up',notes:t.notes||'',status:t.status||'open',clientIds:t.clientIds||[],appointmentId:t.appointmentId||''}));saveData();renderAll();alert('Import complete');}catch(err){alert('Invalid file');}};reader.readAsText(file);});
-/* ===== Render All ===== */
+$('#importFile').addEventListener('change',e=>{const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const d=JSON.parse(reader.result);for(const k of['clients','appointments','sales','outreach']){if(!Array.isArray(d[k])){alert(`Missing \`${k}\` array`);return;}}const rawClients=d.clients;clients=rawClients.map(c=>({id:c.id||uuid(),first:c.first||c.firstName||'',last:c.last||c.lastName||'',email:c.email||'',phone:c.phone||'',notes:c.notes||'',birthday:c.birthday||'',style:c.style||'',brand:c.brand||''}));appointments=d.appointments;sales=d.sales.map(s=>({id:s.id||uuid(),clientId:s.clientId||'',amount:Number(s.amount||0),date:s.date||todayStr(),desc:s.description||s.desc||'',appointmentId:s.appointmentId||''}));outreach=d.outreach.map(t=>({id:t.id||uuid(),title:t.title||'',date:t.date||todayStr(),category:t.category||'Follow-up',notes:t.notes||'',status:t.status||'open',clientIds:t.clientIds||[],appointmentId:t.appointmentId||''}));saveData();renderAll();alert('Import complete');}catch(err){alert('Invalid file');}};reader.readAsText(file);});/* ===== Render All ===== */
 function renderAll(){renderClients();renderAppointments();renderSales();renderTodos();renderBirthdays();renderSeasonal();renderDashboard();populateClientSelect('#saleClient');populateApptSelect('#saleAppt');populateClientSelect('#apptClients');populateClientSelect('#todoClients');populateApptSelect('#todoAppt');}
 renderAll();
 </script>
