@@ -547,7 +547,8 @@ function applyFiltersAndSort(){
       const styles = c.styles||[];
       const styleOk = (mode==='all') ? selected.every(s=>styles.includes(s)) : selected.some(s=>styles.includes(s));
       if(!styleOk) return false;
-
+    }
+    return true;
   });
 
   list = sortClients(list, $('#clientSort').value||'createdAt_desc');
@@ -844,4 +845,5 @@ function importData(file){
 </script>
 </body>
 </html>
+
 
