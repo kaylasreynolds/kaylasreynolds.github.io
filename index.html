@@ -358,8 +358,8 @@ function renderDashboard(){const now=new Date();const mStart=new Date(now.getFul
 /* ===== Export/Import/Clear ===== */
 $('#exportBtn').onclick=()=>{const blob=new Blob([JSON.stringify({clients,appointments,sales,outreach},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='crm.json';a.click();URL.revokeObjectURL(url);};
 $('#importBtn').onclick=()=>$('#importFile').click();
-$('#importFile').addEventListener('change',e=>{const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const d=JSON.parse(reader.result);const rawClients=d.clients||[];clients=rawClients.map(c=>({id:c.id||uuid(),first:c.first||c.firstName||'',last:c.last||c.lastName||'',email:c.email||'',phone:c.phone||'',notes:c.notes||'',birthday:c.birthday||''}));appointments=d.appointments||[];sales=(d.sales||d.interactions||[]).map(s=>({id:s.id||uuid(),clientId:s.clientId||s.client||'',amount:Number(s.amount||0),date:s.date||todayStr(),desc:s.description||s.desc||'',appointmentId:s.appointmentId||s.apptId||''}));outreach=(d.outreach||d.tasks||[]).map(t=>({id:t.id||uuid(),title:t.title||t.name||'',date:t.date||todayStr(),category:t.category||t.type||'Follow-up',notes:t.notes||'',status:t.status||'open',clientIds:t.clientIds||t.clients||[],appointmentId:t.appointmentId||''}));saveData();renderAll();alert('Import complete');}catch(err){alert('Invalid file');}};reader.readAsText(file);});
-$('#clearBtn').onclick=()=>{if(confirm('Clear all data?')){localStorage.removeItem('crmData');loadData();renderAll();}}
+// Import expects a JSON object with {clients:[],appointments:[],sales:[],outreach:[]}
+$('#importFile').addEventListener('change',e=>{const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const d=JSON.parse(reader.result);for(const k of['clients','appointments','sales','outreach']){if(!Array.isArray(d[k])){alert(`Missing \`${k}\` array`);return;}}const rawClients=d.clients;clients=rawClients.map(c=>({id:c.id||uuid(),first:c.first||c.firstName||'',last:c.last||c.lastName||'',email:c.email||'',phone:c.phone||'',notes:c.notes||'',birthday:c.birthday||''}));appointments=d.appointments;sales=d.sales.map(s=>({id:s.id||uuid(),clientId:s.clientId||'',amount:Number(s.amount||0),date:s.date||todayStr(),desc:s.description||s.desc||'',appointmentId:s.appointmentId||''}));outreach=d.outreach.map(t=>({id:t.id||uuid(),title:t.title||'',date:t.date||todayStr(),category:t.category||'Follow-up',notes:t.notes||'',status:t.status||'open',clientIds:t.clientIds||[],appointmentId:t.appointmentId||''}));saveData();renderAll();alert('Import complete');}catch(err){alert('Invalid file');}};reader.readAsText(file);});
 
 /* ===== Render All ===== */
 function renderAll(){renderClients();renderAppointments();renderSales();renderTodos();renderBirthdays();renderSeasonal();renderDashboard();populateClientSelect('#saleClient');populateApptSelect('#saleAppt');populateClientSelect('#apptClients');populateClientSelect('#todoClients');populateApptSelect('#todoAppt');}
@@ -367,3 +367,4 @@ renderAll();
 </script>
 </body>
 </html>
+
