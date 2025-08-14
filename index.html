@@ -30,8 +30,6 @@
   .search .row{display:flex;gap:10px}
   .search input,.search select{width:100%;padding:12px 14px;border-radius:12px;border:2px solid var(--ring);font-size:1rem}
   .list{display:grid;gap:12px}
-  .client-item,.interaction-item{background:#fff;border-radius:12px;padding:16px;border-left:4px solid transparent;box-shadow:0 2px 10px rgba(0,0,0,.06)}
-  .client-item:hover,.interaction-item:hover{transform:translateY(-1px);transition:.2s;box-shadow:0 6px 16px rgba(0,0,0,.1);border-left-color:var(--grad1)}
   .client-header{display:flex;justify-content:space-between;gap:12px}
   .client-name{font-weight:800}
   .chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:.75rem;font-weight:700}
@@ -86,7 +84,6 @@
     <div class="tabs" role="tablist">
       <button class="tab active" data-tab="dashboard">📊 Dashboard</button>
       <button class="tab" data-tab="clients">👥 Clients</button>
-      <button class="tab" data-tab="interactions">💬 Interactions</button>
       <button class="tab" data-tab="sales">💰 Sales</button>
       <button class="tab" data-tab="tasks">📅 Tasks</button>
     </div>
@@ -95,7 +92,6 @@
     <div id="dashboard" class="tab-content">
       <div class="stats-grid">
         <div class="card"><div class="stat-number" id="totalClients">0</div><div class="muted">Total Clients</div></div>
-        <div class="card"><div class="stat-number" id="totalInteractions">0</div><div class="muted">Total Interactions</div></div>
         <div class="card"><div class="stat-number" id="activeThisMonth">0</div><div class="muted">Active This Month</div></div>
         <div class="card"><div class="stat-number" id="totalSales">$0.00</div><div class="muted">Total Sales</div></div>
       </div>
@@ -117,8 +113,6 @@
           <div class="row">
             <select id="clientSort">
               <option value="createdAt_desc">Sort: Recently Added</option>
-              <option value="lastInteraction_desc">Sort: Last Interaction (Newest→Oldest)</option>
-              <option value="lastInteraction_asc">Sort: Last Interaction (Oldest→Newest)</option>
               <option value="lastName_asc">Sort: Last Name (A→Z)</option>
               <option value="lastName_desc">Sort: Last Name (Z→A)</option>
             </select>
@@ -141,28 +135,6 @@
             </select>
             <button class="btn ghost" id="clearFiltersBtn" type="button">Clear</button>
           </div>
-
-          <!-- Last Interaction -->
-          <div class="row" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:6px">
-            <strong class="muted">Last Interaction:</strong>
-            <select id="lastInteractionFilter" title="Last Interaction Filter">
-              <option value="any">Any time</option>
-              <option value="never">Never</option>
-              <option value="gt7">More than 7 days</option>
-              <option value="gt14">More than 14 days</option>
-              <option value="gt30">More than 30 days</option>
-              <option value="gt60">More than 60 days</option>
-              <option value="gt90">More than 90 days</option>
-              <option value="gt180">More than 180 days</option>
-              <option value="gt365">More than 365 days</option>
-              <option value="before">Before date…</option>
-              <option value="after">After date…</option>
-              <option value="between">Between dates…</option>
-            </select>
-            <input type="date" id="lastInteractionStart" style="display:none" aria-label="Start date">
-            <input type="date" id="lastInteractionEnd"   style="display:none" aria-label="End date">
-            <button id="resetLastInteraction" class="btn small ghost" type="button">Reset</button>
-          </div>
         </div>
 
         <div class="list" id="clientList">
@@ -170,20 +142,6 @@
             <div style="font-size:42px;opacity:.6">👥</div>
             <p>No clients yet. Add your first client!</p>
           </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Interactions -->
-    <div id="interactions" class="tab-content" style="display:none">
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
-          <h2 style="margin:0">Interaction Tracking</h2>
-          <button id="openInteractionBtn" class="btn primary">+ Log Interaction</button>
-        </div>
-        <div class="search"><input type="text" id="interactionSearch" placeholder="Search interactions..."></div>
-        <div class="list" id="interactionList">
-          <div class="empty-state"><div style="font-size:42px;opacity:.6">💬</div><p>No interactions logged yet</p></div>
         </div>
       </div>
     </div>
@@ -278,33 +236,6 @@
     </div>
   </div>
 
-  <!-- Interaction Modal -->
-  <div id="interactionModal" class="modal">
-    <div class="panel">
-      <header><h3 id="interactionModalTitle" style="margin:0">Log Interaction</h3><button class="x" data-close-modal>×</button></header>
-      <form id="interactionForm">
-        <div>
-          <label>Client *</label>
-          <select id="interactionClient" required><option value="">Select client...</option></select>
-        </div>
-        <div class="row-cols">
-          <div>
-            <label>Type *</label>
-            <select id="interactionType" required>
-              <option>Call</option><option>Email</option><option>Text</option><option>In-person</option>
-            </select>
-          </div>
-          <div><label>Date *</label><input type="date" id="interactionDate" required></div>
-        </div>
-        <div><label>Notes</label><textarea id="interactionNotes" placeholder="Describe the interaction..."></textarea></div>
-        <div style="display:flex;gap:8px;justify-content:flex-end">
-          <button type="button" class="btn ghost" data-close-modal>Cancel</button>
-          <button type="submit" class="btn primary">Save Interaction</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
   <!-- Sale Modal -->
   <div id="saleModal" class="modal">
     <div class="panel">
@@ -342,33 +273,7 @@
           </div>
         </div>
 
-        <!-- Quick select by last interaction -->
-        <div class="row-cols">
-          <div>
-            <label>Quick Select by Last Interaction</label>
-            <div class="filters-row" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-              <select id="todoLastIntFilter" title="Quick Select">
-                <option value="none">Choose…</option>
-                <option value="never">Never</option>
-                <option value="gt7">More than 7 days</option>
-                <option value="gt14">More than 14 days</option>
-                <option value="gt30">More than 30 days</option>
-                <option value="gt60">More than 60 days</option>
-                <option value="gt90">More than 90 days</option>
-                <option value="gt180">More than 180 days</option>
-                <option value="gt365">More than 365 days</option>
-                <option value="before">Before date…</option>
-                <option value="after">After date…</option>
-                <option value="between">Between dates…</option>
-              </select>
-              <input type="date" id="todoLastIntStart" style="display:none" aria-label="Start date">
-              <input type="date" id="todoLastIntEnd"   style="display:none" aria-label="End date">
-              <button id="todoSelectByLastInt" type="button" class="btn ghost">Select Clients</button>
-            </div>
-            <div class="muted" style="font-size:.85rem;margin-top:6px">Tip: pick clients by “last contacted” right here.</div>
-          </div>
-        </div>
-
+      
         <div>
           <label>Clients (multi‑select)</label>
           <select id="todoClients" multiple size="8"></select>
@@ -407,13 +312,11 @@ const normalizeStyles = (v) => Array.isArray(v) ? v.filter(x=>ALLOWED_STYLES.inc
    Data
 ========================= */
 let clients = [];
-let interactions = [];
 let sales = [];
 let followUps = [];
 let todos = [];
 
 let editingClientId = null;
-let editingInteractionId = null;
 let editingSaleId = null;
 let lastClientFilterResult = [];
 
@@ -422,7 +325,6 @@ let lastClientFilterResult = [];
 ========================= */
 function saveData(){
   localStorage.setItem('crm_clients', JSON.stringify(clients));
-  localStorage.setItem('crm_interactions', JSON.stringify(interactions));
   localStorage.setItem('crm_sales', JSON.stringify(sales));
   localStorage.setItem('crm_followups', JSON.stringify(followUps));
   localStorage.setItem('crm_todos', JSON.stringify(todos));
@@ -430,7 +332,6 @@ function saveData(){
 function loadData(){
   try{
     clients = JSON.parse(localStorage.getItem('crm_clients') || '[]');
-    interactions = JSON.parse(localStorage.getItem('crm_interactions') || '[]');
     sales = JSON.parse(localStorage.getItem('crm_sales') || '[]');
     followUps = JSON.parse(localStorage.getItem('crm_followups') || '[]');
     todos = JSON.parse(localStorage.getItem('crm_todos') || '[]');
@@ -438,7 +339,7 @@ function loadData(){
     let migrated = false;
 
     // normalize dates
-    interactions.forEach(i=>{ if(i.date && i.date.length>10){ i.date=i.date.slice(0,10); migrated=true; }});
+  
     followUps.forEach(f=>{ if(f.completed===undefined){ f.completed=false; migrated=true; }});
     todos.forEach(t=>{ if(!t.status){ t.status='open'; migrated=true; }});
 
@@ -466,7 +367,7 @@ function loadData(){
 
     if (migrated) saveData();
   }catch(e){
-    console.warn('load error',e); clients=[]; interactions=[]; sales=[]; followUps=[]; todos=[];
+    console.warn('load error',e); clients=[]; sales=[]; followUps=[]; todos=[];
   }
 }
 
@@ -478,7 +379,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   renderAll();
 
   const today = new Date().toISOString().slice(0,10);
-  ['interactionDate','saleDate','todoDate'].forEach(id=>{ const el=$('#'+id); if(el) el.value=today; });
+  ['saleDate','todoDate'].forEach(id=>{ const el=$('#'+id); if(el) el.value=today; });
 
   // close modals
   document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeAllModals(); });
@@ -501,7 +402,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
   $('#clearBtn')?.addEventListener('click', ()=>{
     if(confirm('Clear ALL data? This cannot be undone.')){
-      clients=[]; interactions=[]; sales=[]; followUps=[]; todos=[];
+      clients=[]; sales=[]; followUps=[]; todos=[];
       saveData(); renderAll();
     }
   });
@@ -516,24 +417,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
   $('#clientSearch')?.addEventListener('input', applyFiltersAndSort);
   $('#clientSort')?.addEventListener('change', applyFiltersAndSort);
 
-  // last interaction filter
-  $('#lastInteractionFilter')?.addEventListener('change', ()=>{
-    const v = $('#lastInteractionFilter').value;
-    $('#lastInteractionStart').style.display = (v==='before'||v==='after'||v==='between') ? '' : 'none';
-    $('#lastInteractionEnd').style.display   = (v==='between') ? '' : 'none';
-    applyFiltersAndSort();
-  });
-  $('#lastInteractionStart')?.addEventListener('change', applyFiltersAndSort);
-  $('#lastInteractionEnd')?.addEventListener('change', applyFiltersAndSort);
-  $('#resetLastInteraction')?.addEventListener('click', ()=>{
-    $('#lastInteractionFilter').value='any';
-    $('#lastInteractionStart').value='';
-    $('#lastInteractionEnd').value='';
-    $('#lastInteractionStart').style.display='none';
-    $('#lastInteractionEnd').style.display='none';
-    applyFiltersAndSort();
-  });
-
   $('#openClientBtn')?.addEventListener('click', ()=>openClientModal());
   $('#createTodoFromClientsBtn')?.addEventListener('click', ()=>openTodoModal(lastClientFilterResult.map(c=>c.id)));
   $('#clientList')?.addEventListener('click', e=>{
@@ -542,16 +425,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
     if (action==='view') openClientView(id);
     if (action==='edit') openClientModal(id);
     if (action==='delete') deleteClient(id);
-  });
-
-  // interactions
-  $('#openInteractionBtn')?.addEventListener('click', ()=>openInteractionModal());
-  $('#interactionSearch')?.addEventListener('input', searchInteractions);
-  $('#interactionList')?.addEventListener('click', e=>{
-    const del = e.target.closest('[data-action="delete-interaction"]');
-    const edit = e.target.closest('[data-action="edit-interaction"]');
-    if (del) return deleteInteraction(del.dataset.id);
-    if (edit) return openInteractionModal(edit.dataset.id);
   });
 
   // sales
@@ -569,25 +442,11 @@ document.addEventListener('DOMContentLoaded', ()=>{
   $('#todoFilterStatus')?.addEventListener('change', renderTodos);
   $('#todoFilterDue')?.addEventListener('change', renderTodos);
   $('#todoFilterClient')?.addEventListener('change', renderTodos);
-
-  // quick select by last interaction in To‑Do modal
-  $('#todoLastIntFilter')?.addEventListener('change', ()=>{
-    const v = $('#todoLastIntFilter').value;
-    $('#todoLastIntStart').style.display = (v==='before'||v==='after'||v==='between')?'':'none';
-    $('#todoLastIntEnd').style.display   = (v==='between')?'':'none';
-  });
-  $('#todoSelectByLastInt')?.addEventListener('click', ()=>{
-    const v  = $('#todoLastIntFilter').value;
-    if (v==='none') return;
-    const s  = $('#todoLastIntStart').value || '';
-    const e  = $('#todoLastIntEnd').value   || '';
-    const matchIds = clients.filter(c => matchesLastInteractionRule(c.id, v, s, e)).map(c => c.id);
-    const sel = $('#todoClients'); if (!sel) return;
-    [...sel.options].forEach(o => { o.selected = matchIds.includes(o.value); });
+  
   });
 });
 
-function renderAll(){ renderClients(); renderInteractions(); renderSalesView(); renderTodos(); updateDashboard(); }
+function renderAll(){ renderClients(); renderSalesView(); renderTodos(); updateDashboard(); }
 function closeAllModals(){ $$('.modal.active').forEach(m=>m.classList.remove('active')); }
 function switchTab(tab){
   $$('.tab-content').forEach(c=>c.style.display=(c.id===tab?'block':'none'));
@@ -602,34 +461,12 @@ function switchTab(tab){
 ========================= */
 const fullNameOf = (c)=>`${c.firstName??''} ${c.lastName??''}`.trim();
 function getActiveStyleFilters(){ return [...document.querySelectorAll('.style-filter:checked')].map(c=>c.value); }
-function lastInteractionDate(clientId){
-  const ds = interactions.filter(i=>i.clientId===clientId).map(i=>new Date(i.date));
-  return ds.length? new Date(Math.max(...ds)) : null;
 }
 function daysBetween(a, b) {
   const MS = 24*60*60*1000;
   return Math.floor((Date.UTC(b.getFullYear(),b.getMonth(),b.getDate()) -
                      Date.UTC(a.getFullYear(),a.getMonth(),a.getDate())) / MS);
-}
-function matchesLastInteractionRule(clientId, mode, startStr, endStr){
-  const li = lastInteractionDate(clientId);
-  const today = new Date();
-  const olderThan = (n) => (li ? daysBetween(li, today) > n : false);
-  switch(mode){
-    case 'any':     return true;
-    case 'never':   return !li;
-    case 'gt7':     return olderThan(7);
-    case 'gt14':    return olderThan(14);
-    case 'gt30':    return olderThan(30);
-    case 'gt60':    return olderThan(60);
-    case 'gt90':    return olderThan(90);
-    case 'gt180':   return olderThan(180);
-    case 'gt365':   return olderThan(365);
-    case 'before':  return (startStr && li) ? (li < new Date(startStr)) : true;
-    case 'after':   return (startStr && li) ? (li > new Date(startStr)) : true;
-    case 'between': return (startStr && endStr && li) ? (li >= new Date(startStr) && li <= new Date(endStr)) : true;
-    default: return true;
-  }
+
 }
 
 /* =========================
@@ -673,7 +510,6 @@ $('#clientForm')?.addEventListener('submit', e=>{
 function deleteClient(id){
   if(!confirm('Delete this client and related items?')) return;
   clients=clients.filter(c=>c.id!==id);
-  interactions=interactions.filter(i=>i.clientId!==id);
   sales=sales.filter(s=>s.clientId!==id);
   followUps=followUps.filter(f=>f.clientId!==id);
   todos=todos.filter(t=>!t.clientIds.includes(id));
@@ -688,8 +524,6 @@ function sortClients(arr, mode){
   const byLast=(a,b)=>(a.lastName||'').localeCompare(b.lastName||'');
   const byCreatedDesc=(a,b)=>new Date(b.createdAt)-new Date(a.createdAt);
   switch(mode){
-    case 'lastInteraction_desc': return arr.sort((a,b)=>{const da=lastInteractionDate(a.id),db=lastInteractionDate(b.id); if(da&&db) return db-da; if(da&&!db) return -1; if(!da&&db) return 1; return byLast(a,b);});
-    case 'lastInteraction_asc':  return arr.sort((a,b)=>{const da=lastInteractionDate(a.id),db=lastInteractionDate(b.id); if(da&&db) return da-db; if(da&&!db) return -1; if(!da&&db) return 1; return byLast(a,b);});
     case 'lastName_asc': return arr.sort(byLast);
     case 'lastName_desc':return arr.sort((a,b)=>byLast(b,a));
     case 'createdAt_desc':
@@ -700,9 +534,7 @@ function applyFiltersAndSort(){
   const term = ($('#clientSearch').value||'').toLowerCase();
   const selected = getActiveStyleFilters();
   const mode = $('#styleMatch')?.value||'any';
-  const liMode  = $('#lastInteractionFilter')?.value || 'any';
-  const liStart = $('#lastInteractionStart')?.value || '';
-  const liEnd   = $('#lastInteractionEnd')?.value || '';
+ 
 
   let list = clients.filter(c=>{
     const matchesTerm = fullNameOf(c).toLowerCase().includes(term) ||
@@ -715,9 +547,7 @@ function applyFiltersAndSort(){
       const styles = c.styles||[];
       const styleOk = (mode==='all') ? selected.every(s=>styles.includes(s)) : selected.some(s=>styles.includes(s));
       if(!styleOk) return false;
-    }
-    if(!matchesLastInteractionRule(c.id, liMode, liStart, liEnd)) return false;
-    return true;
+
   });
 
   list = sortClients(list, $('#clientSort').value||'createdAt_desc');
@@ -728,14 +558,13 @@ function renderClients(src=clients){
   if(src.length===0){ list.innerHTML=`<div class="empty-state"><div style="font-size:42px;opacity:.6">👥</div><p>No clients yet. Add your first client!</p></div>`; lastClientFilterResult=[]; return;}
   const sorted = sortClients([...src], $('#clientSort').value||'createdAt_desc'); lastClientFilterResult=[...sorted];
   list.innerHTML = sorted.map(c=>{
-    const total=totalSpentFor(c.id); const li=lastInteractionDate(c.id);
+    const total=totalSpentFor(c.id); 
     return `<div class="client-item">
       <div class="client-header">
         <div>
           <div class="client-name">${escapeHTML(fullNameOf(c))} ${total>0? `<span class="badge-sale">${fmtUSD.format(total)}</span>`:''}</div>
           <div class="muted" style="margin-top:4px">${c.email?`📧 ${escapeHTML(c.email)} · `:''}${c.phone?`📱 ${escapeHTML(c.phone)}`:''}</div>
           ${(c.styles&&c.styles.length)? `<div class="tags" aria-label="Style Vibes">${c.styles.map(s=>`<span class="tag">${escapeHTML(s)}</span>`).join('')}</div>`:''}
-          ${li? `<div class="muted" style="margin-top:6px;font-size:.85rem">Last Interaction: ${li.toLocaleDateString()}</div>`:''}
         </div>
         <span class="chip status-${statusSlug('Established')}">Established</span>
       </div>
@@ -751,66 +580,6 @@ function renderClients(src=clients){
 function openClientView(id){
   const c=clients.find(x=>x.id===id); if(!c) return alert('Client not found');
   alert(`${fullNameOf(c)}\nEmail: ${c.email||'—'}\nPhone: ${c.phone||'—'}\nStyles: ${(c.styles||[]).join(', ')||'—'}`);
-}
-
-/* =========================
-   Interactions
-========================= */
-function openInteractionModal(id=null){
-  editingInteractionId=id;
-  const sel=$('#interactionClient');
-  sel.innerHTML='<option value="">Select client...</option>'+clients.map(c=>`<option value="${c.id}">${escapeHTML(fullNameOf(c))}</option>`).join('');
-  if (id){
-    const it=interactions.find(i=>i.id===id); if(!it) return;
-    $('#interactionModalTitle').textContent='Edit Interaction';
-    sel.value=it.clientId; $('#interactionType').value=it.type; $('#interactionDate').value=it.date; $('#interactionNotes').value=it.notes||'';
-  } else {
-    $('#interactionModalTitle').textContent='Log Interaction'; $('#interactionForm').reset(); $('#interactionDate').value=new Date().toISOString().slice(0,10);
-  }
-  $('#interactionModal').classList.add('active');
-}
-$('#interactionForm')?.addEventListener('submit', e=>{
-  e.preventDefault();
-  const clientId=$('#interactionClient').value; if(!clientId) return alert('Please select a client.');
-  const date=$('#interactionDate').value||new Date().toISOString().slice(0,10);
-  const type=$('#interactionType').value; const notes=$('#interactionNotes').value.trim();
-  if (editingInteractionId){
-    const i=interactions.findIndex(x=>x.id===editingInteractionId);
-    if(i!==-1) interactions[i]={...interactions[i], clientId, type, date, notes};
-  } else {
-    interactions.push({ id:Date.now().toString(), clientId, type, date, notes, createdAt:new Date().toISOString() });
-  }
-  saveData(); $('#interactionModal').classList.remove('active'); renderInteractions(); updateDashboard(); renderClients();
-});
-function renderInteractions(src=interactions){
-  const el=$('#interactionList');
-  if(src.length===0){ el.innerHTML=`<div class="empty-state"><div style="font-size:42px;opacity:.6">💬</div><p>No interactions logged yet</p></div>`; return; }
-  const sorted=[...src].sort((a,b)=>new Date(b.date)-new Date(a.date));
-  el.innerHTML = sorted.map(i=>{
-    const c=clients.find(x=>x.id===i.clientId); const when=new Date(i.date).toLocaleDateString([], { year:'numeric', month:'short', day:'numeric' });
-    return `<div class="interaction-item">
-      <div class="client-header">
-        <div><div class="client-name">${escapeHTML(c?fullNameOf(c):'Unknown Client')}</div><div class="muted" style="margin-top:4px">${escapeHTML(i.type)} • ${when}</div></div>
-        <div class="buttons">
-          <button class="btn danger" data-action="delete-interaction" data-id="${i.id}">Delete</button>
-        </div>
-      </div>
-      ${i.notes? `<div style="margin-top:8px">${escapeHTML(i.notes)}</div>`:''}
-    </div>`;
-  }).join('');
-}
-function deleteInteraction(id){
-  if(!confirm('Delete this interaction?')) return;
-  interactions=interactions.filter(i=>i.id!==id);
-  saveData(); renderInteractions(); updateDashboard(); renderClients();
-}
-function searchInteractions(){
-  const term=($('#interactionSearch').value||'').toLowerCase();
-  const filtered=interactions.filter(i=>{
-    const c=clients.find(x=>x.id===i.clientId);
-    return (c&&fullNameOf(c).toLowerCase().includes(term)) || i.type.toLowerCase().includes(term) || (i.notes&&i.notes.toLowerCase().includes(term));
-  });
-  renderInteractions(filtered);
 }
 
 /* =========================
@@ -839,12 +608,12 @@ $('#saleForm')?.addEventListener('submit', e=>{
   } else {
     const id=Date.now().toString(); sales.push({id, clientId, amount, date, description, createdAt:new Date().toISOString()});
   }
-  saveData(); $('#saleModal').classList.remove('active'); renderSalesView(); renderInteractions(); updateDashboard(); renderClients();
+  saveData(); $('#saleModal').classList.remove('active'); renderSalesView(); updateDashboard(); renderClients();
 });
 function deleteSale(id){
   if(!confirm('Delete this sale?')) return;
   sales=sales.filter(s=>s.id!==id);
-  saveData(); renderSalesView(); renderInteractions(); renderClients(); updateDashboard();
+  saveData(); renderSalesView(); renderClients(); updateDashboard();
 }
 function renderSalesView(){
   const el=$('#salesList'); const map=new Map();
@@ -1043,10 +812,7 @@ function renderTodos(){
 ========================= */
 function updateDashboard(){
   $('#totalClients').textContent = clients.length;
-  $('#totalInteractions').textContent = interactions.length;
   const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0,0,0,0);
-  const activeThisMonth = new Set(interactions.filter(i=>new Date(i.date)>=monthStart).map(i=>i.clientId)).size;
-  $('#activeThisMonth').textContent = activeThisMonth;
   const totalSales = clients.reduce((sum,c)=>sum+(Number(c.initialSales)||0),0) + sales.reduce((s,x)=>s+(Number(x.amount)||0),0);
   $('#totalSales').textContent = fmtUSD.format(totalSales);
 }
@@ -1055,7 +821,7 @@ function updateDashboard(){
    Import/Export JSON
 ========================= */
 function exportData(){
-  const payload={ exportedAt:new Date().toISOString(), version:5, clients, interactions, sales, followUps, todos };
+  const payload={ exportedAt:new Date().toISOString(), version:5, clients,  sales, followUps, todos };
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob);
   const a=document.createElement('a'); a.href=url; a.download='crm-backup.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
 }
@@ -1064,9 +830,9 @@ function importData(file){
   reader.onload=()=>{
     try{
       const data=JSON.parse(reader.result);
-      if(!data||!Array.isArray(data.clients)||!Array.isArray(data.interactions)||!Array.isArray(data.sales)){ alert('Invalid file format.'); return; }
+      if(!data||!Array.isArray(data.clients)||!Array.isArray(data.sales)){ alert('Invalid file format.'); return; }
       clients = data.clients;
-      interactions = data.interactions.map(i=>({ ...i, date:(i.date||'').slice(0,10) }));
+     
       sales = data.sales.map(s=>({ ...s, amount:Number(s.amount)||0 }));
       followUps = Array.isArray(data.followUps)? data.followUps : [];
       todos = Array.isArray(data.todos)? data.todos : [];
@@ -1078,4 +844,5 @@ function importData(file){
 </script>
 </body>
 </html>
+
 
