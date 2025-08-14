@@ -442,7 +442,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   $('#todoFilterClient')?.addEventListener('change', renderTodos);
   
   });
-});
+
 
 function renderAll(){ renderClients(); renderSalesView(); renderTodos(); updateDashboard(); }
 function closeAllModals(){ $$('.modal.active').forEach(m=>m.classList.remove('active')); }
@@ -842,6 +842,7 @@ function importData(file){
 </script>
 </body>
 </html>
+
 
 
 
