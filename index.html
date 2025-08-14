@@ -28,7 +28,12 @@
   .muted{color:var(--muted);font-size:.95rem}
   .search{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;margin-bottom:12px}
   .search .row{display:flex;gap:10px}
-  .search input,.search select{width:100%;padding:12px 14px;border-radius:12px;border:2px solid var(--ring);font-size:1rem}
+ .search input,.search select{width:100%;padding:12px 14px;border-radius:12px;border:2px solid var(--ring);font-size:1rem}
+  .dropdown{position:relative}
+  .dropdown-menu{display:none;position:absolute;top:100%;left:0;background:#fff;border:2px solid var(--ring);padding:10px;border-radius:12px;box-shadow:var(--shadow);z-index:20;min-width:180px}
+  .dropdown-menu.show{display:block}
+  .dropdown-menu label{display:block;font-weight:700;margin:4px 0 2px}
+  .dropdown-menu select,.dropdown-menu input{width:100%;padding:6px 8px;border-radius:8px;border:2px solid var(--ring);font-size:.9rem;margin-bottom:6px}
   .list{display:grid;gap:12px}
   .client-header{display:flex;justify-content:space-between;gap:12px}
   .client-name{font-weight:800}
@@ -115,15 +120,43 @@
     </div>
 
     <!-- Clients -->
-    <div id="clients" class="tab-content" style="display:none">
+   <div id="clients" class="tab-content" style="display:none">
       <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
-          <h2 style="margin:0">Client Management</h2>
-          <button id="openClientBtn" class="btn primary">+ Add New Client</button>
+        <div class="client-top" style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+          <div style="flex:1;min-width:220px">
+            <h2 style="margin:0">Client List</h2>
+            <div class="toolbar" style="margin-top:8px">
+              <div class="dropdown" id="filterDropdown">
+                <button class="btn ghost" id="filterToggle">Filter ▾</button>
+                <div class="dropdown-menu" id="filterMenu">
+                  <label>Styles</label>
+                  <select id="filterStyles" multiple>
+                    <option value="Classic">Classic</option>
+                    <option value="Minimalist">Minimalist</option>
+                    <option value="Casual">Casual</option>
+                    <option value="Business">Business</option>
+                  </select>
+                  <label>Brands</label>
+                  <input id="filterBrand" list="brandList">
+                  <label>Sort By</label>
+                  <select id="filterSort">
+                    <option value="">None</option>
+                    <option value="lastAsc">Last Name Ascending</option>
+                    <option value="lastDesc">Last Name Descending</option>
+                    <option value="firstAsc">First Name Ascending</option>
+                    <option value="firstDesc">First Name Descending</option>
+                  </select>
+                </div>
+              </div>
+              <input type="text" id="clientSearch" placeholder="Search clients">
+            </div>
+          </div>
+          <div style="text-align:right;min-width:180px">
+            <div id="clientCount" class="muted" style="font-weight:700;margin-bottom:10px"></div>
+            <button id="openClientBtn" class="btn primary">Create Client</button>
+          </div>
         </div>
-        <div class="search">
-          <input type="text" id="clientSearch" placeholder="Search clients">
-        </div>
+        <datalist id="brandList"></datalist>
         <div class="list" id="clientList"></div>
       </div>
     </div>
@@ -192,9 +225,17 @@
         <div><label>First Name<input id="clientFirst"></label></div>
         <div><label>Last Name<input id="clientLast"></label></div>
       </div>
-      <label>Email<input id="clientEmail" type="email"></label>
+  <label>Email<input id="clientEmail" type="email"></label>
       <label>Phone<input id="clientPhone"></label>
       <label>Birthday<input id="clientBirthday" type="date"></label>
+      <label>Style<select id="clientStyle">
+        <option value=""></option>
+        <option value="Classic">Classic</option>
+        <option value="Minimalist">Minimalist</option>
+        <option value="Casual">Casual</option>
+        <option value="Business">Business</option>
+      </select></label>
+      <label>Brand<input id="clientBrand" list="brandList"></label>
       <label>Notes<textarea id="clientNotes"></textarea></label>
       <div class="buttons" style="justify-content:flex-end">
         <button class="btn ghost" onclick="closeModal('clientModal')">Cancel</button>
@@ -277,7 +318,7 @@ let clients=[], appointments=[], sales=[], outreach=[];
 let currentEditClient=null,currentEditAppt=null,currentEditSale=null,currentEditTodo=null,currentDetailClient=null;
 const fmtUSD=new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'});
 function saveData(){localStorage.setItem('crmData',JSON.stringify({clients,appointments,sales,outreach}));}
-function loadData(){const d=JSON.parse(localStorage.getItem('crmData')||'{}');clients=d.clients||[];appointments=d.appointments||[];sales=d.sales||[];outreach=d.outreach||[];}
+function loadData(){const d=JSON.parse(localStorage.getItem('crmData')||'{}');clients=(d.clients||[]).map(c=>({...c,style:c.style||'',brand:c.brand||''}));appointments=d.appointments||[];sales=d.sales||[];outreach=d.outreach||[];}
 loadData();
 
 /* ===== Utils ===== */
@@ -301,16 +342,33 @@ document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>
 function renderClients(){
   const list=$('#clientList');
   const q=$('#clientSearch').value.toLowerCase();
-  const src=clients.filter(c=>fullName(c).toLowerCase().includes(q));
+  const styles=[...$('#filterStyles').selectedOptions].map(o=>o.value);
+  const brand=$('#filterBrand').value.toLowerCase().trim();
+  let src=clients.filter(c=>fullName(c).toLowerCase().includes(q));
+  if(styles.length) src=src.filter(c=>styles.includes(c.style));
+  if(brand) src=src.filter(c=>(c.brand||'').toLowerCase().includes(brand));
+  const sort=$('#filterSort').value;
+  if(sort==='lastAsc') src.sort((a,b)=>a.last.localeCompare(b.last));
+  if(sort==='lastDesc') src.sort((a,b)=>b.last.localeCompare(a.last));
+  if(sort==='firstAsc') src.sort((a,b)=>a.first.localeCompare(b.first));
+  if(sort==='firstDesc') src.sort((a,b)=>b.first.localeCompare(a.first));
+  $('#clientCount').textContent=`Total Clients: ${clients.length}`;
+  const brands=[...new Set(clients.map(c=>c.brand).filter(Boolean))];
+  $('#brandList').innerHTML=brands.map(b=>`<option value="${b}"></option>`).join('');
   if(!src.length){list.innerHTML='<div class="empty-state"><div style="font-size:42px;opacity:.6">👥</div><p>No clients</p></div>';return;}
   list.innerHTML=src.map(c=>`<div class="card"><div class="client-header"><div class="client-name">${fullName(c)}</div><div class="buttons"><button class="btn small" onclick="viewClient('${c.id}')">View</button><button class="btn small" onclick="editClient('${c.id}')">Edit</button><button class="btn small danger" onclick="deleteClient('${c.id}')">Delete</button></div></div></div>`).join('');
 }
 $('#clientSearch').addEventListener('input',renderClients);
-$('#openClientBtn').onclick=()=>{currentEditClient=null;$('#clientModalTitle').textContent='New Client';$('#clientFirst').value='';$('#clientLast').value='';$('#clientEmail').value='';$('#clientPhone').value='';$('#clientBirthday').value='';$('#clientNotes').value='';openModal('clientModal');};
+$('#filterStyles').addEventListener('change',renderClients);
+$('#filterBrand').addEventListener('input',renderClients);
+$('#filterSort').addEventListener('change',renderClients);
+$('#filterToggle').onclick=()=>$('#filterMenu').classList.toggle('show');
+document.addEventListener('click',e=>{if(!$('#filterDropdown').contains(e.target))$('#filterMenu').classList.remove('show');});
+$('#openClientBtn').onclick=()=>{currentEditClient=null;$('#clientModalTitle').textContent='New Client';$('#clientFirst').value='';$('#clientLast').value='';$('#clientEmail').value='';$('#clientPhone').value='';$('#clientBirthday').value='';$('#clientStyle').value='';$('#clientBrand').value='';$('#clientNotes').value='';openModal('clientModal');};
 $('#saveClientBtn').onclick=()=>{
-  const obj={id:currentEditClient?.id||uuid(),first:$('#clientFirst').value.trim(),last:$('#clientLast').value.trim(),email:$('#clientEmail').value.trim(),phone:$('#clientPhone').value.trim(),birthday:$('#clientBirthday').value,notes:$('#clientNotes').value};
+  const obj={id:currentEditClient?.id||uuid(),first:$('#clientFirst').value.trim(),last:$('#clientLast').value.trim(),email:$('#clientEmail').value.trim(),phone:$('#clientPhone').value.trim(),birthday:$('#clientBirthday').value,style:$('#clientStyle').value,brand:$('#clientBrand').value.trim(),notes:$('#clientNotes').value};
   if(currentEditClient){Object.assign(currentEditClient,obj);}else{clients.push(obj);createSeasonalOutreach(obj);}saveData();closeModal('clientModal');renderAll();};
-function editClient(id){currentEditClient=clients.find(c=>c.id===id);if(!currentEditClient)return;$('#clientModalTitle').textContent='Edit Client';$('#clientFirst').value=currentEditClient.first||'';$('#clientLast').value=currentEditClient.last||'';$('#clientEmail').value=currentEditClient.email||'';$('#clientPhone').value=currentEditClient.phone||'';$('#clientBirthday').value=currentEditClient.birthday||'';$('#clientNotes').value=currentEditClient.notes||'';openModal('clientModal');}
+function editClient(id){currentEditClient=clients.find(c=>c.id===id);if(!currentEditClient)return;$('#clientModalTitle').textContent='Edit Client';$('#clientFirst').value=currentEditClient.first||'';$('#clientLast').value=currentEditClient.last||'';$('#clientEmail').value=currentEditClient.email||'';$('#clientPhone').value=currentEditClient.phone||'';$('#clientBirthday').value=currentEditClient.birthday||'';$('#clientStyle').value=currentEditClient.style||'';$('#clientBrand').value=currentEditClient.brand||'';$('#clientNotes').value=currentEditClient.notes||'';openModal('clientModal');}
 function deleteClient(id){if(!confirm('Delete client?'))return;clients=clients.filter(c=>c.id!==id);outreach=outreach.filter(o=>!o.clientIds.includes(id));appointments.forEach(a=>a.clientIds=a.clientIds.filter(cid=>cid!==id));sales=sales.filter(s=>s.clientId!==id);saveData();renderAll();}
 function viewClient(id){currentDetailClient=id;const c=clients.find(x=>x.id===id);if(!c)return;$('#clientDetailName').textContent=fullName(c);const timeline=[];appointments.filter(a=>a.clientIds.includes(id)).forEach(a=>timeline.push({type:'Appointment',date:a.date,desc:a.title}));sales.filter(s=>s.clientId===id).forEach(s=>timeline.push({type:'Sale',date:s.date,desc:fmtUSD.format(s.amount)}));outreach.filter(o=>o.clientIds.includes(id)).forEach(o=>timeline.push({type:'Outreach',date:o.date,desc:o.title}));timeline.sort((a,b)=>a.date.localeCompare(b.date));$('#clientTimeline').innerHTML=timeline.map(t=>`<div class="todo-item"><div class="todo-title">${t.type}: ${t.desc}</div><div class="todo-meta">${new Date(t.date).toLocaleString()}</div></div>`).join('');openModal('clientDetailModal');}
 
@@ -359,12 +417,12 @@ function renderDashboard(){const now=new Date();const mStart=new Date(now.getFul
 $('#exportBtn').onclick=()=>{const blob=new Blob([JSON.stringify({clients,appointments,sales,outreach},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='crm.json';a.click();URL.revokeObjectURL(url);};
 $('#importBtn').onclick=()=>$('#importFile').click();
 // Import expects a JSON object with {clients:[],appointments:[],sales:[],outreach:[]}
-$('#importFile').addEventListener('change',e=>{const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const d=JSON.parse(reader.result);for(const k of['clients','appointments','sales','outreach']){if(!Array.isArray(d[k])){alert(`Missing \`${k}\` array`);return;}}const rawClients=d.clients;clients=rawClients.map(c=>({id:c.id||uuid(),first:c.first||c.firstName||'',last:c.last||c.lastName||'',email:c.email||'',phone:c.phone||'',notes:c.notes||'',birthday:c.birthday||''}));appointments=d.appointments;sales=d.sales.map(s=>({id:s.id||uuid(),clientId:s.clientId||'',amount:Number(s.amount||0),date:s.date||todayStr(),desc:s.description||s.desc||'',appointmentId:s.appointmentId||''}));outreach=d.outreach.map(t=>({id:t.id||uuid(),title:t.title||'',date:t.date||todayStr(),category:t.category||'Follow-up',notes:t.notes||'',status:t.status||'open',clientIds:t.clientIds||[],appointmentId:t.appointmentId||''}));saveData();renderAll();alert('Import complete');}catch(err){alert('Invalid file');}};reader.readAsText(file);});
-
+$('#importFile').addEventListener('change',e=>{const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const d=JSON.parse(reader.result);for(const k of['clients','appointments','sales','outreach']){if(!Array.isArray(d[k])){alert(`Missing \`${k}\` array`);return;}}const rawClients=d.clients;clients=rawClients.map(c=>({id:c.id||uuid(),first:c.first||c.firstName||'',last:c.last||c.lastName||'',email:c.email||'',phone:c.phone||'',notes:c.notes||'',birthday:c.birthday||'',style:c.style||'',brand:c.brand||''}));appointments=d.appointments;sales=d.sales.map(s=>({id:s.id||uuid(),clientId:s.clientId||'',amount:Number(s.amount||0),date:s.date||todayStr(),desc:s.description||s.desc||'',appointmentId:s.appointmentId||''}));outreach=d.outreach.map(t=>({id:t.id||uuid(),title:t.title||'',date:t.date||todayStr(),category:t.category||'Follow-up',notes:t.notes||'',status:t.status||'open',clientIds:t.clientIds||[],appointmentId:t.appointmentId||''}));saveData();renderAll();alert('Import complete');}catch(err){alert('Invalid file');}};reader.readAsText(file);});
 /* ===== Render All ===== */
 function renderAll(){renderClients();renderAppointments();renderSales();renderTodos();renderBirthdays();renderSeasonal();renderDashboard();populateClientSelect('#saleClient');populateApptSelect('#saleAppt');populateClientSelect('#apptClients');populateClientSelect('#todoClients');populateApptSelect('#todoAppt');}
 renderAll();
 </script>
 </body>
 </html>
+
 
