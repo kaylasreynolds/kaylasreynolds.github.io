@@ -313,7 +313,7 @@ const normalizeStyles = (v) => Array.isArray(v) ? v.filter(x=>ALLOWED_STYLES.inc
 ========================= */
 let clients = [];
 let sales = [];
-let followUps = [];
+
 let todos = [];
 
 let editingClientId = null;
@@ -511,7 +511,7 @@ function deleteClient(id){
   if(!confirm('Delete this client and related items?')) return;
   clients=clients.filter(c=>c.id!==id);
   sales=sales.filter(s=>s.clientId!==id);
-  followUps=followUps.filter(f=>f.clientId!==id);
+  
   todos=todos.filter(t=>!t.clientIds.includes(id));
   saveData(); renderAll(); populateTodoClientFilter();
 }
@@ -822,7 +822,7 @@ function updateDashboard(){
    Import/Export JSON
 ========================= */
 function exportData(){
-  const payload={ exportedAt:new Date().toISOString(), version:5, clients,  sales, followUps, todos };
+  const payload={ exportedAt:new Date().toISOString(), version:5, clients,  sales, todos };
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob);
   const a=document.createElement('a'); a.href=url; a.download='crm-backup.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
 }
@@ -835,15 +835,18 @@ function importData(file){
       clients = data.clients;
      
       sales = data.sales.map(s=>({ ...s, amount:Number(s.amount)||0 }));
-      followUps = Array.isArray(data.followUps)? data.followUps : [];
+
       todos = Array.isArray(data.todos)? data.todos : [];
       saveData(); loadData(); renderAll(); alert('Import complete ✔️');
     }catch(e){ console.error(e); alert('Could not parse the file.'); }
   };
   reader.readAsText(file);
 }
+  });
+  });
 </script>
 </body>
 </html>
+
 
 
