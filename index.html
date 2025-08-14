@@ -313,7 +313,6 @@ const normalizeStyles = (v) => Array.isArray(v) ? v.filter(x=>ALLOWED_STYLES.inc
 ========================= */
 let clients = [];
 let sales = [];
-let followUps = [];
 let todos = [];
 
 let editingClientId = null;
@@ -326,21 +325,20 @@ let lastClientFilterResult = [];
 function saveData(){
   localStorage.setItem('crm_clients', JSON.stringify(clients));
   localStorage.setItem('crm_sales', JSON.stringify(sales));
-  localStorage.setItem('crm_followups', JSON.stringify(followUps));
   localStorage.setItem('crm_todos', JSON.stringify(todos));
 }
 function loadData(){
   try{
     clients = JSON.parse(localStorage.getItem('crm_clients') || '[]');
     sales = JSON.parse(localStorage.getItem('crm_sales') || '[]');
-    followUps = JSON.parse(localStorage.getItem('crm_followups') || '[]');
+  
     todos = JSON.parse(localStorage.getItem('crm_todos') || '[]');
 
     let migrated = false;
 
     // normalize dates
   
-    followUps.forEach(f=>{ if(f.completed===undefined){ f.completed=false; migrated=true; }});
+   
     todos.forEach(t=>{ if(!t.status){ t.status='open'; migrated=true; }});
 
     // 🔧 MIGRATION: Split any existing To‑Dos that have multiple clients into one per client
@@ -511,7 +509,7 @@ function deleteClient(id){
   if(!confirm('Delete this client and related items?')) return;
   clients=clients.filter(c=>c.id!==id);
   sales=sales.filter(s=>s.clientId!==id);
-  followUps=followUps.filter(f=>f.clientId!==id);
+  
   todos=todos.filter(t=>!t.clientIds.includes(id));
   saveData(); renderAll(); populateTodoClientFilter();
 }
@@ -844,5 +842,6 @@ function importData(file){
 </script>
 </body>
 </html>
+
 
 
