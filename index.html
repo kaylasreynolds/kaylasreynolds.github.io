@@ -226,17 +226,23 @@
         <div><label>First Name<input id="clientFirst"></label></div>
         <div><label>Last Name<input id="clientLast"></label></div>
       </div>
- <label>Email<input id="clientEmail" type="email"></label>
+      <label>Email<input id="clientEmail" type="email"></label>
       <label>Phone<input id="clientPhone"></label>
       <label>Birthday<input id="clientBirthday" type="date"></label>
-      <label>Style<select id="clientStyle">
-        <option value=""></option>
+      <label>Preferred Styles<select id="clientStyles" multiple>
         <option value="Classic">Classic</option>
         <option value="Minimalist">Minimalist</option>
         <option value="Casual">Casual</option>
         <option value="Business">Business</option>
       </select></label>
-      <label>Brand<input id="clientBrand" list="brandList"></label>
+      <label>Preferred Brands<input id="clientBrands" list="brandList" placeholder="Comma separated"></label>
+      <div class="row-cols">
+        <div><label>Shirt Size<input id="clientSizeShirt"></label></div>
+        <div><label>Dress Size<input id="clientSizeDress"></label></div>
+        <div><label>Pant Size<input id="clientSizePant"></label></div>
+        <div><label>Shoe Size<input id="clientSizeShoe"></label></div>
+      </div>
+      <label>Initial Sales Amount<input id="clientInitial" type="number" step="0.01"></label>
       <label>Notes<textarea id="clientNotes"></textarea></label>
       <div class="buttons" style="justify-content:flex-end">
         <button class="btn ghost" onclick="closeModal('clientModal')">Cancel</button>
@@ -319,8 +325,23 @@ let clients=[], appointments=[], sales=[], outreach=[];
 let currentEditClient=null,currentEditAppt=null,currentEditSale=null,currentEditTodo=null,currentDetailClient=null;
 const fmtUSD=new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'});
 function saveData(){localStorage.setItem('crmData',JSON.stringify({clients,appointments,sales,outreach}));}
-function loadData(){const d=JSON.parse(localStorage.getItem('crmData')||'{}');clients=(d.clients||[]).map(c=>({...c,style:c.style||'',brand:c.brand||''}));appointments=d.appointments||[];sales=d.sales||[];outreach=d.outreach||[];}
-loadData();
+function loadData(){
+  const d=JSON.parse(localStorage.getItem('crmData')||'{}');
+  clients=(d.clients||[]).map(c=>({
+    ...c,
+    styles:c.styles||(c.style?[c.style]:[]),
+    brands:c.brands||(c.brand?[c.brand]:[]),
+    sizeShirt:c.sizeShirt||'',
+    sizeDress:c.sizeDress||'',
+    sizePant:c.sizePant||'',
+    sizeShoe:c.sizeShoe||'',
+    initialSale:c.initialSale||0
+  }));
+  appointments=d.appointments||[];
+  sales=d.sales||[];
+  outreach=d.outreach||[];
+}
+  loadData();
 
 /* ===== Utils ===== */
 const $=sel=>document.querySelector(sel);
@@ -346,18 +367,35 @@ function renderClients(){
   const styles=[...$('#filterStyles').selectedOptions].map(o=>o.value);
   const brand=$('#filterBrand').value.toLowerCase().trim();
   let src=clients.filter(c=>fullName(c).toLowerCase().includes(q));
-  if(styles.length) src=src.filter(c=>styles.includes(c.style));
-  if(brand) src=src.filter(c=>(c.brand||'').toLowerCase().includes(brand));
+  if(styles.length) src=src.filter(c=>(c.styles||[]).some(s=>styles.includes(s)));
+  if(brand) src=src.filter(c=>(c.brands||[]).some(b=>b.toLowerCase().includes(brand)));
   const sort=$('#filterSort').value;
   if(sort==='lastAsc') src.sort((a,b)=>a.last.localeCompare(b.last));
   if(sort==='lastDesc') src.sort((a,b)=>b.last.localeCompare(a.last));
   if(sort==='firstAsc') src.sort((a,b)=>a.first.localeCompare(b.first));
   if(sort==='firstDesc') src.sort((a,b)=>b.first.localeCompare(a.first));
   $('#clientCount').textContent=`Total Clients: ${clients.length}`;
-  const brands=[...new Set(clients.map(c=>c.brand).filter(Boolean))];
+  const brands=[...new Set(clients.flatMap(c=>c.brands||[]).filter(Boolean))];
   $('#brandList').innerHTML=brands.map(b=>`<option value="${b}"></option>`).join('');
-  if(!src.length){list.innerHTML='<div class="empty-state"><div style="font-size:42px;opacity:.6">👥</div><p>No clients</p></div>';return;}
-  list.innerHTML=src.map(c=>`<div class="card"><div class="client-header"><div class="client-name">${fullName(c)}</div><div class="buttons"><button class="btn small" onclick="viewClient('${c.id}')">View</button><button class="btn small" onclick="editClient('${c.id}')">Edit</button><button class="btn small danger" onclick="deleteClient('${c.id}')">Delete</button></div></div></div>`).join('');
+  if(!src.length){
+    list.innerHTML='<div class="empty-state"><div style="font-size:42px;opacity:.6">👥</div><p>No clients</p></div>';
+    return;
+  }
+  list.innerHTML=src.map(c=>{
+    const total=sales.filter(s=>s.clientId===c.id).reduce((a,b)=>a+b.amount,0)+(c.initialSale||0);
+    const appts=appointments.filter(a=>a.clientIds.includes(c.id));
+    const apptList=appts.map(a=>`<li><a href="#" onclick="editAppt('${a.id}')">${a.title} - ${new Date(a.date).toLocaleDateString()}</a></li>`).join('');
+    return `<div class="card"><div class="client-header"><div class="client-name">${fullName(c)}</div><div class="buttons"><button class="btn small" onclick="viewClient('${c.id}')">View</button><button class="btn small" onclick="editClient('${c.id}')">Edit</button><button class="btn small danger" onclick="deleteClient('${c.id}')">Delete</button></div></div>
+    <div>Email: ${c.email||''}</div>
+    <div>Phone: ${c.phone||''}</div>
+    <div>Birthday: ${c.birthday?new Date(c.birthday).toLocaleDateString():''}</div>
+    <div>Initial Sales Amount: ${fmtUSD.format(c.initialSale||0)}</div>
+    <div>Preferred Styles: ${(c.styles||[]).join(', ')}</div>
+    <div>Preferred Brands: ${(c.brands||[]).join(', ')}</div>
+    <div>Sizes: Shirt ${c.sizeShirt||''} | Dress ${c.sizeDress||''} | Pant ${c.sizePant||''} | Shoe ${c.sizeShoe||''}</div>
+    <div>Running Sales: ${fmtUSD.format(total)}</div>
+    <div>Appointments:<ul>${apptList}</ul></div></div>`;
+  }).join('');
 }
 $('#clientSearch').addEventListener('input',renderClients);
 $('#filterStyles').addEventListener('change',renderClients);
@@ -373,11 +411,61 @@ $('#clearFilters').addEventListener('click',()=>{
 });
 $('#filterToggle').onclick=()=>$('#filterMenu').classList.toggle('show');
 document.addEventListener('click',e=>{if(!$('#filterDropdown').contains(e.target))$('#filterMenu').classList.remove('show');});
-$('#openClientBtn').onclick=()=>{currentEditClient=null;$('#clientModalTitle').textContent='New Client';$('#clientFirst').value='';$('#clientLast').value='';$('#clientEmail').value='';$('#clientPhone').value='';$('#clientBirthday').value='';$('#clientStyle').value='';$('#clientBrand').value='';$('#clientNotes').value='';openModal('clientModal');};
-$('#saveClientBtn').onclick=()=>{
-  const obj={id:currentEditClient?.id||uuid(),first:$('#clientFirst').value.trim(),last:$('#clientLast').value.trim(),email:$('#clientEmail').value.trim(),phone:$('#clientPhone').value.trim(),birthday:$('#clientBirthday').value,style:$('#clientStyle').value,brand:$('#clientBrand').value.trim(),notes:$('#clientNotes').value};
+$('#openClientBtn').onclick=()=>{
+  currentEditClient=null;
+  $('#clientModalTitle').textContent='New Client';
+  $('#clientFirst').value='';
+  $('#clientLast').value='';
+  $('#clientEmail').value='';
+  $('#clientPhone').value='';
+  $('#clientBirthday').value='';
+  [...$('#clientStyles').options].forEach(o=>o.selected=false);
+  $('#clientBrands').value='';
+  $('#clientSizeShirt').value='';
+  $('#clientSizeDress').value='';
+  $('#clientSizePant').value='';
+  $('#clientSizeShoe').value='';
+  $('#clientInitial').value='';
+  $('#clientNotes').value='';
+  openModal('clientModal');
+};
+  $('#saveClientBtn').onclick=()=>{
+  const obj={
+    id:currentEditClient?.id||uuid(),
+    first:$('#clientFirst').value.trim(),
+    last:$('#clientLast').value.trim(),
+    email:$('#clientEmail').value.trim(),
+    phone:$('#clientPhone').value.trim(),
+    birthday:$('#clientBirthday').value,
+    styles:[...$('#clientStyles').selectedOptions].map(o=>o.value),
+    brands:$('#clientBrands').value.split(',').map(s=>s.trim()).filter(Boolean),
+    sizeShirt:$('#clientSizeShirt').value.trim(),
+    sizeDress:$('#clientSizeDress').value.trim(),
+    sizePant:$('#clientSizePant').value.trim(),
+    sizeShoe:$('#clientSizeShoe').value.trim(),
+    initialSale:Number($('#clientInitial').value||0),
+    notes:$('#clientNotes').value
+  };
   if(currentEditClient){Object.assign(currentEditClient,obj);}else{clients.push(obj);createSeasonalOutreach(obj);}saveData();closeModal('clientModal');renderAll();};
-function editClient(id){currentEditClient=clients.find(c=>c.id===id);if(!currentEditClient)return;$('#clientModalTitle').textContent='Edit Client';$('#clientFirst').value=currentEditClient.first||'';$('#clientLast').value=currentEditClient.last||'';$('#clientEmail').value=currentEditClient.email||'';$('#clientPhone').value=currentEditClient.phone||'';$('#clientBirthday').value=currentEditClient.birthday||'';$('#clientStyle').value=currentEditClient.style||'';$('#clientBrand').value=currentEditClient.brand||'';$('#clientNotes').value=currentEditClient.notes||'';openModal('clientModal');}
+function editClient(id){
+  currentEditClient=clients.find(c=>c.id===id);
+  if(!currentEditClient)return;
+  $('#clientModalTitle').textContent='Edit Client';
+  $('#clientFirst').value=currentEditClient.first||'';
+  $('#clientLast').value=currentEditClient.last||'';
+  $('#clientEmail').value=currentEditClient.email||'';
+  $('#clientPhone').value=currentEditClient.phone||'';
+  $('#clientBirthday').value=currentEditClient.birthday||'';
+  [...$('#clientStyles').options].forEach(o=>o.selected=(currentEditClient.styles||[]).includes(o.value));
+  $('#clientBrands').value=(currentEditClient.brands||[]).join(', ');
+  $('#clientSizeShirt').value=currentEditClient.sizeShirt||'';
+  $('#clientSizeDress').value=currentEditClient.sizeDress||'';
+  $('#clientSizePant').value=currentEditClient.sizePant||'';
+  $('#clientSizeShoe').value=currentEditClient.sizeShoe||'';
+  $('#clientInitial').value=currentEditClient.initialSale||'';
+  $('#clientNotes').value=currentEditClient.notes||'';
+  openModal('clientModal');
+}
 function deleteClient(id){if(!confirm('Delete client?'))return;clients=clients.filter(c=>c.id!==id);outreach=outreach.filter(o=>!o.clientIds.includes(id));appointments.forEach(a=>a.clientIds=a.clientIds.filter(cid=>cid!==id));sales=sales.filter(s=>s.clientId!==id);saveData();renderAll();}
 function viewClient(id){currentDetailClient=id;const c=clients.find(x=>x.id===id);if(!c)return;$('#clientDetailName').textContent=fullName(c);const timeline=[];appointments.filter(a=>a.clientIds.includes(id)).forEach(a=>timeline.push({type:'Appointment',date:a.date,desc:a.title}));sales.filter(s=>s.clientId===id).forEach(s=>timeline.push({type:'Sale',date:s.date,desc:fmtUSD.format(s.amount)}));outreach.filter(o=>o.clientIds.includes(id)).forEach(o=>timeline.push({type:'Outreach',date:o.date,desc:o.title}));timeline.sort((a,b)=>a.date.localeCompare(b.date));$('#clientTimeline').innerHTML=timeline.map(t=>`<div class="todo-item"><div class="todo-title">${t.type}: ${t.desc}</div><div class="todo-meta">${new Date(t.date).toLocaleString()}</div></div>`).join('');openModal('clientDetailModal');}
 
@@ -426,11 +514,11 @@ function renderDashboard(){const now=new Date();const mStart=new Date(now.getFul
 $('#exportBtn').onclick=()=>{const blob=new Blob([JSON.stringify({clients,appointments,sales,outreach},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='crm.json';a.click();URL.revokeObjectURL(url);};
 $('#importBtn').onclick=()=>$('#importFile').click();
 // Import expects a JSON object with {clients:[],appointments:[],sales:[],outreach:[]}
-$('#importFile').addEventListener('change',e=>{const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const d=JSON.parse(reader.result);for(const k of['clients','appointments','sales','outreach']){if(!Array.isArray(d[k])){alert(`Missing \`${k}\` array`);return;}}const rawClients=d.clients;clients=rawClients.map(c=>({id:c.id||uuid(),first:c.first||c.firstName||'',last:c.last||c.lastName||'',email:c.email||'',phone:c.phone||'',notes:c.notes||'',birthday:c.birthday||'',style:c.style||'',brand:c.brand||''}));appointments=d.appointments;sales=d.sales.map(s=>({id:s.id||uuid(),clientId:s.clientId||'',amount:Number(s.amount||0),date:s.date||todayStr(),desc:s.description||s.desc||'',appointmentId:s.appointmentId||''}));outreach=d.outreach.map(t=>({id:t.id||uuid(),title:t.title||'',date:t.date||todayStr(),category:t.category||'Follow-up',notes:t.notes||'',status:t.status||'open',clientIds:t.clientIds||[],appointmentId:t.appointmentId||''}));saveData();renderAll();alert('Import complete');}catch(err){alert('Invalid file');}};reader.readAsText(file);});/* ===== Render All ===== */
-function renderAll(){renderClients();renderAppointments();renderSales();renderTodos();renderBirthdays();renderSeasonal();renderDashboard();populateClientSelect('#saleClient');populateApptSelect('#saleAppt');populateClientSelect('#apptClients');populateClientSelect('#todoClients');populateApptSelect('#todoAppt');}
+$('#importFile').addEventListener('change',e=>{const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const d=JSON.parse(reader.result);for(const k of['clients','appointments','sales','outreach']){if(!Array.isArray(d[k])){alert(`Missing \`${k}\` array`);return;}}const rawClients=d.clients;clients=rawClients.map(c=>({id:c.id||uuid(),first:c.first||c.firstName||'',last:c.last||c.lastName||'',email:c.email||'',phone:c.phone||'',notes:c.notes||'',birthday:c.birthday||'',styles:c.styles||(c.style?[c.style]:[]),brands:c.brands||(c.brand?[c.brand]:[]),sizeShirt:c.sizeShirt||'',sizeDress:c.sizeDress||'',sizePant:c.sizePant||'',sizeShoe:c.sizeShoe||'',initialSale:Number(c.initialSale||c.initialSales||0)}));appointments=d.appointments;sales=d.sales.map(s=>({id:s.id||uuid(),clientId:s.clientId||'',amount:Number(s.amount||0),date:s.date||todayStr(),desc:s.description||s.desc||'',appointmentId:s.appointmentId||''}));outreach=d.outreach.map(t=>({id:t.id||uuid(),title:t.title||'',date:t.date||todayStr(),category:t.category||'Follow-up',notes:t.notes||'',status:t.status||'open',clientIds:t.clientIds||[],appointmentId:t.appointmentId||''}));saveData();renderAll();alert('Import complete');}catch(err){alert('Invalid file');}};reader.readAsText(file);});/* ===== Render All ===== */function renderAll(){renderClients();renderAppointments();renderSales();renderTodos();renderBirthdays();renderSeasonal();renderDashboard();populateClientSelect('#saleClient');populateApptSelect('#saleAppt');populateClientSelect('#apptClients');populateClientSelect('#todoClients');populateApptSelect('#todoAppt');}
 renderAll();
 </script>
 </body>
 </html>
+
 
 
