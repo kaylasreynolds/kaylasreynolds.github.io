@@ -1,0 +1,52 @@
+{
+  "clients": [
+    {
+      "id": "", 
+      "first": "", 
+      "last": "", 
+      "email": "", 
+      "phone": "", 
+      "notes": "", 
+      "birthday": "", 
+      "styles": [], 
+      "brands": [], 
+      "sizeShirt": "", 
+      "sizeDress": "", 
+      "sizePant": "", 
+      "sizeShoe": "", 
+      "initialSale": 0
+    }
+  ],
+  "appointments": [
+    {
+      "id": "", 
+      "title": "", 
+      "date": "", 
+      "status": "", 
+      "notes": "", 
+      "clientIds": []
+    }
+  ],
+  "sales": [
+    {
+      "id": "", 
+      "clientId": "", 
+      "amount": 0, 
+      "date": "", 
+      "desc": "", 
+      "appointmentId": ""
+    }
+  ],
+  "outreach": [
+    {
+      "id": "", 
+      "title": "", 
+      "date": "", 
+      "category": "", 
+      "notes": "", 
+      "status": "", 
+      "clientIds": [], 
+      "appointmentId": ""
+    }
+  ]
+}
