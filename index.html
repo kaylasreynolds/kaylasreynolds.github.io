@@ -74,6 +74,14 @@
   .calendar .bday{position:absolute;bottom:4px;left:4px;font-size:.7rem;display:flex;align-items:center;gap:4px}
   .season-table{width:100%;border-collapse:collapse}
   .season-table th,.season-table td{padding:8px;border:1px solid var(--ring);text-align:center}
+ .sale-positive {
+  color: var(--ok);      /* green */
+  font-weight: 700;
+}
+.sale-negative {
+  color: var(--danger);  /* red */
+  font-weight: 700;
+}
   @media (max-width:900px){.container{padding:12px}}
 </style>
 </head>
@@ -483,7 +491,11 @@ function viewClient(id){
     `<div>Notes: ${c.notes||''}</div>`;
   const timeline=[];
   appointments.filter(a=>a.clientIds.includes(id)).forEach(a=>timeline.push({type:'Appointment',date:a.date,desc:a.title}));
-  sales.filter(s=>s.clientId===id).forEach(s=>timeline.push({type:'Sale',date:s.date,desc:fmtUSD.format(s.amount)}));
+  sales.filter(s=>s.clientId===id).forEach(s=>{
+  const cls = s.amount >= 0 ? 'sale-positive' : 'sale-negative';
+  timeline.push({type:'Sale',date:s.date,desc:`<span class="${cls}">${fmtUSD.format(s.amount)}</span>`});
+});
+
   outreach.filter(o=>o.clientIds.includes(id)).forEach(o=>timeline.push({type:'Outreach',date:o.date,desc:o.title}));
   timeline.sort((a,b)=>a.date.localeCompare(b.date));
   $('#clientTimeline').innerHTML=timeline.map(t=>`<div class="todo-item"><div class="todo-title">${t.type}: ${t.desc}</div><div class="todo-meta">${new Date(t.date).toLocaleString()}</div></div>`).join('');
@@ -502,7 +514,16 @@ function editAppt(id){openAppointmentModal(id);}
 function deleteAppt(id){if(!confirm('Delete appointment?'))return;appointments=appointments.filter(a=>a.id!==id);outreach=outreach.filter(o=>o.appointmentId!==id);sales.forEach(s=>{if(s.appointmentId===id)s.appointmentId='';});saveData();renderAll();}
 
 /* ===== Sales ===== */
-function renderSales(){const list=$('#saleList');if(!sales.length){list.innerHTML='<div class="empty-state"><div style="font-size:42px;opacity:.6">💰</div><p>No sales</p></div>';return;}let filtered=[...sales];const search=$('#saleSearch')?.value.toLowerCase()||'';const cid=$('#saleClientFilter')?.value||'';if(search){filtered=filtered.filter(s=>{const c=clients.find(x=>x.id===s.clientId);const name=c?fullName(c).toLowerCase():'';const desc=(s.desc||'').toLowerCase();return name.includes(search)||desc.includes(search)||String(s.amount).includes(search);});}if(cid){filtered=filtered.filter(s=>s.clientId===cid);}if(!filtered.length){list.innerHTML='<div class="empty-state"><div style="font-size:42px;opacity:.6">💰</div><p>No matching sales</p></div>';return;}filtered.sort((a,b)=>a.date.localeCompare(b.date));list.innerHTML=filtered.map(s=>{const c=clients.find(x=>x.id===s.clientId);return `<div class="card"><div class="client-header"><div><div class="client-name">${fmtUSD.format(s.amount)}</div><div class="muted">${new Date(s.date).toLocaleDateString()} • ${c?fullName(c):''}</div></div><div class="buttons"><button class="btn small" onclick="editSale('${s.id}')">Edit</button><button class="btn small danger" onclick="deleteSale('${s.id}')">Delete</button></div></div></div>`;}).join('');}
+function renderSales(){const list=$('#saleList');if(!sales.length){list.innerHTML='<div class="empty-state"><div style="font-size:42px;opacity:.6">💰</div><p>No sales</p></div>';return;}let filtered=[...sales];const search=$('#saleSearch')?.value.toLowerCase()||'';const cid=$('#saleClientFilter')?.value||'';if(search){filtered=filtered.filter(s=>{const c=clients.find(x=>x.id===s.clientId);const name=c?fullName(c).toLowerCase():'';const desc=(s.desc||'').toLowerCase();return name.includes(search)||desc.includes(search)||String(s.amount).includes(search);});}if(cid){filtered=filtered.filter(s=>s.clientId===cid);}if(!filtered.length){list.innerHTML='<div class="empty-state"><div style="font-size:42px;opacity:.6">💰</div><p>No matching sales</p></div>';return;}filtered.sort((a,b)=>a.date.localeCompare(b.date));list.innerHTML=filtered.map(s=>{
+  const c=clients.find(x=>x.id===s.clientId);
+  const cls = s.amount >= 0 ? "sale-positive" : "sale-negative";
+  return `<div class="card"><div class="client-header"><div>
+    <div class="client-name ${cls}">${fmtUSD.format(s.amount)}</div>
+    <div class="muted">${new Date(s.date).toLocaleDateString()} • ${c?fullName(c):''}</div>
+  </div>
+  <div class="buttons"><button class="btn small" onclick="editSale('${s.id}')">Edit</button><button class="btn small danger" onclick="deleteSale('${s.id}')">Delete</button></div></div></div>`;
+}).join('');
+}
 $('#openSaleBtn').onclick=()=>openSaleModal();
 $('#saleSearch').addEventListener('input',renderSales);
 $('#saleClientFilter').addEventListener('change',renderSales);
@@ -553,6 +574,7 @@ renderAll();
 </script>
 </body>
 </html>
+
 
 
 
