@@ -535,7 +535,7 @@ const clearBtn=$('#clearBtn');
 if(clearBtn){
   clearBtn.addEventListener('click',()=>{
     if(confirm('Clear ALL data? This cannot be undone.')){
-      clients=[];appointments=[];sales=[];outreach[];
+      clients=[];appointments=[];sales=[];outreach=[];
       localStorage.removeItem('crmData');
       renderAll();
     }
