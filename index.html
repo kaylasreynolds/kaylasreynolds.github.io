@@ -180,6 +180,10 @@
           <h2 style="margin:0">Sales History</h2>
           <button id="openSaleBtn" class="btn primary">+ Log Sale</button>
         </div>
+        <div class="toolbar" style="margin-bottom:12px">
+          <input type="text" id="saleSearch" placeholder="Search sales">
+          <select id="saleClientFilter"></select>
+        </div>
         <div class="list" id="saleList"></div>
       </div>
     </div>
@@ -492,13 +496,16 @@ function renderAppointments(){const list=$('#apptList');if(!appointments.length)
 $('#openApptBtn').onclick=()=>openAppointmentModal();
 function openAppointmentModal(id,preClients=[]){currentEditAppt=id?appointments.find(a=>a.id===id):null;$('#apptModalTitle').textContent=id?'Edit Appointment':'Schedule Appointment';$('#apptTitle').value=currentEditAppt?.title||'';$('#apptDate').value=currentEditAppt?.date?currentEditAppt.date.slice(0,16):'';$('#apptStatus').value=currentEditAppt?.status||'scheduled';$('#apptNotes').value=currentEditAppt?.notes||'';populateClientSelect('#apptClients',currentEditAppt?.clientIds||preClients);openModal('apptModal');}
 function populateClientSelect(sel,vals=[]){const s=$(sel);s.innerHTML=clients.map(c=>`<option value="${c.id}">${fullName(c)}</option>`).join('');[...s.options].forEach(o=>{if(vals.includes(o.value))o.selected=true;});}
+function populateClientFilter(sel){const s=$(sel);s.innerHTML='<option value="">All Clients</option>'+clients.map(c=>`<option value="${c.id}">${fullName(c)}</option>`).join('');}
 $('#saveApptBtn').onclick=()=>{const obj={id:currentEditAppt?.id||uuid(),title:$('#apptTitle').value,date:$('#apptDate').value,status:$('#apptStatus').value,notes:$('#apptNotes').value,clientIds:[...$('#apptClients').selectedOptions].map(o=>o.value)};const wasCompleted=currentEditAppt?.status==='completed';if(currentEditAppt){Object.assign(currentEditAppt,obj);}else{appointments.push(obj);}saveData();closeModal('apptModal');if(obj.status==='completed'&&!wasCompleted){obj.clientIds.forEach(cid=>{outreach.push({id:uuid(),title:'Post-Appointment Follow-up',category:'Follow-up',date:todayStr(),status:'open',clientIds:[cid],appointmentId:obj.id});});saveData();}renderAll();};
 function editAppt(id){openAppointmentModal(id);}
 function deleteAppt(id){if(!confirm('Delete appointment?'))return;appointments=appointments.filter(a=>a.id!==id);outreach=outreach.filter(o=>o.appointmentId!==id);sales.forEach(s=>{if(s.appointmentId===id)s.appointmentId='';});saveData();renderAll();}
 
 /* ===== Sales ===== */
-function renderSales(){const list=$('#saleList');if(!sales.length){list.innerHTML='<div class="empty-state"><div style="font-size:42px;opacity:.6">💰</div><p>No sales</p></div>';return;}sales.sort((a,b)=>a.date.localeCompare(b.date));list.innerHTML=sales.map(s=>{const c=clients.find(x=>x.id===s.clientId);return `<div class="card"><div class="client-header"><div><div class="client-name">${fmtUSD.format(s.amount)}</div><div class="muted">${new Date(s.date).toLocaleDateString()} • ${c?fullName(c):''}</div></div><div class="buttons"><button class="btn small" onclick="editSale('${s.id}')">Edit</button><button class="btn small danger" onclick="deleteSale('${s.id}')">Delete</button></div></div></div>`;}).join('');}
+function renderSales(){const list=$('#saleList');if(!sales.length){list.innerHTML='<div class="empty-state"><div style="font-size:42px;opacity:.6">💰</div><p>No sales</p></div>';return;}let filtered=[...sales];const search=$('#saleSearch')?.value.toLowerCase()||'';const cid=$('#saleClientFilter')?.value||'';if(search){filtered=filtered.filter(s=>{const c=clients.find(x=>x.id===s.clientId);const name=c?fullName(c).toLowerCase():'';const desc=(s.desc||'').toLowerCase();return name.includes(search)||desc.includes(search)||String(s.amount).includes(search);});}if(cid){filtered=filtered.filter(s=>s.clientId===cid);}if(!filtered.length){list.innerHTML='<div class="empty-state"><div style="font-size:42px;opacity:.6">💰</div><p>No matching sales</p></div>';return;}filtered.sort((a,b)=>a.date.localeCompare(b.date));list.innerHTML=filtered.map(s=>{const c=clients.find(x=>x.id===s.clientId);return `<div class="card"><div class="client-header"><div><div class="client-name">${fmtUSD.format(s.amount)}</div><div class="muted">${new Date(s.date).toLocaleDateString()} • ${c?fullName(c):''}</div></div><div class="buttons"><button class="btn small" onclick="editSale('${s.id}')">Edit</button><button class="btn small danger" onclick="deleteSale('${s.id}')">Delete</button></div></div></div>`;}).join('');}
 $('#openSaleBtn').onclick=()=>openSaleModal();
+$('#saleSearch').addEventListener('input',renderSales);
+$('#saleClientFilter').addEventListener('change',renderSales);
 function openSaleModal(id,preClient){currentEditSale=id?sales.find(s=>s.id===id):null;$('#saleModalTitle').textContent=id?'Edit Sale':'Log Sale';populateClientSelect('#saleClient',[currentEditSale?.clientId||preClient].filter(Boolean));$('#saleAmount').value=currentEditSale?.amount||'';$('#saleDate').value=currentEditSale?.date||todayStr();$('#saleDesc').value=currentEditSale?.desc||'';populateApptSelect('#saleAppt',currentEditSale?.appointmentId||'');openModal('saleModal');}
 function populateApptSelect(sel,val){const s=$(sel);s.innerHTML='<option value="">None</option>'+appointments.map(a=>`<option value="${a.id}">${a.title}</option>`).join('');s.value=val||'';}
 $('#saveSaleBtn').onclick=()=>{const obj={id:currentEditSale?.id||uuid(),clientId:$('#saleClient').value,amount:Number($('#saleAmount').value||0),date:$('#saleDate').value,desc:$('#saleDesc').value,appointmentId:$('#saleAppt').value};if(currentEditSale){Object.assign(currentEditSale,obj);}else{sales.push(obj);}saveData();closeModal('saleModal');renderAll();};
@@ -541,7 +548,7 @@ if(clearBtn){
     }
   });
 }
-/* ===== Render All ===== */function renderAll(){renderClients();renderAppointments();renderSales();renderTodos();renderBirthdays();renderSeasonal();renderDashboard();populateClientSelect('#saleClient');populateApptSelect('#saleAppt');populateClientSelect('#apptClients');populateClientSelect('#todoClients');populateApptSelect('#todoAppt');}
+/* ===== Render All ===== */function renderAll(){renderClients();renderAppointments();renderSales();renderTodos();renderBirthdays();renderSeasonal();renderDashboard();populateClientSelect('#saleClient');populateApptSelect('#saleAppt');populateClientSelect('#apptClients');populateClientSelect('#todoClients');populateApptSelect('#todoAppt');populateClientFilter('#saleClientFilter');}
 renderAll();
 </script>
 </body>
