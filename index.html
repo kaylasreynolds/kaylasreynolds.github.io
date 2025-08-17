@@ -640,18 +640,41 @@ $('#importJsonFile').addEventListener('change', e=>{
   const r = new FileReader();
   r.onload = ()=>{
     try{
-      const d = JSON.parse(r.result);
-      clients = (d.clients||[]).map(c=>({...c, id:c.id||uuid()}));
-      appointments = d.appointments||[];
-      sales = d.sales||[];
-      outreach = d.outreach||[];
+      let text = String(r.result || '');
+      // Trim and try to salvage if there is header/footer text
+      text = text.trim();
+      if(!text.startsWith('{') || !text.endsWith('}')){
+        const start = text.indexOf('{');
+        const end   = text.lastIndexOf('}');
+        if(start >= 0 && end > start) text = text.slice(start, end+1);
+      }
+      const d = JSON.parse(text);
+
+      // Normalize + load
+      clients = (d.clients||[]).map(c => ({
+        ...c,
+        id: c.id || uuid(),
+        styles: c.styles || (c.style ? [c.style] : []),
+        brands: c.brands || (c.brand ? [c.brand] : []),
+        sizeShirt: c.sizeShirt||'',
+        sizeDress: c.sizeDress||'',
+        sizePant:  c.sizePant||'',
+        sizeShoe:  c.sizeShoe||'',
+        initialSale: c.initialSale||0
+      }));
+      appointments = d.appointments || [];
+      sales = d.sales || [];
+      outreach = d.outreach || [];
       saveData(); renderAll();
       alert('JSON import complete.');
-    }catch(err){ alert('Invalid JSON.'); }
+    }catch(err){
+      alert('Invalid JSON: ' + (err?.message || err));
+    }
   };
   r.readAsText(f);
   e.target.value = '';
 });
+
 
 // Combined CSV Import (single button “Import CSV”)
 $('#importCsvCombinedBtn').onclick = () => $('#importCsvCombinedFile').click();
@@ -1211,6 +1234,7 @@ renderAll();
 
 </body>
 </html>
+
 
 
 
