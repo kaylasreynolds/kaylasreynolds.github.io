@@ -259,7 +259,10 @@
     <div class="panel">
       <header><h3 id="clientDetailName"></h3><button class="x" onclick="closeModal('clientDetailModal')">✕</button></header>
       <div id="clientInfo" class="list"></div>
-      <div id="clientTimeline" class="list"></div>
+      
+      <h4>Seasonal Updates</h4>
+<div id="clientSeasons"></div>
+<div id="clientTimeline" class="list"></div>
       <div class="buttons" style="justify-content:flex-end">
         <button class="btn" onclick="openAppointmentModal(null,[currentDetailClient])">Book Appointment</button>
         <button class="btn" onclick="openSaleModal(null,currentDetailClient)">Log Sale</button>
@@ -562,38 +565,91 @@ function deleteClient(id){
   saveData(); renderAll();
 }
 function viewClient(id){
-  currentDetailClient=id;
-  const c=clients.find(x=>x.id===id);
-  if(!c)return;
-  $('#clientDetailName').textContent=fullName(c);
-  const total=sales.filter(s=>s.clientId===id).reduce((a,b)=>a+b.amount,0)+(c.initialSale||0);
-  $('#clientInfo').innerHTML=
-    `<div>Email: ${c.email||''}</div>`+
-    `<div>Phone: ${c.phone||''}</div>`+
-    `<div>Birthday: ${c.birthday?new Date(c.birthday).toLocaleDateString():''}</div>`+
-    `<div>Preferred Styles: ${(c.styles||[]).join(', ')}</div>`+
-    `<div>Preferred Brands: ${(c.brands||[]).join(', ')}</div>`+
-    `<div>Sizes: Shirt ${c.sizeShirt||''} | Dress ${c.sizeDress||''} | Pant ${c.sizePant||''} | Shoe ${c.sizeShoe||''}</div>`+
-    `<div>Initial Sales Amount: ${fmtUSD.format(c.initialSale||0)}</div>`+
-    `<div>Running Sales: ${fmtUSD.format(total)}</div>`+
-    `<div>Notes: ${c.notes||''}</div>`;
-  const timeline=[];
-  appointments.filter(a=>a.clientIds?.includes(id)).forEach(a=>timeline.push({type:'Appointment',date:a.date,desc:a.title}));
-  sales.filter(s=>s.clientId===id).forEach(s=>timeline.push({type:'Sale',date:s.date,desc:fmtUSD.format(s.amount)}));
-  outreach.filter(o=>o.clientIds?.includes(id)).forEach(o=>timeline.push({type:'Outreach',date:o.date,desc:o.title}));
+  currentDetailClient = id;
+  const c = clients.find(x => x.id === id);
+  if (!c) return;
+
+  $('#clientDetailName').textContent = fullName(c);
+
+  const total = sales.filter(s => s.clientId === id).reduce((a,b)=>a+b.amount,0) + (c.initialSale || 0);
+  $('#clientInfo').innerHTML =
+    `<div>Email: ${c.email || ''}</div>` +
+    `<div>Phone: ${c.phone || ''}</div>` +
+    `<div>Birthday: ${c.birthday ? new Date(c.birthday).toLocaleDateString() : ''}</div>` +
+    `<div>Preferred Styles: ${(c.styles || []).join(', ')}</div>` +
+    `<div>Preferred Brands: ${(c.brands || []).join(', ')}</div>` +
+    `<div>Sizes: Shirt ${c.sizeShirt || ''} | Dress ${c.sizeDress || ''} | Pant ${c.sizePant || ''} | Shoe ${c.sizeShoe || ''}</div>` +
+    `<div>Initial Sales Amount: ${fmtUSD.format(c.initialSale || 0)}</div>` +
+    `<div>Running Sales: ${fmtUSD.format(total)}</div>` +
+    `<div>Notes: ${c.notes || ''}</div>`;
+
+  // ------- Seasonal Updates (per-client checkmarks) -------
+  const yr = new Date().getFullYear();
+  const seasonDates = { Spring: '03-01', Summer: '06-01', Fall: '09-01', Winter: '12-01' };
+  const seasons = ['Spring','Summer','Fall','Winter'];
+
+  // ensure container exists in the modal DOM:
+  // <h4>Seasonal Updates</h4><div id="clientSeasons"></div>
+  const html = seasons.map(season => {
+    // find or create the outreach row for this client + season
+    let t = outreach.find(o =>
+      o.category === 'Seasonal' &&
+      o.title === `${season} Update` &&
+      Array.isArray(o.clientIds) &&
+      o.clientIds.includes(id)
+    );
+    let created = false;
+// ...
+if (!t) {
+  t = {
+    id: uuid(),
+    title: `${season} Update`,
+    category: 'Seasonal',
+    date: `${yr}-${seasonDates[season]}`,
+    status: 'open',
+    clientIds: [id]
+  };
+  outreach.push(t);
+  created = true;
+}
+// ...
+const box = document.getElementById('clientSeasons');
+if (box) box.innerHTML = html;
+if (created) saveData();
+
+  // ------- /Seasonal Updates -------
+
+  // timeline
+  const timeline = [];
+  appointments.filter(a => a.clientIds?.includes(id)).forEach(a => timeline.push({type:'Appointment', date:a.date, desc:a.title}));
+  sales.filter(s => s.clientId === id).forEach(s => timeline.push({type:'Sale', date:s.date, desc:fmtUSD.format(s.amount)}));
+  outreach.filter(o => o.clientIds?.includes(id)).forEach(o => timeline.push({type:'Outreach', date:o.date, desc:o.title}));
   timeline.sort((a,b)=>a.date.localeCompare(b.date));
-  $('#clientTimeline').innerHTML=timeline.map(t=>`<div class="todo-item"><div class="todo-title">${t.type}: ${t.desc}</div><div class="todo-meta">${new Date(t.date).toLocaleString()}</div></div>`).join('');
+
+  $('#clientTimeline').innerHTML = timeline.map(t =>
+    `<div class="todo-item">
+       <div class="todo-title">${t.type}: ${t.desc}</div>
+       <div class="todo-meta">${new Date(t.date).toLocaleString()}</div>
+     </div>`).join('');
+
   openModal('clientDetailModal');
 }
-
-/* Create Seasonal tasks for a single client (used on new client save) */
 function createSeasonalOutreach(client){
-  const yr=new Date().getFullYear();
-  const seasons=[['Spring','03-01'],['Summer','06-01'],['Fall','09-01'],['Winter','12-01']];
-  seasons.forEach(([season,md])=>{
-    outreach.push({id:uuid(),title:`${season} Update`,category:'Seasonal',date:`${yr}-${md}`,status:'open',clientIds:[client.id]});
+  const yr = new Date().getFullYear();
+  const seasons = [['Spring','03-01'],['Summer','06-01'],['Fall','09-01'],['Winter','12-01']];
+  seasons.forEach(([season, md])=>{
+    outreach.push({
+      id: uuid(),
+      title: `${season} Update`,
+      category: 'Seasonal',
+      date: `${yr}-${md}`,
+      status: 'open',
+      clientIds: [client.id]
+    });
   });
+  saveData();
 }
+
 
 /* ===== Appointments ===== */
 function renderAppointments(){
@@ -906,3 +962,4 @@ renderAll();
 </script>
 </body>
 </html>
+
