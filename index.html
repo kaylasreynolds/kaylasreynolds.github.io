@@ -28,7 +28,7 @@
   .muted{color:var(--muted);font-size:.95rem}
   .search{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;margin-bottom:12px}
   .search .row{display:flex;gap:10px}
- .search input,.search select{width:100%;padding:12px 14px;border-radius:12px;border:2px solid var(--ring);font-size:1rem}
+  .search input,.search select{width:100%;padding:12px 14px;border-radius:12px;border:2px solid var(--ring);font-size:1rem}
   .dropdown{position:relative}
   .dropdown-menu{display:none;position:absolute;top:100%;left:0;background:#fff;border:2px solid var(--ring);padding:10px;border-radius:12px;box-shadow:var(--shadow);z-index:20;min-width:180px}
   .dropdown-menu.show{display:block}
@@ -74,14 +74,6 @@
   .calendar .bday{position:absolute;bottom:4px;left:4px;font-size:.7rem;display:flex;align-items:center;gap:4px}
   .season-table{width:100%;border-collapse:collapse}
   .season-table th,.season-table td{padding:8px;border:1px solid var(--ring);text-align:center}
- .sale-positive {
-  color: var(--ok);      /* green */
-  font-weight: 700;
-}
-.sale-negative {
-  color: var(--danger);  /* red */
-  font-weight: 700;
-}
   @media (max-width:900px){.container{padding:12px}}
 </style>
 </head>
@@ -93,8 +85,6 @@
         <button id="exportBtn" class="btn ghost">⬇️ Export JSON</button>
         <button id="importBtn" class="btn ghost">⬆️ Import JSON</button>
         <input id="importFile" type="file" accept="application/json" style="display:none">
-        <button id="updateBtn" class="btn ghost">🧩 Update Clients</button>
-<input id="updateFile" type="file" accept="application/json" style="display:none">
         <button id="clearBtn" class="btn danger">🗑️ Clear Data</button>
       </div>
     </header>
@@ -190,10 +180,6 @@
           <h2 style="margin:0">Sales History</h2>
           <button id="openSaleBtn" class="btn primary">+ Log Sale</button>
         </div>
-        <div class="toolbar" style="margin-bottom:12px">
-          <input type="text" id="saleSearch" placeholder="Search sales">
-          <select id="saleClientFilter"></select>
-        </div>
         <div class="list" id="saleList"></div>
       </div>
     </div>
@@ -223,6 +209,9 @@
     <div id="seasonal" class="tab-content" style="display:none">
       <div class="card">
         <h2 style="margin-top:0">Seasonal Updates</h2>
+        <p class="muted" style="margin:8px 0 12px">
+          Check a box when you’ve done that season’s outreach. Uncheck to reopen.
+        </p>
         <table class="season-table" id="seasonTable">
           <thead><tr><th>Client</th><th>Spring</th><th>Summer</th><th>Fall</th><th>Winter</th></tr></thead>
           <tbody></tbody>
@@ -323,6 +312,7 @@
         <option>Cold/Warm Outreach</option>
         <option>Promo</option>
         <option>Event</option>
+        <option>Seasonal</option>
       </select></label>
       <label>Notes<textarea id="todoNotes"></textarea></label>
       <label>Clients<select id="todoClients" multiple></select></label>
@@ -333,13 +323,16 @@
       </div>
     </div>
   </div>
-
 <script>
 /* ===== Data ===== */
 let clients=[], appointments=[], sales=[], outreach=[];
 let currentEditClient=null,currentEditAppt=null,currentEditSale=null,currentEditTodo=null,currentDetailClient=null;
 const fmtUSD=new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'});
-function saveData(){localStorage.setItem('crmData',JSON.stringify({clients,appointments,sales,outreach}));}
+
+/* ===== Storage ===== */
+function saveData(){
+  localStorage.setItem('crmData',JSON.stringify({clients,appointments,sales,outreach}));
+}
 function loadData(){
   const d=JSON.parse(localStorage.getItem('crmData')||'{}');
   clients=(d.clients||[]).map(c=>({
@@ -356,7 +349,7 @@ function loadData(){
   sales=d.sales||[];
   outreach=d.outreach||[];
 }
-  loadData();
+loadData();
 
 /* ===== Utils ===== */
 const $=sel=>document.querySelector(sel);
@@ -365,6 +358,8 @@ function openModal(id){$('#'+id).classList.add('active');}
 function fullName(c){return `${c.first||''} ${c.last||''}`.trim();}
 function uuid(){return Math.random().toString(36).slice(2,9);}
 function todayStr(){return new Date().toISOString().split('T')[0];}
+function startOfMonth(d=new Date()){return new Date(d.getFullYear(),d.getMonth(),1);}
+function startOfYear(d=new Date()){return new Date(d.getFullYear(),0,1);}
 
 /* ===== Tabs ===== */
 document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{
@@ -374,6 +369,72 @@ document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>
   $('#'+btn.dataset.tab).style.display='block';
   renderAll();
 }));
+
+/* ===== Import/Export/Clear ===== */
+$('#exportBtn').onclick=()=>{
+  const blob=new Blob([JSON.stringify({exportedAt:new Date().toISOString(),version:4,clients,appointments,sales,outreach},null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='crm-export.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+};
+$('#importBtn').onclick=()=>$('#importFile').click();
+$('#importFile').onchange=e=>{
+  const f=e.target.files?.[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const d=JSON.parse(r.result);
+      clients=d.clients||clients;
+      appointments=d.appointments||appointments;
+      sales=d.sales||sales;
+      outreach=d.outreach||outreach;
+      saveData(); renderAll();
+      alert('Import complete.');
+    }catch(err){ alert('Invalid JSON.'); }
+  };
+  r.readAsText(f);
+};
+$('#clearBtn').onclick=()=>{
+  if(!confirm('Clear all data?')) return;
+  localStorage.removeItem('crmData');
+  clients=[]; appointments=[]; sales=[]; outreach=[];
+  saveData(); renderAll();
+};
+
+/* ===== Dashboard ===== */
+function renderDashboard(){
+  // Sales MTD/YTD
+  const now=new Date();
+  const m0=startOfMonth(now); const y0=startOfYear(now);
+  const mtd=sales.filter(s=>new Date(s.date)>=m0).reduce((a,b)=>a+b.amount,0);
+  const ytd=sales.filter(s=>new Date(s.date)>=y0).reduce((a,b)=>a+b.amount,0);
+  $('#salesMTD').textContent=fmtUSD.format(mtd);
+  $('#salesYTD').textContent=fmtUSD.format(ytd);
+
+  // Appts MTD/YTD (by status completed or scheduled in range)
+  const apptMTD=appointments.filter(a=>new Date(a.date)>=m0).length;
+  const apptYTD=appointments.filter(a=>new Date(a.date)>=y0).length;
+  $('#apptMTD').textContent=apptMTD;
+  $('#apptYTD').textContent=apptYTD;
+
+  // Past Due Outreach (open + date < today)
+  const today = todayStr();
+  const pastDue = outreach.filter(o=>o.status!=='done' && o.date && o.date<today).length;
+  $('#pastDueOutreach').textContent=pastDue;
+
+  // Simple upcoming list: nearest 6 items across appts + outreach
+  const items=[];
+  appointments.forEach(a=>items.push({type:'Appointment',date:a.date,desc:a.title}));
+  outreach.forEach(o=>items.push({type:o.category||'Outreach',date:o.date,desc:o.title}));
+  items
+    .filter(i=>i.date)
+    .sort((a,b)=>a.date.localeCompare(b.date));
+  $('#upcomingList').innerHTML=items.slice(0,6).map(i=>
+    `<div class="card"><div class="todo-title">${i.type}</div><div class="todo-meta">${new Date(i.date).toLocaleString()} • ${i.desc||''}</div></div>`
+  ).join('') || `<div class="empty-state"><div style="font-size:42px;opacity:.6">✨</div><p>No upcoming items</p></div>`;
+}
 
 /* ===== Clients ===== */
 function renderClients(){
@@ -392,17 +453,26 @@ function renderClients(){
   $('#clientCount').textContent=`Total Clients: ${clients.length}`;
   const brands=[...new Set(clients.flatMap(c=>c.brands||[]).filter(Boolean))];
   $('#brandList').innerHTML=brands.map(b=>`<option value="${b}"></option>`).join('');
-   if(!src.length){
+  if(!src.length){
     list.innerHTML='<div class="empty-state"><div style="font-size:42px;opacity:.6">👥</div><p>No clients</p></div>';
     return;
   }
   list.innerHTML=src.map(c=>{
     const total=sales.filter(s=>s.clientId===c.id).reduce((a,b)=>a+b.amount,0)+(c.initialSale||0);
-    const appts=appointments.filter(a=>a.clientIds.includes(c.id));
+    const appts=appointments.filter(a=>a.clientIds?.includes(c.id));
     const apptList=appts.map(a=>`<li><a href="#" onclick="editAppt('${a.id}')">${a.title} - ${new Date(a.date).toLocaleDateString()}</a></li>`).join('');
-    return `<div class="card"><div class="client-header"><div class="client-name">${fullName(c)}</div><div class="buttons"><button class="btn small" onclick="viewClient('${c.id}')">View</button><button class="btn small" onclick="editClient('${c.id}')">Edit</button><button class="btn small danger" onclick="deleteClient('${c.id}')">Delete</button></div></div>
-    <div>Running Sales: ${fmtUSD.format(total)}</div>
-    <div>Appointments:<ul>${apptList}</ul></div></div>`;
+    return `<div class="card">
+      <div class="client-header">
+        <div class="client-name">${fullName(c)}</div>
+        <div class="buttons">
+          <button class="btn small" onclick="viewClient('${c.id}')">View</button>
+          <button class="btn small" onclick="editClient('${c.id}')">Edit</button>
+          <button class="btn small danger" onclick="deleteClient('${c.id}')">Delete</button>
+        </div>
+      </div>
+      <div>Running Sales: ${fmtUSD.format(total)}</div>
+      <div>Appointments:<ul>${apptList||'<em class="muted">None</em>'}</ul></div>
+    </div>`;
   }).join('');
 }
 $('#clientSearch').addEventListener('input',renderClients);
@@ -419,6 +489,7 @@ $('#clearFilters').addEventListener('click',()=>{
 });
 $('#filterToggle').onclick=()=>$('#filterMenu').classList.toggle('show');
 document.addEventListener('click',e=>{if(!$('#filterDropdown').contains(e.target))$('#filterMenu').classList.remove('show');});
+
 $('#openClientBtn').onclick=()=>{
   currentEditClient=null;
   $('#clientModalTitle').textContent='New Client';
@@ -437,7 +508,7 @@ $('#openClientBtn').onclick=()=>{
   $('#clientNotes').value='';
   openModal('clientModal');
 };
-  $('#saveClientBtn').onclick=()=>{
+$('#saveClientBtn').onclick=()=>{
   const obj={
     id:currentEditClient?.id||uuid(),
     first:$('#clientFirst').value.trim(),
@@ -454,7 +525,15 @@ $('#openClientBtn').onclick=()=>{
     initialSale:Number($('#clientInitial').value||0),
     notes:$('#clientNotes').value
   };
-  if(currentEditClient){Object.assign(currentEditClient,obj);}else{clients.push(obj);createSeasonalOutreach(obj);}saveData();closeModal('clientModal');renderAll();};
+  if(currentEditClient){
+    Object.assign(currentEditClient,obj);
+  }else{
+    clients.push(obj);
+    // auto-create seasonal for new client
+    createSeasonalOutreach(obj);
+  }
+  saveData(); closeModal('clientModal'); renderAll();
+};
 function editClient(id){
   currentEditClient=clients.find(c=>c.id===id);
   if(!currentEditClient)return;
@@ -474,7 +553,14 @@ function editClient(id){
   $('#clientNotes').value=currentEditClient.notes||'';
   openModal('clientModal');
 }
-function deleteClient(id){if(!confirm('Delete client?'))return;clients=clients.filter(c=>c.id!==id);outreach=outreach.filter(o=>!o.clientIds.includes(id));appointments.forEach(a=>a.clientIds=a.clientIds.filter(cid=>cid!==id));sales=sales.filter(s=>s.clientId!==id);saveData();renderAll();}
+function deleteClient(id){
+  if(!confirm('Delete client?'))return;
+  clients=clients.filter(c=>c.id!==id);
+  outreach=outreach.filter(o=>!o.clientIds?.includes(id));
+  appointments.forEach(a=>a.clientIds=a.clientIds?.filter(cid=>cid!==id)||[]);
+  sales=sales.filter(s=>s.clientId!==id);
+  saveData(); renderAll();
+}
 function viewClient(id){
   currentDetailClient=id;
   const c=clients.find(x=>x.id===id);
@@ -492,214 +578,331 @@ function viewClient(id){
     `<div>Running Sales: ${fmtUSD.format(total)}</div>`+
     `<div>Notes: ${c.notes||''}</div>`;
   const timeline=[];
-  appointments.filter(a=>a.clientIds.includes(id)).forEach(a=>timeline.push({type:'Appointment',date:a.date,desc:a.title}));
-  sales.filter(s=>s.clientId===id).forEach(s=>{
-  const cls = s.amount >= 0 ? 'sale-positive' : 'sale-negative';
-  timeline.push({type:'Sale',date:s.date,desc:`<span class="${cls}">${fmtUSD.format(s.amount)}</span>`});
-});
-
-  outreach.filter(o=>o.clientIds.includes(id)).forEach(o=>timeline.push({type:'Outreach',date:o.date,desc:o.title}));
+  appointments.filter(a=>a.clientIds?.includes(id)).forEach(a=>timeline.push({type:'Appointment',date:a.date,desc:a.title}));
+  sales.filter(s=>s.clientId===id).forEach(s=>timeline.push({type:'Sale',date:s.date,desc:fmtUSD.format(s.amount)}));
+  outreach.filter(o=>o.clientIds?.includes(id)).forEach(o=>timeline.push({type:'Outreach',date:o.date,desc:o.title}));
   timeline.sort((a,b)=>a.date.localeCompare(b.date));
   $('#clientTimeline').innerHTML=timeline.map(t=>`<div class="todo-item"><div class="todo-title">${t.type}: ${t.desc}</div><div class="todo-meta">${new Date(t.date).toLocaleString()}</div></div>`).join('');
   openModal('clientDetailModal');
 }
-function createSeasonalOutreach(client){const yr=new Date().getFullYear();const seasons=[['Spring','03-01'],['Summer','06-01'],['Fall','09-01'],['Winter','12-01']];seasons.forEach(([season,md])=>{outreach.push({id:uuid(),title:`${season} Update`,category:'Seasonal',date:`${yr}-${md}`,status:'open',clientIds:[client.id]});});}
+
+/* Create Seasonal tasks for a single client (used on new client save) */
+function createSeasonalOutreach(client){
+  const yr=new Date().getFullYear();
+  const seasons=[['Spring','03-01'],['Summer','06-01'],['Fall','09-01'],['Winter','12-01']];
+  seasons.forEach(([season,md])=>{
+    outreach.push({id:uuid(),title:`${season} Update`,category:'Seasonal',date:`${yr}-${md}`,status:'open',clientIds:[client.id]});
+  });
+}
 
 /* ===== Appointments ===== */
-function renderAppointments(){const list=$('#apptList');if(!appointments.length){list.innerHTML='<div class="empty-state"><div style="font-size:42px;opacity:.6">📆</div><p>No appointments</p></div>';return;}appointments.sort((a,b)=>a.date.localeCompare(b.date));list.innerHTML=appointments.map(a=>`<div class="card"><div class="client-header"><div><div class="client-name">${a.title}</div><div class="muted">${new Date(a.date).toLocaleString()} • ${a.status}</div></div><div class="buttons"><button class="btn small" onclick="editAppt('${a.id}')">Edit</button><button class="btn small danger" onclick="deleteAppt('${a.id}')">Delete</button></div></div></div>`).join('');}
+function renderAppointments(){
+  const list=$('#apptList');
+  if(!appointments.length){
+    list.innerHTML='<div class="empty-state"><div style="font-size:42px;opacity:.6">📆</div><p>No appointments</p></div>';
+    return;
+  }
+  appointments.sort((a,b)=>a.date.localeCompare(b.date));
+  list.innerHTML=appointments.map(a=>`
+    <div class="card">
+      <div class="client-header">
+        <div>
+          <div class="client-name">${a.title}</div>
+          <div class="muted">${new Date(a.date).toLocaleString()} • ${a.status}</div>
+        </div>
+        <div class="buttons">
+          <button class="btn small" onclick="editAppt('${a.id}')">Edit</button>
+          <button class="btn small danger" onclick="deleteAppt('${a.id}')">Delete</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
 $('#openApptBtn').onclick=()=>openAppointmentModal();
-function openAppointmentModal(id,preClients=[]){currentEditAppt=id?appointments.find(a=>a.id===id):null;$('#apptModalTitle').textContent=id?'Edit Appointment':'Schedule Appointment';$('#apptTitle').value=currentEditAppt?.title||'';$('#apptDate').value=currentEditAppt?.date?currentEditAppt.date.slice(0,16):'';$('#apptStatus').value=currentEditAppt?.status||'scheduled';$('#apptNotes').value=currentEditAppt?.notes||'';populateClientSelect('#apptClients',currentEditAppt?.clientIds||preClients);openModal('apptModal');}
-function populateClientSelect(sel,vals=[]){const s=$(sel);s.innerHTML=clients.map(c=>`<option value="${c.id}">${fullName(c)}</option>`).join('');[...s.options].forEach(o=>{if(vals.includes(o.value))o.selected=true;});}
-function populateClientFilter(sel){const s=$(sel);s.innerHTML='<option value="">All Clients</option>'+clients.map(c=>`<option value="${c.id}">${fullName(c)}</option>`).join('');}
-$('#saveApptBtn').onclick=()=>{const obj={id:currentEditAppt?.id||uuid(),title:$('#apptTitle').value,date:$('#apptDate').value,status:$('#apptStatus').value,notes:$('#apptNotes').value,clientIds:[...$('#apptClients').selectedOptions].map(o=>o.value)};const wasCompleted=currentEditAppt?.status==='completed';if(currentEditAppt){Object.assign(currentEditAppt,obj);}else{appointments.push(obj);}saveData();closeModal('apptModal');if(obj.status==='completed'&&!wasCompleted){obj.clientIds.forEach(cid=>{outreach.push({id:uuid(),title:'Post-Appointment Follow-up',category:'Follow-up',date:todayStr(),status:'open',clientIds:[cid],appointmentId:obj.id});});saveData();}renderAll();};
+function openAppointmentModal(id,preClients=[]){
+  currentEditAppt=id?appointments.find(a=>a.id===id):null;
+  $('#apptModalTitle').textContent=id?'Edit Appointment':'Schedule Appointment';
+  $('#apptTitle').value=currentEditAppt?.title||'';
+  $('#apptDate').value=currentEditAppt?.date?currentEditAppt.date.slice(0,16):'';
+  $('#apptStatus').value=currentEditAppt?.status||'scheduled';
+  $('#apptNotes').value=currentEditAppt?.notes||'';
+  populateClientSelect('#apptClients',currentEditAppt?.clientIds||preClients);
+  openModal('apptModal');
+}
+function populateClientSelect(sel,vals=[]){
+  const s=$(sel);
+  s.innerHTML=clients.map(c=>`<option value="${c.id}">${fullName(c)}</option>`).join('');
+  [...s.options].forEach(o=>{if(vals.includes(o.value))o.selected=true;});
+}
+$('#saveApptBtn').onclick=()=>{
+  const obj={
+    id:currentEditAppt?.id||uuid(),
+    title:$('#apptTitle').value,
+    date:$('#apptDate').value,
+    status:$('#apptStatus').value,
+    notes:$('#apptNotes').value,
+    clientIds:[...$('#apptClients').selectedOptions].map(o=>o.value)
+  };
+  const wasCompleted=currentEditAppt?.status==='completed';
+  if(currentEditAppt){Object.assign(currentEditAppt,obj);}else{appointments.push(obj);}
+  saveData(); closeModal('apptModal');
+  // When newly marked completed, create post-appt follow-ups
+  if(obj.status==='completed' && !wasCompleted){
+    obj.clientIds.forEach(cid=>{
+      outreach.push({id:uuid(),title:'Post-Appointment Follow-up',category:'Follow-up',date:todayStr(),status:'open',clientIds:[cid],appointmentId:obj.id});
+    });
+    saveData();
+  }
+  renderAll();
+};
 function editAppt(id){openAppointmentModal(id);}
-function deleteAppt(id){if(!confirm('Delete appointment?'))return;appointments=appointments.filter(a=>a.id!==id);outreach=outreach.filter(o=>o.appointmentId!==id);sales.forEach(s=>{if(s.appointmentId===id)s.appointmentId='';});saveData();renderAll();}
+function deleteAppt(id){
+  if(!confirm('Delete appointment?'))return;
+  appointments=appointments.filter(a=>a.id!==id);
+  outreach=outreach.filter(o=>o.appointmentId!==id);
+  sales.forEach(s=>{if(s.appointmentId===id)s.appointmentId='';});
+  saveData(); renderAll();
+}
 
 /* ===== Sales ===== */
-function renderSales(){const list=$('#saleList');if(!sales.length){list.innerHTML='<div class="empty-state"><div style="font-size:42px;opacity:.6">💰</div><p>No sales</p></div>';return;}let filtered=[...sales];const search=$('#saleSearch')?.value.toLowerCase()||'';const cid=$('#saleClientFilter')?.value||'';if(search){filtered=filtered.filter(s=>{const c=clients.find(x=>x.id===s.clientId);const name=c?fullName(c).toLowerCase():'';const desc=(s.desc||'').toLowerCase();return name.includes(search)||desc.includes(search)||String(s.amount).includes(search);});}if(cid){filtered=filtered.filter(s=>s.clientId===cid);}if(!filtered.length){list.innerHTML='<div class="empty-state"><div style="font-size:42px;opacity:.6">💰</div><p>No matching sales</p></div>';return;}filtered.sort((a,b)=>a.date.localeCompare(b.date));list.innerHTML=filtered.map(s=>{
-  const c=clients.find(x=>x.id===s.clientId);
-  const cls = s.amount >= 0 ? "sale-positive" : "sale-negative";
-  return `<div class="card"><div class="client-header"><div>
-    <div class="client-name ${cls}">${fmtUSD.format(s.amount)}</div>
-    <div class="muted">${new Date(s.date).toLocaleDateString()} • ${c?fullName(c):''}</div>
-  </div>
-  <div class="buttons"><button class="btn small" onclick="editSale('${s.id}')">Edit</button><button class="btn small danger" onclick="deleteSale('${s.id}')">Delete</button></div></div></div>`;
-}).join('');
+function renderSales(){
+  const list=$('#saleList');
+  if(!sales.length){
+    list.innerHTML='<div class="empty-state"><div style="font-size:42px;opacity:.6">💰</div><p>No sales</p></div>';
+    return;
+  }
+  sales.sort((a,b)=>a.date.localeCompare(b.date));
+  list.innerHTML=sales.map(s=>{
+    const c=clients.find(x=>x.id===s.clientId);
+    return `<div class="card">
+      <div class="client-header">
+        <div>
+          <div class="client-name">${fmtUSD.format(s.amount)}</div>
+          <div class="muted">${new Date(s.date).toLocaleDateString()} • ${c?fullName(c):''}</div>
+        </div>
+        <div class="buttons">
+          <button class="btn small" onclick="editSale('${s.id}')">Edit</button>
+          <button class="btn small danger" onclick="deleteSale('${s.id}')">Delete</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
 }
 $('#openSaleBtn').onclick=()=>openSaleModal();
-$('#saleSearch').addEventListener('input',renderSales);
-$('#saleClientFilter').addEventListener('change',renderSales);
-function openSaleModal(id,preClient){currentEditSale=id?sales.find(s=>s.id===id):null;$('#saleModalTitle').textContent=id?'Edit Sale':'Log Sale';populateClientSelect('#saleClient',[currentEditSale?.clientId||preClient].filter(Boolean));$('#saleAmount').value=currentEditSale?.amount||'';$('#saleDate').value=currentEditSale?.date||todayStr();$('#saleDesc').value=currentEditSale?.desc||'';populateApptSelect('#saleAppt',currentEditSale?.appointmentId||'');openModal('saleModal');}
-function populateApptSelect(sel,val){const s=$(sel);s.innerHTML='<option value="">None</option>'+appointments.map(a=>`<option value="${a.id}">${a.title}</option>`).join('');s.value=val||'';}
-$('#saveSaleBtn').onclick=()=>{const obj={id:currentEditSale?.id||uuid(),clientId:$('#saleClient').value,amount:Number($('#saleAmount').value||0),date:$('#saleDate').value,desc:$('#saleDesc').value,appointmentId:$('#saleAppt').value};if(currentEditSale){Object.assign(currentEditSale,obj);}else{sales.push(obj);}saveData();closeModal('saleModal');renderAll();};
+function openSaleModal(id,preClient){
+  currentEditSale=id?sales.find(s=>s.id===id):null;
+  $('#saleModalTitle').textContent=id?'Edit Sale':'Log Sale';
+  populateClientSelect('#saleClient',[currentEditSale?.clientId||preClient].filter(Boolean));
+  $('#saleAmount').value=currentEditSale?.amount||'';
+  $('#saleDate').value=currentEditSale?.date||todayStr();
+  $('#saleDesc').value=currentEditSale?.desc||'';
+  populateApptSelect('#saleAppt',currentEditSale?.appointmentId||'');
+  openModal('saleModal');
+}
+function populateApptSelect(sel,val){
+  const s=$(sel);
+  s.innerHTML='<option value="">None</option>'+appointments.map(a=>`<option value="${a.id}">${a.title}</option>`).join('');
+  s.value=val||'';
+}
+$('#saveSaleBtn').onclick=()=>{
+  const obj={
+    id:currentEditSale?.id||uuid(),
+    clientId:$('#saleClient').value,
+    amount:Number($('#saleAmount').value||0),
+    date:$('#saleDate').value,
+    desc:$('#saleDesc').value,
+    appointmentId:$('#saleAppt').value
+  };
+  if(currentEditSale){Object.assign(currentEditSale,obj);}else{sales.push(obj);}
+  saveData(); closeModal('saleModal'); renderAll();
+};
 function editSale(id){openSaleModal(id);}
-function deleteSale(id){if(!confirm('Delete sale?'))return;sales=sales.filter(s=>s.id!==id);saveData();renderAll();}
+function deleteSale(id){
+  if(!confirm('Delete sale?'))return;
+  sales=sales.filter(s=>s.id!==id);
+  saveData(); renderAll();
+}
 
 /* ===== Outreach ===== */
-function renderTodos(){const list=$('#todoList');if(!outreach.length){list.innerHTML='<div class="empty-state"><div style="font-size:42px;opacity:.6">📣</div><p>No outreach</p></div>';return;}outreach.sort((a,b)=>a.date.localeCompare(b.date));list.innerHTML=outreach.map(t=>{const cs=t.clientIds.map(id=>{const c=clients.find(x=>x.id===id);return c?`<span class="todo-client">${fullName(c)}</span>`:''}).join('');return `<div class="todo-item"><div><div class="todo-title">${t.title}</div><div class="todo-meta">${new Date(t.date).toLocaleDateString()} • ${t.category} • ${t.status}</div><div class="todo-clients">${cs}</div></div><div style="margin-top:8px;display:flex;gap:6px;justify-content:flex-end"><button class="btn small" onclick="toggleTodo('${t.id}')">${t.status==='open'?'Done':'Reopen'}</button><button class="btn small" onclick="editTodo('${t.id}')">Edit</button><button class="btn small danger" onclick="deleteTodo('${t.id}')">Delete</button></div></div>`;}).join('');}
+function renderTodos(){
+  const list=$('#todoList'), now=new Date(), isoToday=todayStr();
+  if(!outreach.length){
+    list.innerHTML='<div class="empty-state"><div style="font-size:42px;opacity:.6">📣</div><p>No outreach</p></div>';
+    return;
+  }
+  const row=o=>{
+    const names=(o.clientIds||[]).map(id=>fullName(clients.find(c=>c.id===id)||{})).filter(Boolean);
+    const due=new Date(o.date);
+    const meta = `${o.category||'Outreach'} • ${isNaN(due)?'':due.toLocaleDateString()} • ${o.status||'open'}`;
+    return `<div class="todo-item">
+      <div class="todo-title">${o.title||'(no title)'}</div>
+      <div class="todo-meta">${meta}</div>
+      <div class="todo-clients">${names.map(n=>`<span class="todo-client">${n}</span>`).join('')}</div>
+      <div class="buttons" style="margin-top:8px">
+        <button class="btn small" onclick="toggleTodoStatus('${o.id}')">${o.status==='done'?'Reopen':'Mark Done'}</button>
+        <button class="btn small danger" onclick="deleteTodo('${o.id}')">Delete</button>
+      </div>
+    </div>`;
+  };
+  const sorted=[...outreach].sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  list.innerHTML=sorted.map(row).join('');
+}
+function toggleTodoStatus(id){
+  const o=outreach.find(x=>x.id===id); if(!o) return;
+  o.status = o.status==='done' ? 'open' : 'done';
+  saveData(); renderAll();
+}
+function deleteTodo(id){
+  if(!confirm('Delete outreach?')) return;
+  outreach=outreach.filter(o=>o.id!==id);
+  saveData(); renderAll();
+}
 $('#openTodoBtn').onclick=()=>openTodoModal();
-function openTodoModal(id,preClients=[]){currentEditTodo=id?outreach.find(t=>t.id===id):null;$('#todoModalTitle').textContent=id?'Edit Outreach':'Add Outreach';$('#todoTitle').value=currentEditTodo?.title||'';$('#todoDate').value=currentEditTodo?.date||todayStr();$('#todoCategory').value=currentEditTodo?.category||'Follow-up';$('#todoNotes').value=currentEditTodo?.notes||'';populateClientSelect('#todoClients',currentEditTodo?.clientIds||preClients);populateApptSelect('#todoAppt',currentEditTodo?.appointmentId||'');openModal('todoModal');}
-$('#saveTodoBtn').onclick=()=>{const obj={id:currentEditTodo?.id||uuid(),title:$('#todoTitle').value,date:$('#todoDate').value,category:$('#todoCategory').value,notes:$('#todoNotes').value,status:currentEditTodo?.status||'open',clientIds:[...$('#todoClients').selectedOptions].map(o=>o.value),appointmentId:$('#todoAppt').value};if(currentEditTodo){Object.assign(currentEditTodo,obj);}else{outreach.push(obj);}saveData();closeModal('todoModal');renderAll();};
-function editTodo(id){openTodoModal(id);}
-function toggleTodo(id){const t=outreach.find(x=>x.id===id);if(!t)return;t.status=t.status==='open'?'done':'open';saveData();renderAll();}
-function deleteTodo(id){if(!confirm('Delete outreach?'))return;outreach=outreach.filter(t=>t.id!==id);saveData();renderAll();}
-
+function openTodoModal(id,preClients=[]){
+  currentEditTodo=id?outreach.find(o=>o.id===id):null;
+  $('#todoModalTitle').textContent=id?'Edit Outreach':'Add Outreach';
+  $('#todoTitle').value=currentEditTodo?.title||'';
+  $('#todoDate').value=currentEditTodo?.date||todayStr();
+  $('#todoCategory').value=currentEditTodo?.category||'Follow-up';
+  $('#todoNotes').value=currentEditTodo?.notes||'';
+  populateClientSelect('#todoClients',currentEditTodo?.clientIds||preClients);
+  populateApptSelect('#todoAppt',currentEditTodo?.appointmentId||'');
+  openModal('todoModal');
+}
+$('#saveTodoBtn').onclick=()=>{
+  const obj={
+    id:currentEditTodo?.id||uuid(),
+    title:$('#todoTitle').value,
+    date:$('#todoDate').value,
+    category:$('#todoCategory').value,
+    notes:$('#todoNotes').value,
+    clientIds:[...$('#todoClients').selectedOptions].map(o=>o.value),
+    appointmentId:$('#todoAppt').value,
+    status:currentEditTodo?.status||'open'
+  };
+  if(currentEditTodo){Object.assign(currentEditTodo,obj);}else{outreach.push(obj);}
+  saveData(); closeModal('todoModal'); renderAll();
+};
+</script>
+<script>
 /* ===== Birthdays ===== */
-function renderBirthdays(){const cal=$('#birthdayCalendar');const list=$('#birthdayList');if(!clients.length){cal.innerHTML='<div class="empty-state" style="grid-column:span 7">No data</div>';list.innerHTML='';return;}const now=new Date();const month=now.getMonth();const first=new Date(now.getFullYear(),month,1);const startDay=first.getDay();const days=new Date(now.getFullYear(),month+1,0).getDate();cal.innerHTML='';const weekdays=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];weekdays.forEach(d=>cal.innerHTML+=`<div class="day">${d}</div>`);for(let i=0;i<startDay;i++)cal.innerHTML+='<div></div>';for(let d=1;d<=days;d++){const date=`${now.getFullYear()}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;const bd=clients.filter(c=>c.birthday===date);const cell=document.createElement('div');cell.innerHTML=`<div class="day">${d}</div>`;bd.forEach(c=>{cell.innerHTML+=`<div class="bday"><input type="checkbox" data-bday="${c.id}"> ${fullName(c)}</div>`;});cal.appendChild(cell);}const months=[...Array(12).keys()].map(m=>({m,arr:clients.filter(c=>new Date(c.birthday).getMonth()===m)})).filter(o=>o.arr.length);list.innerHTML=months.map(o=>`<div class="card"><strong>${new Date(2020,o.m).toLocaleString('default',{month:'long'})}</strong><ul>${o.arr.map(c=>`<li><input type="checkbox" data-bday="${c.id}"> ${fullName(c)} - ${new Date(c.birthday).getDate()}</li>`).join('')}</ul></div>`).join('');}
+function renderBirthdays(){
+  const cal=$('#birthdayCalendar'), list=$('#birthdayList');
+  if(!cal||!list) return;
 
-/* ===== Seasonal Updates ===== */
-function renderSeasonal(){const body=$('#seasonTable tbody');if(!clients.length){body.innerHTML='';return;}body.innerHTML=clients.map(c=>{const seasons=['Spring','Summer','Fall','Winter'];const cells=seasons.map(se=>{const t=outreach.find(o=>o.category==='Seasonal'&&o.title.includes(se)&&o.clientIds.includes(c.id));const checked=t&&t.status==='done';return `<td><input type="checkbox" onchange="seasonToggle('${t.id}',$event.target.checked)" ${checked?'checked':''}></td>`;}).join('');return `<tr><td>${fullName(c)}</td>${cells}</tr>`;}).join('');}
-function seasonToggle(id,val){const t=outreach.find(o=>o.id===id);if(t){t.status=val?'done':'open';saveData();renderAll();}}
+  // simple current-month calendar grid (1..28)
+  cal.innerHTML = Array.from({length:28},(_,i)=>`<div><div class="day">${i+1}</div></div>`).join('');
 
-/* ===== Dashboard ===== */
-function renderDashboard(){const now=new Date();const mStart=new Date(now.getFullYear(),now.getMonth(),1);const yStart=new Date(now.getFullYear(),0,1);const salesMTD=sales.filter(s=>new Date(s.date)>=mStart).reduce((a,b)=>a+b.amount,0);const salesYTD=sales.filter(s=>new Date(s.date)>=yStart).reduce((a,b)=>a+b.amount,0);$('#salesMTD').textContent=fmtUSD.format(salesMTD);$('#salesYTD').textContent=fmtUSD.format(salesYTD);const apptMTD=appointments.filter(a=>new Date(a.date)>=mStart && new Date(a.date)<=now).length;const apptYTD=appointments.filter(a=>new Date(a.date)>=yStart && new Date(a.date)<=now).length;$('#apptMTD').textContent=apptMTD;$('#apptYTD').textContent=apptYTD;const past=outreach.filter(t=>t.status==='open'&&new Date(t.date)<now).length;$('#pastDueOutreach').textContent=past;const events=[...appointments.map(a=>({type:'Appt',title:a.title,date:a.date})),...outreach.filter(o=>o.status==='open').map(o=>({type:'Outreach',title:o.title,date:o.date}))];events.filter(e=>new Date(e.date)>=now).sort((a,b)=>a.date.localeCompare(b.date));$('#upcomingList').innerHTML=events.filter(e=>new Date(e.date)>=now).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,5).map(e=>`<div class="card"><div class="client-header"><div><div class="client-name">${e.title}</div><div class="muted">${e.type} • ${new Date(e.date).toLocaleString()}</div></div></div></div>`).join('');const open=outreach.filter(t=>t.status==='open');const pastDue=open.filter(t=>new Date(t.date)<now);const urgent=open.filter(t=>new Date(t.date)<new Date(now.getTime()-14*86400000));const weekEnd=new Date(now);weekEnd.setDate(now.getDate()+(7-now.getDay()));const thisWeek=open.filter(t=>{const d=new Date(t.date);return d>=now && d<=weekEnd;});function renderFU(src,el){if(!src.length){el.innerHTML='<div class="muted">None</div>';return;}el.innerHTML=src.sort((a,b)=>a.date.localeCompare(b.date)).map(t=>`<div class="todo-item"><div class="todo-title">${t.title}</div><div class="todo-meta">${new Date(t.date).toLocaleDateString()}</div></div>`).join('');}
-  renderFU(open,$('#fuOpen'));renderFU(pastDue,$('#fuPast'));renderFU(urgent,$('#fuUrgent'));renderFU(thisWeek,$('#fuWeek'));
+  // list all birthdays
+  const bdays=clients
+    .filter(c=>c.birthday)
+    .map(c=>({c, d:new Date(c.birthday)}))
+    .sort((a,b)=>a.d.getMonth()-b.d.getMonth() || a.d.getDate()-b.d.getDate());
+
+  list.innerHTML = bdays.map(({c,d})=>
+    `<div class="card">
+       <div class="client-header">
+         <div class="client-name">${fullName(c)}</div>
+       </div>
+       <div class="muted">${d.toLocaleDateString()}</div>
+     </div>`).join('') || '<div class="empty-state"><p>No birthdays on file</p></div>';
 }
 
-/* ===== Export/Import/Clear ===== */
-$('#exportBtn').onclick=()=>{const blob=new Blob([JSON.stringify({clients,appointments,sales,outreach},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='crm.json';a.click();URL.revokeObjectURL(url);};
-$('#importBtn').onclick=()=>$('#importFile').click();
-// Import expects a JSON object with {clients:[],appointments:[],sales:[],outreach:[]}
-$('#importFile').addEventListener('change',e=>{const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const d=JSON.parse(reader.result);for(const k of['clients','appointments','sales','outreach']){if(!Array.isArray(d[k])){alert(`Missing \`${k}\` array`);return;}}const rawClients=d.clients;clients=rawClients.map(c=>({id:c.id||uuid(),first:c.first||c.firstName||'',last:c.last||c.lastName||'',email:c.email||'',phone:c.phone||'',notes:c.notes||'',birthday:c.birthday||'',styles:c.styles||(c.style?[c.style]:[]),brands:c.brands||(c.brand?[c.brand]:[]),sizeShirt:c.sizeShirt||'',sizeDress:c.sizeDress||'',sizePant:c.sizePant||'',sizeShoe:c.sizeShoe||'',initialSale:Number(c.initialSale||c.initialSales||0)}));appointments=d.appointments;sales=d.sales.map(s=>({id:s.id||uuid(),clientId:s.clientId||'',amount:Number(s.amount||0),date:s.date||todayStr(),desc:s.description||s.desc||'',appointmentId:s.appointmentId||''}));outreach=d.outreach.map(t=>({id:t.id||uuid(),title:t.title||'',date:t.date||todayStr(),category:t.category||'Follow-up',notes:t.notes||'',status:t.status||'open',clientIds:t.clientIds||[],appointmentId:t.appointmentId||''}));saveData();renderAll();alert('Import complete');}catch(err){alert('Invalid file');}};reader.readAsText(file);});
-const clearBtn=$('#clearBtn');
-if(clearBtn){
-  clearBtn.addEventListener('click',()=>{
-    if(confirm('Clear ALL data? This cannot be undone.')){
-      clients=[];appointments=[];sales=[];outreach=[];
-      localStorage.removeItem('crmData');
-      renderAll();
-    }
-  });
+/* ===== Seasonal: render + toggle + backfill ===== */
+function renderSeasonal() {
+  const body = document.querySelector('#seasonTable tbody');
+  if (!body) return;
+  if (!clients.length) { body.innerHTML = ''; return; }
+
+  const yr = new Date().getFullYear();
+  const defs = [
+    ['Spring','03-01'],
+    ['Summer','06-01'],
+    ['Fall','09-01'],
+    ['Winter','12-01']
+  ];
+
+  body.innerHTML = clients.map(c => {
+    const cells = defs.map(([season, md]) => {
+      // find or create the seasonal outreach row for this client+season
+      let t = outreach.find(o =>
+        o.category === 'Seasonal' &&
+        o.title === `${season} Update` &&
+        Array.isArray(o.clientIds) &&
+        o.clientIds.includes(c.id)
+      );
+      if (!t) {
+        t = {
+          id: uuid(),
+          title: `${season} Update`,
+          category: 'Seasonal',
+          date: `${yr}-${md}`,
+          status: 'open',
+          clientIds: [c.id]
+        };
+        outreach.push(t);
+      }
+      const checked = t.status === 'done';
+      return `<td><input type="checkbox" onchange="seasonToggle('${t.id}', this.checked)" ${checked ? 'checked' : ''}></td>`;
+    }).join('');
+    return `<tr><td>${fullName(c)}</td>${cells}</tr>`;
+  }).join('');
+
+  saveData();
 }
-   // --- Update Clients (merge) ---
-  const updateBtn = document.getElementById('updateBtn');
-  const updateFile = document.getElementById('updateFile');
-
-  updateBtn.addEventListener('click', () => updateFile.click());
-  updateFile.addEventListener('change', async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    try {
-      const text = await file.text();
-      let incoming = JSON.parse(text);
-
-      // Accept either { clients: [...] } or just [...]
-      const incomingClients = Array.isArray(incoming) ? incoming : (incoming.clients || []);
-      if (!Array.isArray(incomingClients)) {
-        alert('Could not find a clients array in the file.');
-        e.target.value = '';
-        return;
+function seasonToggle(id, val) {
+  const t = outreach.find(o => o.id === id);
+  if (t) {
+    t.status = val ? 'done' : 'open';
+    saveData();
+    renderAll(); // keep dashboard & lists in sync
+  }
+}
+// One-time backfill for existing clients missing seasonal tasks
+function backfillSeasonalForAll() {
+  const yr = new Date().getFullYear();
+  const defs = [
+    ['Spring','03-01'],
+    ['Summer','06-01'],
+    ['Fall','09-01'],
+    ['Winter','12-01']
+  ];
+  clients.forEach(c => {
+    defs.forEach(([season, md]) => {
+      const exists = outreach.some(o =>
+        o.category === 'Seasonal' &&
+        o.title === `${season} Update` &&
+        Array.isArray(o.clientIds) &&
+        o.clientIds.includes(c.id)
+      );
+      if (!exists) {
+        outreach.push({
+          id: uuid(),
+          title: `${season} Update`,
+          category: 'Seasonal',
+          date: `${yr}-${md}`,
+          status: 'open',
+          clientIds: [c.id]
+        });
       }
-
-      const byId = new Map(clients.map(c => [c.id, c]));
-      let added = 0, updated = 0, skipped = 0;
-
-      // Helper: normalize an incoming client object to match your schema
-      const normalizeClient = (c) => ({
-        id: c.id || uuid(),
-        first: (c.first || c.firstName || '').trim(),
-        last: (c.last || c.lastName || '').trim(),
-        email: (c.email || '').trim(),
-        phone: (c.phone || c.phoneNumber || '').trim(),
-        birthday: (c.birthday || '').trim(),   // YYYY-MM-DD preferred
-        styles: Array.isArray(c.styles) ? c.styles : (c.style ? [c.style] : []),
-        brands: Array.isArray(c.brands) ? c.brands : (c.brand ? [c.brand] : []),
-        sizeShirt: c.sizeShirt || '',
-        sizeDress: c.sizeDress || '',
-        sizePant:  c.sizePant  || '',
-        sizeShoe:  c.sizeShoe  || '',
-        initialSale: Number(c.initialSale || c.initialSales || c.initialSalesAmount || 0),
-        notes: c.notes || ''
-      });
-
-      // Helper: merge two arrays of strings uniquely (case-insensitive)
-      const mergeUnique = (a = [], b = []) => {
-        const set = new Set([...(a || []), ...(b || [])].map(x => String(x).trim()).filter(Boolean));
-        return Array.from(set);
-      };
-
-      // Upsert rule:
-      // - If id exists: update fields only when the incoming value is meaningful (non-empty).
-      // - styles/brands: union unique.
-      // - initialSale: if incoming > 0 and existing is 0, set to incoming (keeps your manual totals safe).
-      // - If id missing and we find a "soft match" (same first+last+phone), treat as same person.
-      const softKey = (c) => `${(c.first||'').toLowerCase()}|${(c.last||'').toLowerCase()}|${(c.phone||'').replace(/\D/g,'')}`;
-      const softIndex = new Map(clients.map(c => [softKey(c), c]));
-
-      for (const raw of incomingClients) {
-        const inc = normalizeClient(raw);
-
-        // Prefer id match; otherwise soft match on first+last+phone
-        let existing = inc.id ? byId.get(inc.id) : null;
-        if (!existing) {
-          const key = softKey(inc);
-          if (key !== '||') existing = softIndex.get(key) || null;
-        }
-
-        if (!existing) {
-          // New client — add + create seasonal tasks for them only
-          clients.push(inc);
-          byId.set(inc.id, inc);
-          softIndex.set(softKey(inc), inc);
-          // only generate seasonal outreach for *brand new* clients
-          if (typeof createSeasonalOutreach === 'function') {
-            createSeasonalOutreach(inc);
-          }
-          added++;
-        } else {
-          // Merge into existing
-          const before = JSON.stringify(existing);
-
-          // Text fields: only overwrite if incoming has a value
-          const maybeSet = (field, val) => { if (val !== undefined && String(val).trim() !== '') existing[field] = val; };
-          maybeSet('first', inc.first);
-          maybeSet('last', inc.last);
-          maybeSet('email', inc.email);
-          maybeSet('phone', inc.phone);
-          maybeSet('birthday', inc.birthday);
-          maybeSet('sizeShirt', inc.sizeShirt);
-          maybeSet('sizeDress', inc.sizeDress);
-          maybeSet('sizePant',  inc.sizePant);
-          maybeSet('sizeShoe',  inc.sizeShoe);
-          if (inc.notes && (!existing.notes || existing.notes.indexOf(inc.notes) === -1)) {
-            // append notes if different
-            existing.notes = (existing.notes ? existing.notes + ' ' : '') + inc.notes;
-          }
-
-          // Arrays: union unique
-          existing.styles = mergeUnique(existing.styles, inc.styles);
-          existing.brands = mergeUnique(existing.brands, inc.brands);
-
-          // initialSale: only set if incoming is > 0 and existing is 0 (avoid clobbering)
-          if (inc.initialSale > 0 && (!existing.initialSale || existing.initialSale === 0)) {
-            existing.initialSale = inc.initialSale;
-          }
-
-          const after = JSON.stringify(existing);
-          if (before !== after) updated++; else skipped++;
-        }
-      }
-
-      saveData();
-      renderAll();
-      alert(`Update complete.\nAdded: ${added}\nUpdated: ${updated}\nUnchanged: ${skipped}`);
-    } catch (err) {
-      console.error(err);
-      alert('Error reading update file. Please check the JSON format.');
-    } finally {
-      // reset the file input so selecting the same file again will fire change
-      e.target.value = '';
-    }
+    });
   });
-/* ===== Render All ===== */function renderAll(){renderClients();renderAppointments();renderSales();renderTodos();renderBirthdays();renderSeasonal();renderDashboard();populateClientSelect('#saleClient');populateApptSelect('#saleAppt');populateClientSelect('#apptClients');populateClientSelect('#todoClients');populateApptSelect('#todoAppt');populateClientFilter('#saleClientFilter');}
+  saveData();
+}
+
+/* ===== Render All ===== */
+function renderAll(){
+  renderDashboard?.();
+  renderClients?.();
+  renderAppointments?.();
+  renderSales?.();
+  renderTodos?.();
+  renderBirthdays?.();
+  renderSeasonal?.();
+}
+
+/* ===== Boot ===== */
+backfillSeasonalForAll(); // ensure existing clients have seasonal
 renderAll();
 </script>
 </body>
 </html>
-
-
-
-
-
-
