@@ -97,10 +97,16 @@
       <h1>Client Management</h1>
       <div class="toolbar">
         <button id="exportBtn" class="btn ghost">⬇️ Export JSON</button>
-        <button id="importBtn" class="btn ghost">⬆️ Import JSON</button>
-        <input id="importFile" type="file" accept="application/json" style="display:none">
-        <button id="clearBtn" class="btn danger">🗑️ Clear Data</button>
-      </div>
+       <div class="dropdown" id="importDropdown">
+  <button class="btn ghost" id="importToggle">⬆️ Import ▾</button>
+  <div class="dropdown-menu" id="importMenu">
+    <button id="importJsonBtn" class="btn small ghost" style="width:100%">Import JSON</button>
+    <input id="importJsonFile" type="file" accept="application/json" style="display:none">
+
+    <button id="importCsvCombinedBtn" class="btn small ghost" style="width:100%">Import CSV</button>
+    <input id="importCsvCombinedFile" type="file" accept=".csv" style="display:none">
+  </div>
+</div>
     </header>
 
     <div class="tabs" role="tablist">
@@ -391,6 +397,158 @@ function uuid(){ return Math.random().toString(36).slice(2,9); }
 function todayStr(){ return new Date().toISOString().split('T')[0]; }
 function startOfMonth(d=new Date()){ return new Date(d.getFullYear(), d.getMonth(), 1); }
 function startOfYear(d=new Date()){ return new Date(d.getFullYear(), 0, 1); }
+/* ===== Combined CSV Import (Client + Outreach) ===== */
+
+// Parse CSV (handles quotes & CRLF)
+function parseCSV(text){
+  const rows=[], row=[]; let cur='', inQ=false;
+  for(let i=0;i<text.length;i++){
+    const ch=text[i], nx=text[i+1];
+    if(ch === '"'){
+      if(inQ && nx === '"'){ cur+='"'; i++; } else inQ = !inQ;
+    } else if(ch === ',' && !inQ){
+      row.push(cur); cur='';
+    } else if((ch === '\n' || ch === '\r') && !inQ){
+      if(cur.length || row.length){ row.push(cur); rows.push([...row]); }
+      cur=''; row.length=0;
+      if(ch === '\r' && nx === '\n') i++;
+    } else cur += ch;
+  }
+  if(cur.length || row.length){ row.push(cur); rows.push([...row]); }
+  return rows;
+}
+function csvToObjects(text){
+  const rows = parseCSV(text).filter(r => r.some(c => String(c).trim().length));
+  if(rows.length === 0) return [];
+  const header = rows[0].map(h => String(h).trim());
+  return rows.slice(1).map(r => {
+    const o={}; header.forEach((h,i)=> o[h] = (r[i] ?? '').trim()); return o;
+  });
+}
+function splitList(v){ return v ? v.split(/[,;]/).map(s=>s.trim()).filter(Boolean) : []; }
+function normalizeDateISO(v){
+  if(!v) return '';
+  const t=v.trim();
+  if(/^\d{4}-\d{2}-\d{2}$/.test(t)) return t;
+  const mdy=t.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+  return mdy ? `${mdy[3]}-${String(mdy[1]).padStart(2,'0')}-${String(mdy[2]).padStart(2,'0')}` : t;
+}
+function fullNameFromFields(first,last){ return `${(first||'').trim()} ${(last||'').trim()}`.trim(); }
+// Match priority: email > phone > full name
+function findClientIdByAny({email, phone, first, last}){
+  const nm = fullNameFromFields(first,last).toLowerCase();
+  if(email){
+    const c = clients.find(x => (x.email||'').toLowerCase() === email.toLowerCase());
+    if(c) return c.id;
+  }
+  if(phone){
+    const want = String(phone).replace(/[^\d+]/g,'');
+    const c = clients.find(x => (x.phone||'').replace(/[^\d+]/g,'') === want);
+    if(c) return c.id;
+  }
+  if(nm){
+    const c = clients.find(x => fullName(x).toLowerCase() === nm);
+    if(c) return c.id;
+  }
+  return null;
+}
+
+async function importCombinedCSV(file){
+  const text = await file.text();
+  const rows = csvToObjects(text);
+  if(rows.length === 0){ alert('No rows found.'); return; }
+
+  let addedClients=0, updatedClients=0, addedOutreach=0, skippedOutreach=0;
+  const apptTitleToId = new Map(appointments.map(a => [a.title, a.id]));
+
+  for(const r of rows){
+    const type = (r.Type||'').toLowerCase();
+    if(!type) continue;
+
+    if(type === 'client'){
+      const obj = {
+        first: r.First || r.FirstName || '',
+        last:  r.Last  || r.LastName  || '',
+        email: r.Email || '',
+        phone: r.Phone || '',
+        birthday: normalizeDateISO(r.Birthday || ''),
+        styles: splitList(r.Styles),
+        brands: splitList(r.Brands),
+        sizeShirt: r.Shirt || '',
+        sizeDress: r.Dress || '',
+        sizePant:  r.Pant  || '',
+        sizeShoe:  r.Shoe  || '',
+        initialSale: Number(r.InitialSale || r['Initial Sales Amount'] || 0),
+        notes: r.Notes || ''
+      };
+      const existingId = findClientIdByAny(obj);
+      if(existingId){
+        Object.assign(clients.find(c => c.id === existingId), obj);
+        updatedClients++;
+      } else {
+        const id = uuid();
+        clients.push({ id, ...obj });
+        createSeasonalOutreach({id}); // auto-add 4 seasonal tasks for new client
+        addedClients++;
+      }
+      continue;
+    }
+
+    if(type === 'outreach'){
+      // Support single client via First/Last/Email/Phone OR multi via "Clients"
+      let targetIds = [];
+      const multi = splitList(r.Clients);
+      if(multi.length){
+        for(const token of multi){
+          let cid=null;
+          if(token.includes('@')){
+            cid = findClientIdByAny({email:token});
+          }else{
+            const parts = token.split(/\s+/);
+            const first = parts.slice(0,-1).join(' ');
+            const last  = parts.slice(-1).join(' ');
+            cid = findClientIdByAny({first,last});
+          }
+          if(cid) targetIds.push(cid);
+        }
+      }else{
+        const cid = findClientIdByAny({
+          email:r.Email, phone:r.Phone, first:r.First||r.FirstName, last:r.Last||r.LastName
+        });
+        if(cid) targetIds.push(cid);
+      }
+      if(targetIds.length === 0){ skippedOutreach++; continue; }
+
+      const title = r.Title || '(no title)';
+      const date  = normalizeDateISO(r.Date || todayStr());
+      const category = r.Category || 'Follow-up';
+      const notes = r.Notes || '';
+      let appointmentId = '';
+
+      const apptTitle = r.AppointmentTitle || '';
+      if(apptTitle && apptTitleToId.has(apptTitle)){
+        appointmentId = apptTitleToId.get(apptTitle);
+      } else if(apptTitle){
+        const match = appointments.find(a => a.title === apptTitle && a.clientIds?.some(id => targetIds.includes(id)));
+        if(match) appointmentId = match.id;
+      }
+
+      outreach.push({ id:uuid(), title, date, category, notes, clientIds:targetIds, appointmentId, status:'open' });
+      addedOutreach++;
+      continue;
+    }
+  }
+
+  saveData(); renderAll();
+  const msg = [
+    'Combined CSV import complete.',
+    `Clients added: ${addedClients}`,
+    `Clients updated: ${updatedClients}`,
+    `Outreach added: ${addedOutreach}`
+  ];
+  if(skippedOutreach) msg.push(`Outreach skipped (no matching clients): ${skippedOutreach}`);
+  alert(msg.join('\n'));
+}
 
 /* =========================
 /* ===== Tabs (with Outreach dropdown) ===== */
@@ -469,23 +627,40 @@ $('#exportBtn').onclick = ()=>{
   a.click();
   URL.revokeObjectURL(a.href);
 };
-$('#importBtn').onclick = ()=>$('#importFile').click();
-$('#importFile').onchange = e=>{
+// Import dropdown toggle (you already have this; keep it)
+$('#importToggle').onclick = () => $('#importMenu').classList.toggle('show');
+document.addEventListener('click', e=>{
+  if(!$('#importDropdown').contains(e.target)) $('#importMenu').classList.remove('show');
+});
+
+// JSON Import (replaces old #importFile handler)
+$('#importJsonBtn').onclick = () => $('#importJsonFile').click();
+$('#importJsonFile').addEventListener('change', e=>{
   const f = e.target.files?.[0]; if(!f) return;
   const r = new FileReader();
   r.onload = ()=>{
     try{
       const d = JSON.parse(r.result);
-      clients = d.clients||clients;
-      appointments = d.appointments||appointments;
-      sales = d.sales||sales;
-      outreach = d.outreach||outreach;
+      clients = (d.clients||[]).map(c=>({...c, id:c.id||uuid()}));
+      appointments = d.appointments||[];
+      sales = d.sales||[];
+      outreach = d.outreach||[];
       saveData(); renderAll();
-      alert('Import complete.');
+      alert('JSON import complete.');
     }catch(err){ alert('Invalid JSON.'); }
   };
   r.readAsText(f);
-};
+  e.target.value = '';
+});
+
+// Combined CSV Import (single button “Import CSV”)
+$('#importCsvCombinedBtn').onclick = () => $('#importCsvCombinedFile').click();
+$('#importCsvCombinedFile').addEventListener('change', async e=>{
+  const f = e.target.files?.[0]; if(!f) return;
+  await importCombinedCSV(f); // function added in Section 3
+  e.target.value = '';
+});
+
 $('#clearBtn').onclick = ()=>{
   if(!confirm('Clear all data?')) return;
   localStorage.removeItem('crmData');
@@ -1036,6 +1211,7 @@ renderAll();
 
 </body>
 </html>
+
 
 
 
