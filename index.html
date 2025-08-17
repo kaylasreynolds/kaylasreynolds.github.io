@@ -93,6 +93,8 @@
         <button id="exportBtn" class="btn ghost">⬇️ Export JSON</button>
         <button id="importBtn" class="btn ghost">⬆️ Import JSON</button>
         <input id="importFile" type="file" accept="application/json" style="display:none">
+        <button id="updateBtn" class="btn ghost">🧩 Update Clients</button>
+<input id="updateFile" type="file" accept="application/json" style="display:none">
         <button id="clearBtn" class="btn danger">🗑️ Clear Data</button>
       </div>
     </header>
@@ -569,11 +571,133 @@ if(clearBtn){
     }
   });
 }
+   // --- Update Clients (merge) ---
+  const updateBtn = document.getElementById('updateBtn');
+  const updateFile = document.getElementById('updateFile');
+
+  updateBtn.addEventListener('click', () => updateFile.click());
+  updateFile.addEventListener('change', async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      let incoming = JSON.parse(text);
+
+      // Accept either { clients: [...] } or just [...]
+      const incomingClients = Array.isArray(incoming) ? incoming : (incoming.clients || []);
+      if (!Array.isArray(incomingClients)) {
+        alert('Could not find a clients array in the file.');
+        e.target.value = '';
+        return;
+      }
+
+      const byId = new Map(clients.map(c => [c.id, c]));
+      let added = 0, updated = 0, skipped = 0;
+
+      // Helper: normalize an incoming client object to match your schema
+      const normalizeClient = (c) => ({
+        id: c.id || uuid(),
+        first: (c.first || c.firstName || '').trim(),
+        last: (c.last || c.lastName || '').trim(),
+        email: (c.email || '').trim(),
+        phone: (c.phone || c.phoneNumber || '').trim(),
+        birthday: (c.birthday || '').trim(),   // YYYY-MM-DD preferred
+        styles: Array.isArray(c.styles) ? c.styles : (c.style ? [c.style] : []),
+        brands: Array.isArray(c.brands) ? c.brands : (c.brand ? [c.brand] : []),
+        sizeShirt: c.sizeShirt || '',
+        sizeDress: c.sizeDress || '',
+        sizePant:  c.sizePant  || '',
+        sizeShoe:  c.sizeShoe  || '',
+        initialSale: Number(c.initialSale || c.initialSales || c.initialSalesAmount || 0),
+        notes: c.notes || ''
+      });
+
+      // Helper: merge two arrays of strings uniquely (case-insensitive)
+      const mergeUnique = (a = [], b = []) => {
+        const set = new Set([...(a || []), ...(b || [])].map(x => String(x).trim()).filter(Boolean));
+        return Array.from(set);
+      };
+
+      // Upsert rule:
+      // - If id exists: update fields only when the incoming value is meaningful (non-empty).
+      // - styles/brands: union unique.
+      // - initialSale: if incoming > 0 and existing is 0, set to incoming (keeps your manual totals safe).
+      // - If id missing and we find a "soft match" (same first+last+phone), treat as same person.
+      const softKey = (c) => `${(c.first||'').toLowerCase()}|${(c.last||'').toLowerCase()}|${(c.phone||'').replace(/\D/g,'')}`;
+      const softIndex = new Map(clients.map(c => [softKey(c), c]));
+
+      for (const raw of incomingClients) {
+        const inc = normalizeClient(raw);
+
+        // Prefer id match; otherwise soft match on first+last+phone
+        let existing = inc.id ? byId.get(inc.id) : null;
+        if (!existing) {
+          const key = softKey(inc);
+          if (key !== '||') existing = softIndex.get(key) || null;
+        }
+
+        if (!existing) {
+          // New client — add + create seasonal tasks for them only
+          clients.push(inc);
+          byId.set(inc.id, inc);
+          softIndex.set(softKey(inc), inc);
+          // only generate seasonal outreach for *brand new* clients
+          if (typeof createSeasonalOutreach === 'function') {
+            createSeasonalOutreach(inc);
+          }
+          added++;
+        } else {
+          // Merge into existing
+          const before = JSON.stringify(existing);
+
+          // Text fields: only overwrite if incoming has a value
+          const maybeSet = (field, val) => { if (val !== undefined && String(val).trim() !== '') existing[field] = val; };
+          maybeSet('first', inc.first);
+          maybeSet('last', inc.last);
+          maybeSet('email', inc.email);
+          maybeSet('phone', inc.phone);
+          maybeSet('birthday', inc.birthday);
+          maybeSet('sizeShirt', inc.sizeShirt);
+          maybeSet('sizeDress', inc.sizeDress);
+          maybeSet('sizePant',  inc.sizePant);
+          maybeSet('sizeShoe',  inc.sizeShoe);
+          if (inc.notes && (!existing.notes || existing.notes.indexOf(inc.notes) === -1)) {
+            // append notes if different
+            existing.notes = (existing.notes ? existing.notes + ' ' : '') + inc.notes;
+          }
+
+          // Arrays: union unique
+          existing.styles = mergeUnique(existing.styles, inc.styles);
+          existing.brands = mergeUnique(existing.brands, inc.brands);
+
+          // initialSale: only set if incoming is > 0 and existing is 0 (avoid clobbering)
+          if (inc.initialSale > 0 && (!existing.initialSale || existing.initialSale === 0)) {
+            existing.initialSale = inc.initialSale;
+          }
+
+          const after = JSON.stringify(existing);
+          if (before !== after) updated++; else skipped++;
+        }
+      }
+
+      saveData();
+      renderAll();
+      alert(`Update complete.\nAdded: ${added}\nUpdated: ${updated}\nUnchanged: ${skipped}`);
+    } catch (err) {
+      console.error(err);
+      alert('Error reading update file. Please check the JSON format.');
+    } finally {
+      // reset the file input so selecting the same file again will fire change
+      e.target.value = '';
+    }
+  });
 /* ===== Render All ===== */function renderAll(){renderClients();renderAppointments();renderSales();renderTodos();renderBirthdays();renderSeasonal();renderDashboard();populateClientSelect('#saleClient');populateApptSelect('#saleAppt');populateClientSelect('#apptClients');populateClientSelect('#todoClients');populateApptSelect('#todoAppt');populateClientFilter('#saleClientFilter');}
 renderAll();
 </script>
 </body>
 </html>
+
 
 
 
