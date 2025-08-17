@@ -97,6 +97,7 @@
       <h1>Client Management</h1>
       <div class="toolbar">
         <button id="exportBtn" class="btn ghost">⬇️ Export JSON</button>
+        <button id="exportCsvBtn" class="btn ghost">⬇️ Export CSV</button>
        <div class="dropdown" id="importDropdown">
   <button class="btn ghost" id="importToggle">⬆️ Import ▾</button>
   <div class="dropdown-menu" id="importMenu">
@@ -627,6 +628,111 @@ $('#exportBtn').onclick = ()=>{
   a.click();
   URL.revokeObjectURL(a.href);
 };
+  /* ===== CSV Export (Clients + Appointments + Outreach + Sales) ===== */
+const CSV_HEADERS = [
+  'Type','ClientId','First','Last','Email','Phone','Birthday',
+  'Styles','Brands','Shirt','Dress','Pant','Shoe','InitialSale','Notes',
+  'Title','Date','Category','Clients','Amount','Desc','Status'
+];
+
+function csvEscape(v){
+  const s = v == null ? '' : String(v);
+  return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s;
+}
+function rowsToCSV(rows){
+  const head = CSV_HEADERS.join(',');
+  const body = rows.map(r => CSV_HEADERS.map(h => csvEscape(r[h] ?? '')).join(',')).join('\r\n');
+  return head + '\r\n' + body;
+}
+
+function buildExportRows(){
+  const rows = [];
+  const join = arr => (arr || []).join('; ');
+  const nameOf = (id) => {
+    const c = clients.find(x => x.id === id);
+    return c ? fullName(c) : '';
+  };
+
+  // Clients
+  clients.forEach(c=>{
+    rows.push({
+      Type:'Client', ClientId:c.id,
+      First:c.first||'', Last:c.last||'', Email:c.email||'', Phone:c.phone||'',
+      Birthday:c.birthday||'',
+      Styles:join(c.styles), Brands:join(c.brands),
+      Shirt:c.sizeShirt||'', Dress:c.sizeDress||'', Pant:c.sizePant||'', Shoe:c.sizeShoe||'',
+      InitialSale:(c.initialSale ?? ''), Notes:c.notes||'',
+      Title:'', Date:'', Category:'', Clients:'', Amount:'', Desc:'', Status:''
+    });
+  });
+
+  // Appointments (1 row per appointment x client)
+  appointments.forEach(a=>{
+    const allNames = (a.clientIds||[]).map(nameOf).filter(Boolean).join('; ');
+    const list = (a.clientIds && a.clientIds.length) ? a.clientIds : [''];
+    list.forEach(cid=>{
+      const c = clients.find(x=>x.id===cid) || {};
+      rows.push({
+        Type:'Appointment', ClientId:cid||'',
+        First:c.first||'', Last:c.last||'', Email:c.email||'', Phone:c.phone||'',
+        Birthday:c.birthday||'',
+        Styles:join(c.styles), Brands:join(c.brands),
+        Shirt:c.sizeShirt||'', Dress:c.sizeDress||'', Pant:c.sizePant||'', Shoe:c.sizeShoe||'',
+        InitialSale:(c.initialSale ?? ''), Notes:c.notes||'',
+        Title:a.title||'', Date:a.date||'', Category:'',
+        Clients:allNames, Amount:'', Desc:a.notes||'', Status:a.status||''
+      });
+    });
+  });
+
+  // Outreach (1 row per outreach x client)
+  outreach.forEach(o=>{
+    const allNames = (o.clientIds||[]).map(nameOf).filter(Boolean).join('; ');
+    const list = (o.clientIds && o.clientIds.length) ? o.clientIds : [''];
+    list.forEach(cid=>{
+      const c = clients.find(x=>x.id===cid) || {};
+      rows.push({
+        Type:'Outreach', ClientId:cid||'',
+        First:c.first||'', Last:c.last||'', Email:c.email||'', Phone:c.phone||'',
+        Birthday:c.birthday||'',
+        Styles:join(c.styles), Brands:join(c.brands),
+        Shirt:c.sizeShirt||'', Dress:c.sizeDress||'', Pant:c.sizePant||'', Shoe:c.sizeShoe||'',
+        InitialSale:(c.initialSale ?? ''), Notes:c.notes||'',
+        Title:o.title||'', Date:o.date||'', Category:o.category||'',
+        Clients:allNames, Amount:'', Desc:o.notes||'', Status:o.status||''
+      });
+    });
+  });
+
+  // Sales (1 row per sale)
+  sales.forEach(s=>{
+    const c = clients.find(x=>x.id===s.clientId) || {};
+    rows.push({
+      Type:'Sale', ClientId:s.clientId||'',
+      First:c.first||'', Last:c.last||'', Email:c.email||'', Phone:c.phone||'',
+      Birthday:c.birthday||'',
+      Styles:join(c.styles), Brands:join(c.brands),
+      Shirt:c.sizeShirt||'', Dress:c.sizeDress||'', Pant:c.sizePant||'', Shoe:c.sizeShoe||'',
+      InitialSale:(c.initialSale ?? ''), Notes:c.notes||'',
+      Title:'', Date:s.date||'', Category:'',
+      Clients: c.id ? fullName(c) : '', Amount: (s.amount ?? ''), Desc:s.desc||'', Status:''
+    });
+  });
+
+  return rows;
+}
+
+// Wire the button
+document.getElementById('exportCsvBtn').onclick = ()=>{
+  const csv = rowsToCSV(buildExportRows());
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'crm-export.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+};
+
 // Import dropdown toggle (you already have this; keep it)
 $('#importToggle').onclick = () => $('#importMenu').classList.toggle('show');
 document.addEventListener('click', e=>{
@@ -1234,6 +1340,7 @@ renderAll();
 
 </body>
 </html>
+
 
 
 
