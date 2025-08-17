@@ -327,18 +327,20 @@
     </div>
   </div>
 <script>
-/* ===== Data ===== */
-let clients=[], appointments=[], sales=[], outreach=[];
-let currentEditClient=null,currentEditAppt=null,currentEditSale=null,currentEditTodo=null,currentDetailClient=null;
-const fmtUSD=new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'});
+/* =========================
+   Data & Storage
+========================= */
+let clients = [], appointments = [], sales = [], outreach = [];
+let currentEditClient = null, currentEditAppt = null, currentEditSale = null, currentEditTodo = null;
+let currentDetailClient = null;
+const fmtUSD = new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'});
 
-/* ===== Storage ===== */
 function saveData(){
-  localStorage.setItem('crmData',JSON.stringify({clients,appointments,sales,outreach}));
+  localStorage.setItem('crmData', JSON.stringify({clients, appointments, sales, outreach}));
 }
 function loadData(){
-  const d=JSON.parse(localStorage.getItem('crmData')||'{}');
-  clients=(d.clients||[]).map(c=>({
+  const d = JSON.parse(localStorage.getItem('crmData')||'{}');
+  clients = (d.clients||[]).map(c=>({
     ...c,
     styles:c.styles||(c.style?[c.style]:[]),
     brands:c.brands||(c.brand?[c.brand]:[]),
@@ -348,24 +350,28 @@ function loadData(){
     sizeShoe:c.sizeShoe||'',
     initialSale:c.initialSale||0
   }));
-  appointments=d.appointments||[];
-  sales=d.sales||[];
-  outreach=d.outreach||[];
+  appointments = d.appointments||[];
+  sales = d.sales||[];
+  outreach = d.outreach||[];
 }
 loadData();
 
-/* ===== Utils ===== */
-const $=sel=>document.querySelector(sel);
-function closeModal(id){$('#'+id).classList.remove('active');}
-function openModal(id){$('#'+id).classList.add('active');}
-function fullName(c){return `${c.first||''} ${c.last||''}`.trim();}
-function uuid(){return Math.random().toString(36).slice(2,9);}
-function todayStr(){return new Date().toISOString().split('T')[0];}
-function startOfMonth(d=new Date()){return new Date(d.getFullYear(),d.getMonth(),1);}
-function startOfYear(d=new Date()){return new Date(d.getFullYear(),0,1);}
+/* =========================
+   Utils
+========================= */
+const $ = sel => document.querySelector(sel);
+function closeModal(id){ $('#'+id).classList.remove('active'); }
+function openModal(id){ $('#'+id).classList.add('active'); }
+function fullName(c){ return `${c.first||''} ${c.last||''}`.trim(); }
+function uuid(){ return Math.random().toString(36).slice(2,9); }
+function todayStr(){ return new Date().toISOString().split('T')[0]; }
+function startOfMonth(d=new Date()){ return new Date(d.getFullYear(), d.getMonth(), 1); }
+function startOfYear(d=new Date()){ return new Date(d.getFullYear(), 0, 1); }
 
-/* ===== Tabs ===== */
-document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{
+/* =========================
+   Tabs
+========================= */
+document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click', ()=>{
   document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   document.querySelectorAll('.tab-content').forEach(c=>c.style.display='none');
@@ -373,97 +379,103 @@ document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>
   renderAll();
 }));
 
-/* ===== Import/Export/Clear ===== */
-$('#exportBtn').onclick=()=>{
-  const blob=new Blob([JSON.stringify({exportedAt:new Date().toISOString(),version:4,clients,appointments,sales,outreach},null,2)],{type:'application/json'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download='crm-export.json';
+/* =========================
+   Import / Export / Clear
+========================= */
+$('#exportBtn').onclick = ()=>{
+  const blob = new Blob([JSON.stringify({exportedAt:new Date().toISOString(),version:4,clients,appointments,sales,outreach},null,2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'crm-export.json';
   a.click();
   URL.revokeObjectURL(a.href);
 };
-$('#importBtn').onclick=()=>$('#importFile').click();
-$('#importFile').onchange=e=>{
-  const f=e.target.files?.[0]; if(!f) return;
-  const r=new FileReader();
-  r.onload=()=>{
+$('#importBtn').onclick = ()=>$('#importFile').click();
+$('#importFile').onchange = e=>{
+  const f = e.target.files?.[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = ()=>{
     try{
-      const d=JSON.parse(r.result);
-      clients=d.clients||clients;
-      appointments=d.appointments||appointments;
-      sales=d.sales||sales;
-      outreach=d.outreach||outreach;
+      const d = JSON.parse(r.result);
+      clients = d.clients||clients;
+      appointments = d.appointments||appointments;
+      sales = d.sales||sales;
+      outreach = d.outreach||outreach;
       saveData(); renderAll();
       alert('Import complete.');
     }catch(err){ alert('Invalid JSON.'); }
   };
   r.readAsText(f);
 };
-$('#clearBtn').onclick=()=>{
+$('#clearBtn').onclick = ()=>{
   if(!confirm('Clear all data?')) return;
   localStorage.removeItem('crmData');
   clients=[]; appointments=[]; sales=[]; outreach=[];
   saveData(); renderAll();
 };
 
-/* ===== Dashboard ===== */
+/* =========================
+   Dashboard
+========================= */
 function renderDashboard(){
-  // Sales MTD/YTD
   const now=new Date();
-  const m0=startOfMonth(now); const y0=startOfYear(now);
-  const mtd=sales.filter(s=>new Date(s.date)>=m0).reduce((a,b)=>a+b.amount,0);
-  const ytd=sales.filter(s=>new Date(s.date)>=y0).reduce((a,b)=>a+b.amount,0);
-  $('#salesMTD').textContent=fmtUSD.format(mtd);
-  $('#salesYTD').textContent=fmtUSD.format(ytd);
+  const m0=startOfMonth(now), y0=startOfYear(now);
 
-  // Appts MTD/YTD (by status completed or scheduled in range)
-  const apptMTD=appointments.filter(a=>new Date(a.date)>=m0).length;
-  const apptYTD=appointments.filter(a=>new Date(a.date)>=y0).length;
-  $('#apptMTD').textContent=apptMTD;
-  $('#apptYTD').textContent=apptYTD;
+  const mtd = sales.filter(s=>new Date(s.date)>=m0).reduce((a,b)=>a+b.amount,0);
+  const ytd = sales.filter(s=>new Date(s.date)>=y0).reduce((a,b)=>a+b.amount,0);
+  $('#salesMTD').textContent = fmtUSD.format(mtd);
+  $('#salesYTD').textContent = fmtUSD.format(ytd);
 
-  // Past Due Outreach (open + date < today)
+  const apptMTD = appointments.filter(a=>new Date(a.date)>=m0).length;
+  const apptYTD = appointments.filter(a=>new Date(a.date)>=y0).length;
+  $('#apptMTD').textContent = apptMTD;
+  $('#apptYTD').textContent = apptYTD;
+
   const today = todayStr();
   const pastDue = outreach.filter(o=>o.status!=='done' && o.date && o.date<today).length;
-  $('#pastDueOutreach').textContent=pastDue;
+  $('#pastDueOutreach').textContent = pastDue;
 
-  // Simple upcoming list: nearest 6 items across appts + outreach
   const items=[];
   appointments.forEach(a=>items.push({type:'Appointment',date:a.date,desc:a.title}));
   outreach.forEach(o=>items.push({type:o.category||'Outreach',date:o.date,desc:o.title}));
-  items
-    .filter(i=>i.date)
-    .sort((a,b)=>a.date.localeCompare(b.date));
-  $('#upcomingList').innerHTML=items.slice(0,6).map(i=>
+  items.filter(i=>i.date).sort((a,b)=>a.date.localeCompare(b.date));
+  $('#upcomingList').innerHTML = items.slice(0,6).map(i=>
     `<div class="card"><div class="todo-title">${i.type}</div><div class="todo-meta">${new Date(i.date).toLocaleString()} • ${i.desc||''}</div></div>`
   ).join('') || `<div class="empty-state"><div style="font-size:42px;opacity:.6">✨</div><p>No upcoming items</p></div>`;
 }
 
-/* ===== Clients ===== */
+/* =========================
+   Clients
+========================= */
 function renderClients(){
   const list=$('#clientList');
   const q=$('#clientSearch').value.toLowerCase();
   const styles=[...$('#filterStyles').selectedOptions].map(o=>o.value);
   const brand=$('#filterBrand').value.toLowerCase().trim();
-  let src=clients.filter(c=>fullName(c).toLowerCase().includes(q));
-  if(styles.length) src=src.filter(c=>(c.styles||[]).some(s=>styles.includes(s)));
-  if(brand) src=src.filter(c=>(c.brands||[]).some(b=>b.toLowerCase().includes(brand)));
+
+  let src = clients.filter(c=>fullName(c).toLowerCase().includes(q));
+  if(styles.length) src = src.filter(c=>(c.styles||[]).some(s=>styles.includes(s)));
+  if(brand) src = src.filter(c=>(c.brands||[]).some(b=>b.toLowerCase().includes(brand)));
+
   const sort=$('#filterSort').value;
   if(sort==='lastAsc') src.sort((a,b)=>a.last.localeCompare(b.last));
   if(sort==='lastDesc') src.sort((a,b)=>b.last.localeCompare(a.last));
   if(sort==='firstAsc') src.sort((a,b)=>a.first.localeCompare(b.first));
   if(sort==='firstDesc') src.sort((a,b)=>b.first.localeCompare(a.first));
+
   $('#clientCount').textContent=`Total Clients: ${clients.length}`;
   const brands=[...new Set(clients.flatMap(c=>c.brands||[]).filter(Boolean))];
   $('#brandList').innerHTML=brands.map(b=>`<option value="${b}"></option>`).join('');
+
   if(!src.length){
-    list.innerHTML='<div class="empty-state"><div style="font-size:42px;opacity:.6">👥</div><p>No clients</p></div>';
+    list.innerHTML = '<div class="empty-state"><div style="font-size:42px;opacity:.6">👥</div><p>No clients</p></div>';
     return;
   }
-  list.innerHTML=src.map(c=>{
-    const total=sales.filter(s=>s.clientId===c.id).reduce((a,b)=>a+b.amount,0)+(c.initialSale||0);
-    const appts=appointments.filter(a=>a.clientIds?.includes(c.id));
-    const apptList=appts.map(a=>`<li><a href="#" onclick="editAppt('${a.id}')">${a.title} - ${new Date(a.date).toLocaleDateString()}</a></li>`).join('');
+
+  list.innerHTML = src.map(c=>{
+    const total = sales.filter(s=>s.clientId===c.id).reduce((a,b)=>a+b.amount,0) + (c.initialSale||0);
+    const appts = appointments.filter(a=>a.clientIds?.includes(c.id));
+    const apptList = appts.map(a=>`<li><a href="#" onclick="editAppt('${a.id}')">${a.title} - ${new Date(a.date).toLocaleDateString()}</a></li>`).join('');
     return `<div class="card">
       <div class="client-header">
         <div class="client-name">${fullName(c)}</div>
@@ -484,31 +496,24 @@ $('#filterBrand').addEventListener('input',renderClients);
 $('#filterSort').addEventListener('change',renderClients);
 $('#clearFilters').addEventListener('click',()=>{
   [...$('#filterStyles').options].forEach(o=>o.selected=false);
-  $('#filterBrand').value='';
-  $('#filterSort').value='';
-  $('#clientSearch').value='';
-  renderClients();
-  $('#filterMenu').classList.remove('show');
+  $('#filterBrand').value=''; $('#filterSort').value=''; $('#clientSearch').value='';
+  renderClients(); $('#filterMenu').classList.remove('show');
 });
 $('#filterToggle').onclick=()=>$('#filterMenu').classList.toggle('show');
-document.addEventListener('click',e=>{if(!$('#filterDropdown').contains(e.target))$('#filterMenu').classList.remove('show');});
+document.addEventListener('click',e=>{
+  if(!$('#filterDropdown').contains(e.target)) $('#filterMenu').classList.remove('show');
+});
 
 $('#openClientBtn').onclick=()=>{
   currentEditClient=null;
   $('#clientModalTitle').textContent='New Client';
-  $('#clientFirst').value='';
-  $('#clientLast').value='';
-  $('#clientEmail').value='';
-  $('#clientPhone').value='';
+  $('#clientFirst').value=''; $('#clientLast').value='';
+  $('#clientEmail').value=''; $('#clientPhone').value='';
   $('#clientBirthday').value='';
   [...$('#clientStyles').options].forEach(o=>o.selected=false);
   $('#clientBrands').value='';
-  $('#clientSizeShirt').value='';
-  $('#clientSizeDress').value='';
-  $('#clientSizePant').value='';
-  $('#clientSizeShoe').value='';
-  $('#clientInitial').value='';
-  $('#clientNotes').value='';
+  $('#clientSizeShirt').value=''; $('#clientSizeDress').value=''; $('#clientSizePant').value=''; $('#clientSizeShoe').value='';
+  $('#clientInitial').value=''; $('#clientNotes').value='';
   openModal('clientModal');
 };
 $('#saveClientBtn').onclick=()=>{
@@ -532,14 +537,13 @@ $('#saveClientBtn').onclick=()=>{
     Object.assign(currentEditClient,obj);
   }else{
     clients.push(obj);
-    // auto-create seasonal for new client
-    createSeasonalOutreach(obj);
+    createSeasonalOutreach(obj); // auto-create 4 seasonal tasks
   }
   saveData(); closeModal('clientModal'); renderAll();
 };
 function editClient(id){
-  currentEditClient=clients.find(c=>c.id===id);
-  if(!currentEditClient)return;
+  currentEditClient = clients.find(c=>c.id===id);
+  if(!currentEditClient) return;
   $('#clientModalTitle').textContent='Edit Client';
   $('#clientFirst').value=currentEditClient.first||'';
   $('#clientLast').value=currentEditClient.last||'';
@@ -557,20 +561,23 @@ function editClient(id){
   openModal('clientModal');
 }
 function deleteClient(id){
-  if(!confirm('Delete client?'))return;
-  clients=clients.filter(c=>c.id!==id);
-  outreach=outreach.filter(o=>!o.clientIds?.includes(id));
-  appointments.forEach(a=>a.clientIds=a.clientIds?.filter(cid=>cid!==id)||[]);
-  sales=sales.filter(s=>s.clientId!==id);
+  if(!confirm('Delete client?')) return;
+  clients = clients.filter(c=>c.id!==id);
+  outreach = outreach.filter(o=>!o.clientIds?.includes(id));
+  appointments.forEach(a=>a.clientIds = a.clientIds?.filter(cid=>cid!==id)||[]);
+  sales = sales.filter(s=>s.clientId!==id);
   saveData(); renderAll();
 }
+
+/* =========================
+   Client Detail (with seasonal & clickable timeline)
+========================= */
 function viewClient(id){
   currentDetailClient = id;
   const c = clients.find(x => x.id === id);
   if (!c) return;
 
   $('#clientDetailName').textContent = fullName(c);
-
   const total = sales.filter(s => s.clientId === id).reduce((a,b)=>a+b.amount,0) + (c.initialSale || 0);
   $('#clientInfo').innerHTML =
     `<div>Email: ${c.email || ''}</div>` +
@@ -583,75 +590,71 @@ function viewClient(id){
     `<div>Running Sales: ${fmtUSD.format(total)}</div>` +
     `<div>Notes: ${c.notes || ''}</div>`;
 
-  // ------- Seasonal Updates (per-client checkmarks) -------
+  // Seasonal checkboxes (per client)
   const yr = new Date().getFullYear();
-  const seasonDates = { Spring: '03-01', Summer: '06-01', Fall: '09-01', Winter: '12-01' };
+  const seasonDates = { Spring:'03-01', Summer:'06-01', Fall:'09-01', Winter:'12-01' };
   const seasons = ['Spring','Summer','Fall','Winter'];
+  let createdAny = false;
 
-  // ensure container exists in the modal DOM:
-  // <h4>Seasonal Updates</h4><div id="clientSeasons"></div>
-  const html = seasons.map(season => {
-    // find or create the outreach row for this client + season
+  const seasonHTML = seasons.map(season=>{
     let t = outreach.find(o =>
-      o.category === 'Seasonal' &&
-      o.title === `${season} Update` &&
+      o.category==='Seasonal' &&
+      o.title===`${season} Update` &&
       Array.isArray(o.clientIds) &&
       o.clientIds.includes(id)
     );
-    let created = false;
-// ...
-if (!t) {
-  t = {
-    id: uuid(),
-    title: `${season} Update`,
-    category: 'Seasonal',
-    date: `${yr}-${seasonDates[season]}`,
-    status: 'open',
-    clientIds: [id]
-  };
-  outreach.push(t);
-  created = true;
-}
-// ...
-const box = document.getElementById('clientSeasons');
-if (box) box.innerHTML = html;
-if (created) saveData();
+    if(!t){
+      t = { id:uuid(), title:`${season} Update`, category:'Seasonal', date:`${yr}-${seasonDates[season]}`, status:'open', clientIds:[id] };
+      outreach.push(t);
+      createdAny = true;
+    }
+    const checked = t.status==='done' ? 'checked' : '';
+    return `<label style="display:flex;align-items:center;gap:8px;margin:6px 0">
+      <input type="checkbox" ${checked} onchange="seasonToggle('${t.id}', this.checked)"> ${season}
+    </label>`;
+  }).join('');
+  const seasonBox = $('#clientSeasons');
+  if(seasonBox) seasonBox.innerHTML = seasonHTML;
+  if(createdAny) saveData();
 
-  // ------- /Seasonal Updates -------
-
-  // timeline
+  // Timeline (clickable "Open" buttons)
   const timeline = [];
-  appointments.filter(a => a.clientIds?.includes(id)).forEach(a => timeline.push({type:'Appointment', date:a.date, desc:a.title}));
-  sales.filter(s => s.clientId === id).forEach(s => timeline.push({type:'Sale', date:s.date, desc:fmtUSD.format(s.amount)}));
-  outreach.filter(o => o.clientIds?.includes(id)).forEach(o => timeline.push({type:'Outreach', date:o.date, desc:o.title}));
-  timeline.sort((a,b)=>a.date.localeCompare(b.date));
+  appointments
+    .filter(a=>a.clientIds?.includes(id))
+    .forEach(a=>timeline.push({type:'Appointment', date:a.date, desc:a.title, open:`editAppt('${a.id}')`}));
+  sales
+    .filter(s=>s.clientId===id)
+    .forEach(s=>timeline.push({type:'Sale', date:s.date, desc:fmtUSD.format(s.amount)+(s.desc?` • ${s.desc}`:''), open:`editSale('${s.id}')`}));
+  outreach
+    .filter(o=>o.clientIds?.includes(id))
+    .forEach(o=>timeline.push({type:'Outreach', date:o.date, desc:o.title, open:`editTodo('${o.id}')`}));
 
-  $('#clientTimeline').innerHTML = timeline.map(t =>
-    `<div class="todo-item">
-       <div class="todo-title">${t.type}: ${t.desc}</div>
-       <div class="todo-meta">${new Date(t.date).toLocaleString()}</div>
-     </div>`).join('');
+  timeline.sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  $('#clientTimeline').innerHTML = timeline.map(t=>`
+    <div class="todo-item">
+      <div class="todo-title">${t.type}: ${t.desc}</div>
+      <div class="todo-meta">${t.date ? new Date(t.date).toLocaleString() : ''}</div>
+      <div class="buttons" style="margin-top:8px;justify-content:flex-end">
+        <button class="btn small" onclick="${t.open}">Open</button>
+      </div>
+    </div>
+  `).join('');
 
   openModal('clientDetailModal');
 }
+
+/* create 4 seasonal tasks for a new client */
 function createSeasonalOutreach(client){
   const yr = new Date().getFullYear();
-  const seasons = [['Spring','03-01'],['Summer','06-01'],['Fall','09-01'],['Winter','12-01']];
-  seasons.forEach(([season, md])=>{
-    outreach.push({
-      id: uuid(),
-      title: `${season} Update`,
-      category: 'Seasonal',
-      date: `${yr}-${md}`,
-      status: 'open',
-      clientIds: [client.id]
-    });
+  [['Spring','03-01'],['Summer','06-01'],['Fall','09-01'],['Winter','12-01']].forEach(([season,md])=>{
+    outreach.push({ id:uuid(), title:`${season} Update`, category:'Seasonal', date:`${yr}-${md}`, status:'open', clientIds:[client.id] });
   });
   saveData();
 }
 
-
-/* ===== Appointments ===== */
+/* =========================
+   Appointments
+========================= */
 function renderAppointments(){
   const list=$('#apptList');
   if(!appointments.length){
@@ -674,20 +677,20 @@ function renderAppointments(){
     </div>`).join('');
 }
 $('#openApptBtn').onclick=()=>openAppointmentModal();
-function openAppointmentModal(id,preClients=[]){
-  currentEditAppt=id?appointments.find(a=>a.id===id):null;
-  $('#apptModalTitle').textContent=id?'Edit Appointment':'Schedule Appointment';
-  $('#apptTitle').value=currentEditAppt?.title||'';
-  $('#apptDate').value=currentEditAppt?.date?currentEditAppt.date.slice(0,16):'';
-  $('#apptStatus').value=currentEditAppt?.status||'scheduled';
-  $('#apptNotes').value=currentEditAppt?.notes||'';
-  populateClientSelect('#apptClients',currentEditAppt?.clientIds||preClients);
+function openAppointmentModal(id, preClients=[]){
+  currentEditAppt = id ? appointments.find(a=>a.id===id) : null;
+  $('#apptModalTitle').textContent = id ? 'Edit Appointment' : 'Schedule Appointment';
+  $('#apptTitle').value = currentEditAppt?.title||'';
+  $('#apptDate').value = currentEditAppt?.date ? currentEditAppt.date.slice(0,16) : '';
+  $('#apptStatus').value = currentEditAppt?.status||'scheduled';
+  $('#apptNotes').value = currentEditAppt?.notes||'';
+  populateClientSelect('#apptClients', currentEditAppt?.clientIds||preClients);
   openModal('apptModal');
 }
-function populateClientSelect(sel,vals=[]){
+function populateClientSelect(sel, vals=[]){
   const s=$(sel);
-  s.innerHTML=clients.map(c=>`<option value="${c.id}">${fullName(c)}</option>`).join('');
-  [...s.options].forEach(o=>{if(vals.includes(o.value))o.selected=true;});
+  s.innerHTML = clients.map(c=>`<option value="${c.id}">${fullName(c)}</option>`).join('');
+  [...s.options].forEach(o=>{ if(vals.includes(o.value)) o.selected=true; });
 }
 $('#saveApptBtn').onclick=()=>{
   const obj={
@@ -698,28 +701,30 @@ $('#saveApptBtn').onclick=()=>{
     notes:$('#apptNotes').value,
     clientIds:[...$('#apptClients').selectedOptions].map(o=>o.value)
   };
-  const wasCompleted=currentEditAppt?.status==='completed';
-  if(currentEditAppt){Object.assign(currentEditAppt,obj);}else{appointments.push(obj);}
+  const wasCompleted = currentEditAppt?.status==='completed';
+  if(currentEditAppt){ Object.assign(currentEditAppt,obj); } else { appointments.push(obj); }
   saveData(); closeModal('apptModal');
-  // When newly marked completed, create post-appt follow-ups
+
   if(obj.status==='completed' && !wasCompleted){
     obj.clientIds.forEach(cid=>{
-      outreach.push({id:uuid(),title:'Post-Appointment Follow-up',category:'Follow-up',date:todayStr(),status:'open',clientIds:[cid],appointmentId:obj.id});
+      outreach.push({id:uuid(), title:'Post-Appointment Follow-up', category:'Follow-up', date:todayStr(), status:'open', clientIds:[cid], appointmentId:obj.id});
     });
     saveData();
   }
   renderAll();
 };
-function editAppt(id){openAppointmentModal(id);}
+function editAppt(id){ openAppointmentModal(id); }
 function deleteAppt(id){
-  if(!confirm('Delete appointment?'))return;
-  appointments=appointments.filter(a=>a.id!==id);
-  outreach=outreach.filter(o=>o.appointmentId!==id);
-  sales.forEach(s=>{if(s.appointmentId===id)s.appointmentId='';});
+  if(!confirm('Delete appointment?')) return;
+  appointments = appointments.filter(a=>a.id!==id);
+  outreach = outreach.filter(o=>o.appointmentId!==id);
+  sales.forEach(s=>{ if(s.appointmentId===id) s.appointmentId=''; });
   saveData(); renderAll();
 }
 
-/* ===== Sales ===== */
+/* =========================
+   Sales
+========================= */
 function renderSales(){
   const list=$('#saleList');
   if(!sales.length){
@@ -727,8 +732,8 @@ function renderSales(){
     return;
   }
   sales.sort((a,b)=>a.date.localeCompare(b.date));
-  list.innerHTML=sales.map(s=>{
-    const c=clients.find(x=>x.id===s.clientId);
+  list.innerHTML = sales.map(s=>{
+    const c = clients.find(x=>x.id===s.clientId);
     return `<div class="card">
       <div class="client-header">
         <div>
@@ -744,20 +749,20 @@ function renderSales(){
   }).join('');
 }
 $('#openSaleBtn').onclick=()=>openSaleModal();
-function openSaleModal(id,preClient){
-  currentEditSale=id?sales.find(s=>s.id===id):null;
-  $('#saleModalTitle').textContent=id?'Edit Sale':'Log Sale';
-  populateClientSelect('#saleClient',[currentEditSale?.clientId||preClient].filter(Boolean));
-  $('#saleAmount').value=currentEditSale?.amount||'';
-  $('#saleDate').value=currentEditSale?.date||todayStr();
-  $('#saleDesc').value=currentEditSale?.desc||'';
-  populateApptSelect('#saleAppt',currentEditSale?.appointmentId||'');
+function openSaleModal(id, preClient){
+  currentEditSale = id ? sales.find(s=>s.id===id) : null;
+  $('#saleModalTitle').textContent = id ? 'Edit Sale' : 'Log Sale';
+  populateClientSelect('#saleClient', [currentEditSale?.clientId||preClient].filter(Boolean));
+  $('#saleAmount').value = currentEditSale?.amount||'';
+  $('#saleDate').value = currentEditSale?.date||todayStr();
+  $('#saleDesc').value = currentEditSale?.desc||'';
+  populateApptSelect('#saleAppt', currentEditSale?.appointmentId||'');
   openModal('saleModal');
 }
-function populateApptSelect(sel,val){
+function populateApptSelect(sel, val){
   const s=$(sel);
-  s.innerHTML='<option value="">None</option>'+appointments.map(a=>`<option value="${a.id}">${a.title}</option>`).join('');
-  s.value=val||'';
+  s.innerHTML = '<option value="">None</option>'+appointments.map(a=>`<option value="${a.id}">${a.title}</option>`).join('');
+  s.value = val||'';
 }
 $('#saveSaleBtn').onclick=()=>{
   const obj={
@@ -768,39 +773,42 @@ $('#saveSaleBtn').onclick=()=>{
     desc:$('#saleDesc').value,
     appointmentId:$('#saleAppt').value
   };
-  if(currentEditSale){Object.assign(currentEditSale,obj);}else{sales.push(obj);}
+  if(currentEditSale){ Object.assign(currentEditSale,obj); } else { sales.push(obj); }
   saveData(); closeModal('saleModal'); renderAll();
 };
-function editSale(id){openSaleModal(id);}
+function editSale(id){ openSaleModal(id); }
 function deleteSale(id){
-  if(!confirm('Delete sale?'))return;
-  sales=sales.filter(s=>s.id!==id);
+  if(!confirm('Delete sale?')) return;
+  sales = sales.filter(s=>s.id!==id);
   saveData(); renderAll();
 }
 
-/* ===== Outreach ===== */
+/* =========================
+   Outreach
+========================= */
 function renderTodos(){
-  const list=$('#todoList'), now=new Date(), isoToday=todayStr();
+  const list=$('#todoList');
   if(!outreach.length){
     list.innerHTML='<div class="empty-state"><div style="font-size:42px;opacity:.6">📣</div><p>No outreach</p></div>';
     return;
   }
-  const row=o=>{
+  const row = o=>{
     const names=(o.clientIds||[]).map(id=>fullName(clients.find(c=>c.id===id)||{})).filter(Boolean);
-    const due=new Date(o.date);
-    const meta = `${o.category||'Outreach'} • ${isNaN(due)?'':due.toLocaleDateString()} • ${o.status||'open'}`;
+    const due=o.date?new Date(o.date):null;
+    const meta=`${o.category||'Outreach'} • ${due?due.toLocaleDateString():'N/A'} • ${o.status||'open'}`;
     return `<div class="todo-item">
       <div class="todo-title">${o.title||'(no title)'}</div>
       <div class="todo-meta">${meta}</div>
       <div class="todo-clients">${names.map(n=>`<span class="todo-client">${n}</span>`).join('')}</div>
       <div class="buttons" style="margin-top:8px">
         <button class="btn small" onclick="toggleTodoStatus('${o.id}')">${o.status==='done'?'Reopen':'Mark Done'}</button>
+        <button class="btn small" onclick="editTodo('${o.id}')">Edit</button>
         <button class="btn small danger" onclick="deleteTodo('${o.id}')">Delete</button>
       </div>
     </div>`;
   };
   const sorted=[...outreach].sort((a,b)=>(a.date||'').localeCompare(b.date||''));
-  list.innerHTML=sorted.map(row).join('');
+  list.innerHTML = sorted.map(row).join('');
 }
 function toggleTodoStatus(id){
   const o=outreach.find(x=>x.id===id); if(!o) return;
@@ -809,21 +817,22 @@ function toggleTodoStatus(id){
 }
 function deleteTodo(id){
   if(!confirm('Delete outreach?')) return;
-  outreach=outreach.filter(o=>o.id!==id);
+  outreach = outreach.filter(o=>o.id!==id);
   saveData(); renderAll();
 }
 $('#openTodoBtn').onclick=()=>openTodoModal();
-function openTodoModal(id,preClients=[]){
-  currentEditTodo=id?outreach.find(o=>o.id===id):null;
-  $('#todoModalTitle').textContent=id?'Edit Outreach':'Add Outreach';
-  $('#todoTitle').value=currentEditTodo?.title||'';
-  $('#todoDate').value=currentEditTodo?.date||todayStr();
-  $('#todoCategory').value=currentEditTodo?.category||'Follow-up';
-  $('#todoNotes').value=currentEditTodo?.notes||'';
-  populateClientSelect('#todoClients',currentEditTodo?.clientIds||preClients);
-  populateApptSelect('#todoAppt',currentEditTodo?.appointmentId||'');
+function openTodoModal(id, preClients=[]){
+  currentEditTodo = id ? outreach.find(o=>o.id===id) : null;
+  $('#todoModalTitle').textContent = id ? 'Edit Outreach' : 'Add Outreach';
+  $('#todoTitle').value = currentEditTodo?.title||'';
+  $('#todoDate').value = currentEditTodo?.date||todayStr();
+  $('#todoCategory').value = currentEditTodo?.category||'Follow-up';
+  $('#todoNotes').value = currentEditTodo?.notes||'';
+  populateClientSelect('#todoClients', currentEditTodo?.clientIds||preClients);
+  populateApptSelect('#todoAppt', currentEditTodo?.appointmentId||'');
   openModal('todoModal');
 }
+function editTodo(id){ openTodoModal(id); }
 $('#saveTodoBtn').onclick=()=>{
   const obj={
     id:currentEditTodo?.id||uuid(),
@@ -835,117 +844,83 @@ $('#saveTodoBtn').onclick=()=>{
     appointmentId:$('#todoAppt').value,
     status:currentEditTodo?.status||'open'
   };
-  if(currentEditTodo){Object.assign(currentEditTodo,obj);}else{outreach.push(obj);}
+  if(currentEditTodo){ Object.assign(currentEditTodo,obj); } else { outreach.push(obj); }
   saveData(); closeModal('todoModal'); renderAll();
 };
-</script>
-<script>
-/* ===== Birthdays ===== */
+
+/* =========================
+   Birthdays
+========================= */
 function renderBirthdays(){
   const cal=$('#birthdayCalendar'), list=$('#birthdayList');
   if(!cal||!list) return;
-
-  // simple current-month calendar grid (1..28)
   cal.innerHTML = Array.from({length:28},(_,i)=>`<div><div class="day">${i+1}</div></div>`).join('');
-
-  // list all birthdays
-  const bdays=clients
-    .filter(c=>c.birthday)
-    .map(c=>({c, d:new Date(c.birthday)}))
+  const bdays = clients.filter(c=>c.birthday).map(c=>({c, d:new Date(c.birthday)}))
     .sort((a,b)=>a.d.getMonth()-b.d.getMonth() || a.d.getDate()-b.d.getDate());
-
-  list.innerHTML = bdays.map(({c,d})=>
-    `<div class="card">
-       <div class="client-header">
-         <div class="client-name">${fullName(c)}</div>
-       </div>
-       <div class="muted">${d.toLocaleDateString()}</div>
-     </div>`).join('') || '<div class="empty-state"><p>No birthdays on file</p></div>';
+  list.innerHTML = bdays.map(({c,d})=>`
+    <div class="card">
+      <div class="client-header"><div class="client-name">${fullName(c)}</div></div>
+      <div class="muted">${d.toLocaleDateString()}</div>
+    </div>`).join('') || '<div class="empty-state"><p>No birthdays on file</p></div>';
 }
 
-/* ===== Seasonal: render + toggle + backfill ===== */
-function renderSeasonal() {
+/* =========================
+   Seasonal (table)
+========================= */
+function renderSeasonal(){
   const body = document.querySelector('#seasonTable tbody');
-  if (!body) return;
-  if (!clients.length) { body.innerHTML = ''; return; }
+  if(!body) return;
+  if(!clients.length){ body.innerHTML=''; return; }
 
   const yr = new Date().getFullYear();
-  const defs = [
-    ['Spring','03-01'],
-    ['Summer','06-01'],
-    ['Fall','09-01'],
-    ['Winter','12-01']
-  ];
+  const defs = [['Spring','03-01'],['Summer','06-01'],['Fall','09-01'],['Winter','12-01']];
 
-  body.innerHTML = clients.map(c => {
-    const cells = defs.map(([season, md]) => {
-      // find or create the seasonal outreach row for this client+season
+  body.innerHTML = clients.map(c=>{
+    const cells = defs.map(([season,md])=>{
       let t = outreach.find(o =>
-        o.category === 'Seasonal' &&
-        o.title === `${season} Update` &&
+        o.category==='Seasonal' &&
+        o.title===`${season} Update` &&
         Array.isArray(o.clientIds) &&
         o.clientIds.includes(c.id)
       );
-      if (!t) {
-        t = {
-          id: uuid(),
-          title: `${season} Update`,
-          category: 'Seasonal',
-          date: `${yr}-${md}`,
-          status: 'open',
-          clientIds: [c.id]
-        };
+      if(!t){
+        t = { id:uuid(), title:`${season} Update`, category:'Seasonal', date:`${yr}-${md}`, status:'open', clientIds:[c.id] };
         outreach.push(t);
       }
-      const checked = t.status === 'done';
-      return `<td><input type="checkbox" onchange="seasonToggle('${t.id}', this.checked)" ${checked ? 'checked' : ''}></td>`;
+      const checked = t.status==='done' ? 'checked' : '';
+      return `<td><input type="checkbox" ${checked} onchange="seasonToggle('${t.id}', this.checked)"></td>`;
     }).join('');
     return `<tr><td>${fullName(c)}</td>${cells}</tr>`;
   }).join('');
-
   saveData();
 }
-function seasonToggle(id, val) {
-  const t = outreach.find(o => o.id === id);
-  if (t) {
+function seasonToggle(id, val){
+  const t = outreach.find(o=>o.id===id);
+  if(t){
     t.status = val ? 'done' : 'open';
-    saveData();
-    renderAll(); // keep dashboard & lists in sync
+    saveData(); renderAll();
   }
 }
-// One-time backfill for existing clients missing seasonal tasks
-function backfillSeasonalForAll() {
-  const yr = new Date().getFullYear();
-  const defs = [
-    ['Spring','03-01'],
-    ['Summer','06-01'],
-    ['Fall','09-01'],
-    ['Winter','12-01']
-  ];
-  clients.forEach(c => {
-    defs.forEach(([season, md]) => {
-      const exists = outreach.some(o =>
-        o.category === 'Seasonal' &&
-        o.title === `${season} Update` &&
-        Array.isArray(o.clientIds) &&
-        o.clientIds.includes(c.id)
+function backfillSeasonalForAll(){
+  const yr=new Date().getFullYear();
+  const defs=[['Spring','03-01'],['Summer','06-01'],['Fall','09-01'],['Winter','12-01']];
+  clients.forEach(c=>{
+    defs.forEach(([season,md])=>{
+      const exists = outreach.some(o=>
+        o.category==='Seasonal' && o.title===`${season} Update` &&
+        Array.isArray(o.clientIds) && o.clientIds.includes(c.id)
       );
-      if (!exists) {
-        outreach.push({
-          id: uuid(),
-          title: `${season} Update`,
-          category: 'Seasonal',
-          date: `${yr}-${md}`,
-          status: 'open',
-          clientIds: [c.id]
-        });
+      if(!exists){
+        outreach.push({ id:uuid(), title:`${season} Update`, category:'Seasonal', date:`${yr}-${md}`, status:'open', clientIds:[c.id] });
       }
     });
   });
   saveData();
 }
 
-/* ===== Render All ===== */
+/* =========================
+   Render All & Boot
+========================= */
 function renderAll(){
   renderDashboard?.();
   renderClients?.();
@@ -956,10 +931,11 @@ function renderAll(){
   renderSeasonal?.();
 }
 
-/* ===== Boot ===== */
-backfillSeasonalForAll(); // ensure existing clients have seasonal
+backfillSeasonalForAll(); // ensure existing clients have seasonal tasks
 renderAll();
 </script>
+
 </body>
 </html>
+
 
