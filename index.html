@@ -497,30 +497,50 @@ $('#clearBtn').onclick = ()=>{
    Dashboard
 ========================= */
 function renderDashboard(){
-  const now=new Date();
-  const m0=startOfMonth(now), y0=startOfYear(now);
+  const now = new Date();
+  const m0 = startOfMonth(now), y0 = startOfYear(now);
 
-  const mtd = sales.filter(s=>new Date(s.date)>=m0).reduce((a,b)=>a+b.amount,0);
-  const ytd = sales.filter(s=>new Date(s.date)>=y0).reduce((a,b)=>a+b.amount,0);
+  // Sales cards
+  const mtd = sales.filter(s => new Date(s.date) >= m0).reduce((a,b)=>a + (s.amount||0), 0);
+  const ytd = sales.filter(s => new Date(s.date) >= y0).reduce((a,b)=>a + (s.amount||0), 0);
   $('#salesMTD').textContent = fmtUSD.format(mtd);
   $('#salesYTD').textContent = fmtUSD.format(ytd);
 
-  const apptMTD = appointments.filter(a=>new Date(a.date)>=m0).length;
-  const apptYTD = appointments.filter(a=>new Date(a.date)>=y0).length;
+  // Appointment cards
+  const apptMTD = appointments.filter(a => new Date(a.date) >= m0).length;
+  const apptYTD = appointments.filter(a => new Date(a.date) >= y0).length;
   $('#apptMTD').textContent = apptMTD;
   $('#apptYTD').textContent = apptYTD;
 
+  // Past Due Outreach — exclude Seasonal and only count open
   const today = todayStr();
-  const pastDue = outreach.filter(o=>o.status!=='done' && o.date && o.date<today).length;
+  const pastDue = outreach.filter(o =>
+    o.status !== 'done' &&
+    o.category !== 'Seasonal' &&
+    o.date && o.date < today
+  ).length;
   $('#pastDueOutreach').textContent = pastDue;
 
-  const items=[];
-  appointments.forEach(a=>items.push({type:'Appointment',date:a.date,desc:a.title}));
-  outreach.forEach(o=>items.push({type:o.category||'Outreach',date:o.date,desc:o.title}));
-  items.filter(i=>i.date).sort((a,b)=>a.date.localeCompare(b.date));
-  $('#upcomingList').innerHTML = items.slice(0,6).map(i=>
-    `<div class="card"><div class="todo-title">${i.type}</div><div class="todo-meta">${new Date(i.date).toLocaleString()} • ${i.desc||''}</div></div>`
-  ).join('') || `<div class="empty-state"><div style="font-size:42px;opacity:.6">✨</div><p>No upcoming items</p></div>`;
+  // Upcoming list — appointments + NON-seasonal, open outreach only
+  const items = [
+    ...appointments.map(a => ({type:'Appointment', date:a.date, desc:a.title})),
+    ...outreach
+      .filter(o => o.status !== 'done' && o.category !== 'Seasonal' && o.date)
+      .map(o => ({type:o.category || 'Outreach', date:o.date, desc:o.title}))
+  ].filter(i => i.date);
+
+  items.sort((a,b) => a.date.localeCompare(b.date));
+
+  $('#upcomingList').innerHTML = items.slice(0, 6).map(i =>
+    `<div class="card">
+       <div class="todo-title">${i.type}</div>
+       <div class="todo-meta">${new Date(i.date).toLocaleString()} • ${i.desc || ''}</div>
+     </div>`
+  ).join('') || `
+    <div class="empty-state">
+      <div style="font-size:42px;opacity:.6">✨</div>
+      <p>No upcoming items</p>
+    </div>`;
 }
 
 /* =========================
@@ -1016,6 +1036,7 @@ renderAll();
 
 </body>
 </html>
+
 
 
 
