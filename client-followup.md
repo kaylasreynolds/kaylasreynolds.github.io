@@ -1,4 +1,6 @@
+---
 layout: page
 title: "Client Follow Up"
-permalink: /clientfollowup
+permalink: /client/
+---
 
